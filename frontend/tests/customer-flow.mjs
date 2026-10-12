@@ -40,8 +40,17 @@ async function openOffer(shop, index = 0) {
 }
 async function pendingOrder(shop, title) {
   const item = page.locator('article.order').filter({ has: page.getByRole('heading', { name: shop, exact: true }) }).filter({ hasText: title }).first()
-  await item.getByRole('button', { name: '确认出票', exact: true }).waitFor({ timeout: 15000 })
+  await item.getByRole('button', { name: /^(确认出票|模拟支付)$/ }).waitFor({ timeout: 15000 })
   return item
+}
+async function confirmOrder(item) {
+  const simulated = item.getByRole('button', { name: '模拟支付', exact: true })
+  if (await simulated.count()) {
+    await simulated.click()
+    await page.getByRole('button', { name: '确认模拟支付', exact: true }).click()
+    await page.getByText('支付成功', { exact: true }).waitFor()
+    await page.getByRole('button', { name: '关闭', exact: true }).click()
+  } else await item.getByRole('button', { name: '确认出票', exact: true }).click()
 }
 try {
   await test('public catalog, filters and desktop layout', async () => {
@@ -79,7 +88,7 @@ try {
     await page.getByRole('button', { name: '立即抢票', exact: true }).first().click()
     const item = await pendingOrder('星河音乐节', '学生单人票')
     await screenshot('desktop-pending-order')
-    await item.getByRole('button', { name: '确认出票', exact: true }).click()
+    await confirmOrder(item)
     await until(async () => (await item.locator('.status').innerText()) === '出票成功', 'confirmation not reflected')
     await page.getByRole('button', { name: '查看历史查询', exact: true }).click()
     await page.getByLabel('历史订单结果').getByText('订单记录 · 共', { exact: false }).waitFor({ timeout: 15000 })
@@ -132,7 +141,7 @@ try {
     const data = await page.evaluate(async key => (await (await fetch(`/v2/account/requests/by-key/${key}`)).json()).item, firstKey)
     assert.equal(data.id, firstId)
     assert.equal(await page.locator('article.order').filter({ hasText: '新生脱口秀专场' }).count(), 1)
-    await item.getByRole('button', { name: '确认出票', exact: true }).click()
+    await confirmOrder(item)
     await until(async () => (await item.locator('.status').innerText()) === '出票成功', 'recovered order not confirmed')
   })
   await test('mobile catalog, dialog, keyboard and orders layout', async () => {

@@ -1,23 +1,46 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { ArrowRight, BrainCircuit, CalendarDays, Camera, Check, ChevronLeft, ChevronRight, Clock3, Dumbbell, Eye, EyeOff, Film, Grid2X2, Info, ListOrdered, LogOut, MapPin, Mic2, Navigation, Palette, RefreshCw, Search, ShieldCheck, Sparkles, Star, Ticket, Timer, Trophy, UserRound, Users, X } from 'lucide-react'
+import { ArrowRight, BrainCircuit, CalendarDays, Camera, Check, ChevronLeft, ChevronRight, Clock3, Dumbbell, Eye, EyeOff, Film, Grid2X2, Heart, Info, ListOrdered, LogOut, MapPin, Mic2, Navigation, Palette, RefreshCw, Search, ShieldCheck, Sparkles, Star, Ticket, Timer, Trophy, UserRound, Users, X } from 'lucide-react'
 import { api, bindAccount, explain, readPending, remember, forget } from './api'
 import Planner from './Planner'
 import Payment from './Payment'
 import './styles.css'
 import './ticket.css'
+import './experience.css'
 
 const sandboxPayments = import.meta.env.VITE_SANDBOX_PAYMENTS === 'true'
 
 const money = cents => (cents / 100).toFixed(2).replace(/\.00$/, '')
 const when = value => new Date(value).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false })
 const sessionWhen = value => new Date(value).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false })
+function cardDate(value) {
+  if (!value || !Number.isFinite(Date.parse(value))) return null
+  const parts = new Intl.DateTimeFormat('zh-CN', { timeZone: 'Asia/Shanghai', month: 'numeric', day: '2-digit' }).formatToParts(new Date(value))
+  return { month: parts.find(x => x.type === 'month').value, day: parts.find(x => x.type === 'day').value }
+}
+const savedKey = 'fun-ticket.saved.v1'
+function readSaved() {
+  try {
+    const value = JSON.parse(localStorage.getItem(savedKey) || '[]')
+    return Array.isArray(value) ? value.filter(x => Number.isSafeInteger(x?.id) && x.id > 0 && typeof x.name === 'string' && typeof x.category === 'string' && typeof x.area === 'string' && typeof x.imagePath === 'string' && Number.isFinite(x.rating)).slice(0, 50) : []
+  } catch { return [] }
+}
 const labels = { ACCEPTED: '排队处理中', SUCCEEDED: '已生成订单', REJECTED: '未抢到', EXPIRED: '已过期', PENDING_CONFIRM: '待支付', CONFIRMED: '出票成功', CANCELLED: '已取消' }
 const waitlistLabels = { WAITING: '候补中', PROMOTING: '正在补位', PROMOTED: '已补位', CANCELLED: '已退出', EXPIRED: '已结束' }
 const phase = item => item.orderState || item.state
 const distance = meters => meters < 1000 ? `${meters}m` : `${(meters / 1000).toFixed(1)}km`
 const categoryIcons = { '音乐演出': Mic2, '戏剧舞台': Ticket, '校园赛事': Trophy, '讲座论坛': BrainCircuit, '社团活动': Users, '展览市集': Camera, '运动体验': Dumbbell, '电影放映': Film, '创意工坊': Palette }
 const categoryOrder = ['音乐演出', '戏剧舞台', '校园赛事', '讲座论坛', '社团活动', '展览市集', '运动体验', '电影放映', '创意工坊']
+function EventCard({ shop, saved, open, toggle }) {
+  const date = cardDate(shop.nextSessionAt)
+  return <article className="shop-card">
+    <button className="card-main" onClick={() => open(shop.id)} aria-label={`查看${shop.name}`}>
+      <div className="shop-image"><img src={shop.imagePath} decoding="async" alt={shop.name + '活动示意'}/>{date && <span className="event-date"><b>{date.day}</b><small>{date.month}月</small></span>}{shop.totalAvailable > 0 ? <em>余 {shop.totalAvailable} 张</em> : <em className="sold-out">查看候补</em>}</div>
+      <div className="shop-content"><p className="event-kicker"><span className="tag">{shop.category}</span><span className="muted small"><MapPin size={12}/>{shop.area}</span></p><h2>{shop.name}</h2><div className="shop-rating"><strong><Star size={13} fill="currentColor"/>{shop.rating.toFixed(1)}</strong><span>{shop.reviewCount} 人关注</span><span>近期参与 {shop.monthlySales}</span><span><Navigation size={12}/>{distance(shop.distanceMeters)}</span></div><p className="description">{shop.description}</p><div className="shop-facts"><span><Ticket size={14}/>{shop.offerCount} 个票档</span><span>余 {shop.totalAvailable} 张</span>{shop.nextSessionAt && <span><CalendarDays size={14}/>{sessionWhen(shop.nextSessionAt)}</span>}</div><div className="shop-bottom"><span>{shop.fromPrice != null ? <><b className="price"><small>¥</small>{money(shop.fromPrice)}</b><span className="muted small"> 起</span></> : <span className="muted">暂无在售票档</span>}</span><span className="shop-action">查看票档 <ArrowRight size={17}/></span></div></div>
+    </button>
+    <button className={`save-event ${saved ? 'saved' : ''}`} aria-label={saved ? `取消收藏${shop.name}` : `收藏${shop.name}`} aria-pressed={saved} onClick={() => toggle(shop)}><Heart size={18} fill={saved ? 'currentColor' : 'none'}/></button>
+  </article>
+}
 function Modal({ title, children, close, wide = false }) {
   const ref = useRef(null)
   useEffect(() => {
@@ -27,8 +50,8 @@ function Modal({ title, children, close, wide = false }) {
     document.body.style.overflow = 'hidden'
     return () => { document.body.style.overflow = overflow; previous?.focus() }
   }, [])
-  return <dialog ref={ref} className={wide ? 'modal wide' : 'modal'} onCancel={e => { e.preventDefault(); close() }} onClick={e => { if (e.target === ref.current) close() }}>
-    <div className="modal-head"><h2>{title}</h2><button className="icon" aria-label="关闭" title="关闭" onClick={close}><X size={21}/></button></div>{children}
+  return <dialog ref={ref} aria-label={title} className={wide ? 'modal wide' : 'modal'} onCancel={e => { e.preventDefault(); close() }} onClick={e => { if (e.target === ref.current) close() }}>
+    <div className="modal-head"><h2>{title}</h2><button className="icon" autoFocus aria-label="关闭" title="关闭" onClick={close}><X size={21}/></button></div>{children}
   </dialog>
 }
 function AuthForm({ close, done }) {
@@ -55,7 +78,9 @@ function AuthForm({ close, done }) {
 }
 function App() {
   const [session, setSession] = useState(null), [ready, setReady] = useState(false), [auth, setAuth] = useState(false)
-  const [view, setView] = useState('discover'), [notice, setNotice] = useState(''), [authError, setAuthError] = useState('')
+  const [view, setViewState] = useState('discover'), [notice, setNotice] = useState(''), [authError, setAuthError] = useState('')
+  const [savedItems, setSavedItems] = useState(readSaved)
+  const [savedFeedback, setSavedFeedback] = useState('')
   const [query, setQuery] = useState(''), [category, setCategory] = useState(''), [area, setArea] = useState(''), [sort, setSort] = useState('recommended'), [page, setPage] = useState(1), [showAllCategories, setShowAllCategories] = useState(false)
   const [catalog, setCatalog] = useState(null), [catalogError, setCatalogError] = useState(''), [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState(null), [detail, setDetail] = useState(null), [detailError, setDetailError] = useState('')
@@ -64,12 +89,21 @@ function App() {
   const [history, setHistory] = useState(null), [historyError, setHistoryError] = useState(''), [showHistory, setShowHistory] = useState(false)
   const [waitlists, setWaitlists] = useState(null), [waitlistsError, setWaitlistsError] = useState('')
   const [pending, setPending] = useState([]), [busy, setBusy] = useState(false), [cancel, setCancel] = useState(null), [tick, setTick] = useState(Date.now()), [refresh, setRefresh] = useState(0)
-  const currentUser = useRef(null), lock = useRef(false), skew = useRef(0), generation = useRef(0)
+  const currentUser = useRef(null), lock = useRef(false), skew = useRef(0), generation = useRef(0), offersHeading = useRef(null), viewScroll = useRef({})
   const user = session?.user.id
+  function setView(next) { viewScroll.current[view] = window.scrollY; setViewState(next) }
   function acceptSession(value) { currentUser.current = value?.user.id || null; bindAccount(value?.user.id); setSession(value); setPaymentOrder(null); setHistoryPage(1); setOrders(null); setHistory(null); setShowHistory(false); setWaitlists(null); setPending(readPending(value?.user.id)); setAuthError('') }
   useEffect(() => { let active = true; api('/auth/me').then(x => { if (active) acceptSession(x) }).catch(e => { if (active && e.status !== 401) setAuthError('登录状态暂时无法读取，请刷新重试。') }).finally(() => { if (active) setReady(true) }); return () => { active = false } }, [])
   useEffect(() => { const timer = setInterval(() => setTick(Date.now()), 1000); return () => clearInterval(timer) }, [])
+  useLayoutEffect(() => {
+    window.scrollTo({ top: viewScroll.current[view] || 0, behavior: 'instant' })
+  }, [view])
   useEffect(() => { if (!notice) return; const timer = setTimeout(() => setNotice(''), 8000); return () => clearTimeout(timer) }, [notice])
+  useEffect(() => {
+    const sync = event => { if (event.key === savedKey) setSavedItems(readSaved()) }
+    window.addEventListener('storage', sync)
+    return () => window.removeEventListener('storage', sync)
+  }, [])
   useEffect(() => {
     const controller = new AbortController(); setLoading(true); setCatalogError('')
     const timer = setTimeout(() => api(`/catalog/shops?${new URLSearchParams({ q: query, category, area, sort, page })}`, { signal: controller.signal }).then(setCatalog).catch(e => { if (!controller.signal.aborted) setCatalogError(explain(e)) }).finally(() => { if (!controller.signal.aborted) setLoading(false) }), 200)
@@ -77,6 +111,7 @@ function App() {
   }, [query, category, area, sort, page, refresh])
   useEffect(() => {
     if (!selected) return
+    setSavedFeedback('')
     const controller = new AbortController(); setDetail(null); setDetailError('')
     api(`/catalog/shops/${selected}`, { signal: controller.signal }).then(x => { setDetail(x); skew.current = Date.parse(x.serverTime) - Date.now() }).catch(e => { if (!controller.signal.aborted) setDetailError(explain(e)) })
     return () => controller.abort()
@@ -206,26 +241,44 @@ function App() {
     try { await api('/auth/logout', { method: 'POST', csrf: session.csrfToken }); acceptSession(null); setView('discover'); setNotice('已退出登录。') }
     catch (e) { if (e.status === 401) acceptSession(null); setNotice(explain(e)) }
   }
+  function toggleSaved(shop) {
+    const feedback = text => { setSavedFeedback(text); setNotice(text) }
+    const exists = savedItems.some(x => x.id === shop.id)
+    if (!exists && savedItems.length >= 50) { feedback('最多可收藏 50 场活动，请先取消部分收藏。'); return }
+    const next = exists ? savedItems.filter(x => x.id !== shop.id) : [{ ...shop, savedAt: new Date().toISOString() }, ...savedItems].slice(0, 50)
+    try { localStorage.setItem(savedKey, JSON.stringify(next)) }
+    catch { feedback('收藏未保存，请检查浏览器存储权限后重试。'); return }
+    setSavedItems(next)
+    feedback(exists ? `已取消收藏「${shop.name}」。` : `已收藏「${shop.name}」，可在收藏页随时查看。`)
+  }
+  function resetFilters() { setQuery(''); setCategory(''); setArea(''); setSort('recommended'); setPage(1) }
+  function clearFilter(setter, value = '') { setter(value); setPage(1) }
   function goOrders() { if (!session) setAuth(true); setSelected(null); setView('orders') }
   const unresolved = pending.filter(x => !orders?.items.some(item => item.requestKey === x.key))
   const allCategories = catalog?.categories || []
   const visibleCategories = showAllCategories ? allCategories : categoryOrder.filter(x => allCategories.includes(x))
+  const activeFilterCount = [query, category, area, sort !== 'recommended'].filter(Boolean).length
   return <>
     <header className="topbar"><div className="top-inner"><a className="brand" href="/" aria-label="趣票首页"><Ticket size={25}/><span>趣票</span></a><span className="demo-label">校园演示</span>
-      <nav aria-label="主导航"><button aria-label="活动广场" className={view === 'discover' ? 'active' : ''} onClick={() => setView('discover')}><Grid2X2 size={17}/>活动</button><button aria-label="活动规划" className={view === 'plan' ? 'active' : ''} onClick={() => { setSelected(null); setView('plan') }}><Sparkles size={17}/>规划</button><button aria-label="我的票夹" className={view === 'orders' ? 'active' : ''} onClick={goOrders}><Ticket size={17}/>票夹{orders?.pendingCount > 0 && <span className="count">{orders.pendingCount}</span>}</button></nav>
+      <nav aria-label="主导航"><button aria-label="活动广场" className={view === 'discover' ? 'active' : ''} onClick={() => setView('discover')}><Grid2X2 size={17}/>活动</button><button aria-label="我的收藏" className={view === 'saved' ? 'active' : ''} onClick={() => { setSelected(null); setView('saved') }}><Heart size={17} fill={view === 'saved' ? 'currentColor' : 'none'}/>收藏{savedItems.length > 0 && <span className="count saved-count">{savedItems.length}</span>}</button><button aria-label="活动规划" className={view === 'plan' ? 'active' : ''} onClick={() => { setSelected(null); setView('plan') }}><Sparkles size={17}/>规划</button><button aria-label="我的票夹" className={view === 'orders' ? 'active' : ''} onClick={goOrders}><Ticket size={17}/>票夹{orders?.pendingCount > 0 && <span className="count">{orders.pendingCount}</span>}</button></nav>
       <div className="account">{session ? <><span><UserRound size={16}/>{session.user.displayName}</span><button className="icon" onClick={logout} disabled={busy} title="退出登录" aria-label="退出登录"><LogOut size={18}/></button></> : <button className="outline" disabled={!ready} onClick={() => setAuth(true)}><UserRound size={16}/>{ready ? '登录 / 注册' : '连接中…'}</button>}</div>
     </div></header>
     <main className="page">
       {authError && <p className="error" role="alert">{authError}</p>}
       {view === 'discover' ? <>
         <div className="heading home-heading"><div><p className="eyebrow"><span className="city-pill"><MapPin size={13}/>上海</span>校园文体活动</p><h1>发现校园好现场</h1><p className="muted">演出、赛事、讲座和社团活动，一站抢票。</p></div><div className="search"><Search size={20}/><input aria-label="搜索校园活动" placeholder="搜索活动、场馆或类型" value={query} maxLength={80} onChange={e => { setQuery(e.target.value); setPage(1) }}/>{query && <button className="icon" aria-label="清空搜索" onClick={() => setQuery('')}><X size={16}/></button>}</div></div>
-        {catalog?.items?.[0] && !query && !category && !area && <button className="ticket-hero" onClick={() => setSelected(catalog.items[0].id)} aria-label={`查看本周热门活动${catalog.items[0].name}`}><img src={catalog.items[0].imagePath} alt=""/><span className="ticket-hero-shade"/><span className="ticket-hero-copy"><small>本周热门 · 限量开票</small><strong>{catalog.items[0].name}</strong><span>{catalog.items[0].area} · ¥{money(catalog.items[0].fromPrice)} 起</span><b>立即查看 <ArrowRight size={16}/></b></span></button>}
+        {catalog?.items?.[0] && !query && !category && !area && <button className="ticket-hero" onClick={() => setSelected(catalog.items[0].id)} aria-label={`查看本周热门活动${catalog.items[0].name}`}><img src={catalog.items[0].imagePath} alt=""/><span className="ticket-hero-shade"/><span className="ticket-hero-copy"><small>本周热门 · 限量开票</small><strong>{catalog.items[0].name}</strong><span>{catalog.items[0].area} · {catalog.items[0].nextSessionAt ? sessionWhen(catalog.items[0].nextSessionAt) + ' · ' : ''}¥{money(catalog.items[0].fromPrice)} 起</span><b>查看场次与票档 <ArrowRight size={16}/></b></span></button>}
+        {!query && !category && !area && <div className="confidence-strip" aria-label="抢票服务说明"><span><CalendarDays size={17}/><b>校园精彩现场</b><small>演出、赛事与社团活动</small></span><span><ShieldCheck size={17}/><b>提交校验余票</b><small>抢票结果以票夹状态为准</small></span><span><Users size={17}/><b>售罄支持候补</b><small>释放名额按顺序补位</small></span></div>}
         <section className="scene-section"><div className="section-heading"><div><h2>活动分类</h2><p className="muted small">找到你感兴趣的校园现场</p></div></div><div className="scene-grid" role="group" aria-label="活动分类"><button aria-pressed={category === ''} className={category === '' ? 'selected' : ''} onClick={() => { setCategory(''); setPage(1) }}><span><Grid2X2 size={21}/></span><b>全部</b></button>{visibleCategories.map(x => { const Icon = categoryIcons[x] || Sparkles; return <button aria-pressed={category === x} className={category === x ? 'selected' : ''} onClick={() => { setCategory(x); setPage(1) }} key={x}><span><Icon size={21}/></span><b>{x}</b></button> })}<button className="more-scenes" aria-expanded={showAllCategories} onClick={() => setShowAllCategories(x => !x)}><span><Grid2X2 size={21}/></span><b>{showAllCategories ? '收起' : '更多'}</b></button></div></section>
         {catalog?.items?.length > 0 && !query && !category && !area && <section className="deal-band"><div className="section-heading"><div><h2>热门开票</h2><p className="muted small">校园限量名额，售完可候补</p></div><span className="muted small">每日更新</span></div><div className="deal-list">{catalog.items.slice(0, 3).map(shop => <button className="deal-item" key={shop.id} onClick={() => setSelected(shop.id)}><img src={shop.imagePath} alt=""/><span><b>{shop.name}</b><small>{shop.category} · 余票实时更新</small></span><strong>¥{money(shop.fromPrice)}<small>起</small></strong><ArrowRight size={16}/></button>)}</div></section>}
         <div className="catalog-toolbar"><div><h2>全部活动</h2><p className="muted small">综合热度、开票价格与剩余名额推荐</p></div><span className="muted small">{loading ? '更新中…' : `${catalog?.total || 0} 场活动`}</span></div>
         <div className="catalog-controls"><label>校区<select aria-label="选择校区" value={area} onChange={e => { setArea(e.target.value); setPage(1) }}><option value="">全部校区</option>{(catalog?.areas || []).map(x => <option key={x}>{x}</option>)}</select></label><div className="sort-tabs" role="group" aria-label="活动排序">{[['recommended','综合推荐'],['price','价格优先'],['availability','余票优先']].map(([key,label]) => <button key={key} aria-pressed={sort === key} className={sort === key ? 'selected' : ''} onClick={() => { setSort(key); setPage(1) }}>{label}</button>)}</div></div>
-        {catalogError ? <div className="empty"><p className="error">{catalogError}</p><button className="outline" onClick={() => setRefresh(x => x + 1)}><RefreshCw size={16}/>重新加载</button></div> : loading && !catalog ? <div className="shop-grid" aria-label="加载中">{[1, 2, 3].map(x => <div className="skeleton" key={x}/>)}</div> : catalog?.items.length ? <div className={`shop-grid ${loading ? 'updating' : ''}`}>{catalog.items.map(shop => <button key={shop.id} className="shop-card" onClick={() => setSelected(shop.id)} aria-label={`查看${shop.name}`}><div className="shop-image"><img src={shop.imagePath} alt={shop.name + '活动示意'}/><span>{shop.category}</span>{shop.totalAvailable > 0 && <em>余 {shop.totalAvailable} 张</em>}</div><div className="shop-content"><p className="muted small"><MapPin size={13}/>{shop.area}</p><h2>{shop.name}</h2><div className="shop-rating"><strong><Star size={13} fill="currentColor"/>{shop.rating.toFixed(1)}</strong><span>{shop.reviewCount} 人关注</span><span>近期参与 {shop.monthlySales}</span><span><Navigation size={12}/>{distance(shop.distanceMeters)}</span></div><p className="description">{shop.description}</p><div className="shop-facts"><span><Ticket size={14}/>{shop.offerCount} 个票档</span><span>余 {shop.totalAvailable} 张</span>{shop.nextSessionAt && <span><CalendarDays size={14}/>{sessionWhen(shop.nextSessionAt)}</span>}</div><div className="shop-bottom"><span>{shop.fromPrice != null ? <><b className="price"><small>¥</small>{money(shop.fromPrice)}</b><span className="muted small"> 起</span></> : <span className="muted">暂无在售票档</span>}</span><span className="shop-action">查看票档 <ArrowRight size={17}/></span></div></div></button>)}</div> : <div className="empty"><Search size={30}/><h2>没有找到匹配的活动</h2><p className="muted">换个活动名称、分类或校区试试。</p></div>}
+        {activeFilterCount > 0 && <div className="active-filters" aria-live="polite"><span>已筛选 {activeFilterCount} 项</span>{query && <button onClick={() => clearFilter(setQuery)}>关键词：{query}<X size={13}/></button>}{category && <button onClick={() => clearFilter(setCategory)}>分类：{category}<X size={13}/></button>}{area && <button onClick={() => clearFilter(setArea)}>校区：{area}<X size={13}/></button>}{sort !== 'recommended' && <button onClick={() => clearFilter(setSort, 'recommended')}>{sort === 'price' ? '价格优先' : '余票优先'}<X size={13}/></button>}<button className="clear-filters" onClick={resetFilters}>清除全部</button></div>}
+        {catalogError ? <div className="empty"><p className="error">{catalogError}</p><button className="outline" onClick={() => setRefresh(x => x + 1)}><RefreshCw size={16}/>重新加载</button></div> : loading && !catalog ? <div className="shop-grid" aria-label="加载中">{[1, 2, 3].map(x => <div className="skeleton" key={x}/>)}</div> : catalog?.items.length ? <div className={`shop-grid ${loading ? 'updating' : ''}`} aria-live="polite">{catalog.items.map(shop => <EventCard key={shop.id} shop={shop} saved={savedItems.some(x => x.id === shop.id)} open={setSelected} toggle={toggleSaved}/>)}</div> : <div className="empty"><Search size={30}/><h2>没有找到匹配的活动</h2><p className="muted">换个活动名称、分类或校区试试。</p><button className="outline" onClick={resetFilters}>清除筛选条件</button></div>}
         {catalog?.total > 12 && <Pager page={page} total={catalog.total} size={12} change={setPage}/>}
+      </> : view === 'saved' ? <>
+        <div className="heading saved-heading"><div><p className="eyebrow">SAVED EVENTS</p><h1>我的收藏</h1><p className="muted">先收藏感兴趣的活动，决定好后再抢票。</p></div><button className="outline" onClick={() => setView('discover')}><Search size={16}/>继续发现</button></div>
+        {savedItems.length ? <><div className="saved-summary"><Heart size={18} fill="currentColor"/><span>已收藏 {savedItems.length} 场活动</span><small>保存在当前浏览器 · 余票与价格以详情实时信息为准</small></div><div className="shop-grid saved-grid">{savedItems.map(shop => <EventCard key={shop.id} shop={shop} saved open={setSelected} toggle={toggleSaved}/>)}</div></> : <div className="empty saved-empty"><span className="empty-icon"><Heart size={31}/></span><h2>还没有收藏活动</h2><p className="muted">点击活动卡片右上角的爱心，就能保存在当前浏览器，方便下次查看。</p><button className="primary" onClick={() => setView('discover')}>去发现活动 <ArrowRight size={16}/></button></div>}
       </> : view === 'plan' ? <Planner session={session} openAuth={() => setAuth(true)} sessionFailure={sessionFailure}/> : <>
         <div className="heading"><div><p className="eyebrow">MY TICKETS</p><h1>我的票夹</h1><p className="muted">抢票结果、付款状态和候补进度，都在这里。</p></div><button className="outline" onClick={() => setRefresh(x => x + 1)} disabled={!session || busy}><RefreshCw size={16}/>刷新</button></div>
         {!session ? <div className="empty"><UserRound size={32}/><h2>登录后查看你的订单</h2><button className="primary" onClick={() => setAuth(true)}>登录 / 注册</button></div> : <>
@@ -246,19 +299,21 @@ function App() {
       </>}
     </main>
     <footer className="footer"><span>趣票</span><span>校园活动抢票演示 · 活动为示例数据 · 不涉及真实支付</span></footer>
-    {selected && <Modal wide title={detail?.shop.name || '活动详情'} close={() => setSelected(null)}>{detailError ? <p className="error">{detailError}</p> : !detail ? <p className="empty">加载中…</p> : <div className="shop-detail">
+    {selected && <Modal wide title={detail?.shop.name || '活动详情'} close={() => setSelected(null)}>{detailError ? <div className="empty"><p className="error" role="alert">{detailError}</p><button className="outline" onClick={() => setRefresh(x => x + 1)}><RefreshCw size={16}/>重新加载活动</button></div> : !detail ? <p className="empty">加载中…</p> : <div className="shop-detail">
       <div className="detail-hero"><img className="detail-photo" src={detail.shop.imagePath} alt={detail.shop.name + '活动示意'}/><div className="detail-score"><strong><Star size={14} fill="currentColor"/>{detail.shop.rating.toFixed(1)}</strong><span>{detail.shop.reviewCount} 人关注</span><span>近期参与 {detail.shop.monthlySales}</span></div></div>
-      <div className="detail-meta"><div className="detail-title-row"><span className="tag">{detail.shop.category}</span><span className="muted small"><Navigation size={13}/>{distance(detail.shop.distanceMeters)}</span></div><p>{detail.shop.description}</p><p className="muted small"><MapPin size={14}/>{detail.shop.address}</p><div className="detail-facts"><span><Clock3 size={15}/><b>开放时间</b>{detail.profile.businessHours}</span><span><ShieldCheck size={15}/><b>抢票保障</b>余票与购买资格实时校验</span></div>{detail.profile.highlights.length > 0 && <div className="highlight-list">{detail.profile.highlights.map(x => <span key={x}>{x}</span>)}</div>}</div>
+      <div className="detail-meta"><div className="detail-title-row"><span className="tag">{detail.shop.category}</span><div className="detail-actions"><span className="muted small"><Navigation size={13}/>{distance(detail.shop.distanceMeters)}</span><button className={`detail-save ${savedItems.some(x => x.id === detail.shop.id) ? 'saved' : ''}`} aria-pressed={savedItems.some(x => x.id === detail.shop.id)} onClick={() => toggleSaved(detail.shop)}><Heart size={15} fill={savedItems.some(x => x.id === detail.shop.id) ? 'currentColor' : 'none'}/>{savedItems.some(x => x.id === detail.shop.id) ? '已收藏' : '收藏'}</button></div></div><p>{detail.shop.description}</p><p className="muted small"><MapPin size={14}/>{detail.shop.address}</p><div className="detail-facts"><span><Clock3 size={15}/><b>开放时间</b>{detail.profile.businessHours}</span><span><ShieldCheck size={15}/><b>抢票保障</b>余票与购买资格实时校验</span></div>{detail.profile.highlights.length > 0 && <div className="highlight-list">{detail.profile.highlights.map(x => <span key={x}>{x}</span>)}</div>}</div>
+      {savedFeedback && <p className="save-feedback" role="status">{savedFeedback}</p>}
       <section className="review-summary"><div><Star size={18} fill="currentColor"/><strong>{detail.shop.rating.toFixed(1)}</strong><span>活动热度</span></div><p>{detail.profile.reviewSummary}</p></section>
       <section className="service-notice"><h3><Info size={17}/>抢票与入场须知</h3><p>{detail.profile.serviceNotice}</p></section>
-      <h3 className="offer-section-title">可选票档 <span className="muted small">{detail.offers.length} 个在售</span></h3>{detail.offers.map(offer => {
+      <section className="booking-steps" aria-label="抢票流程"><span><i>1</i><b>选择票档</b><small>确认场次和规则</small></span><span><i>2</i><b>限时支付</b><small>锁定名额后完成支付</small></span><span><i>3</i><b>票夹入场</b><small>随时查看出票状态</small></span></section>
+      <h3 ref={offersHeading} tabIndex={-1} className="offer-section-title">可选票档 <span className="muted small">{detail.offers.length} 个票档</span></h3>{detail.offers.map(offer => {
       const now = tick + skew.current, open = now >= Date.parse(offer.startsAt) && now < Date.parse(offer.endsAt), available = offer.available > 0 && open
-      return <section className="offer" key={offer.id}><div className="offer-header"><div><h3>{offer.title}</h3><p className="muted small">票面价 ¥{money(offer.faceValueCents)} · 剩余 {offer.available} / {offer.capacity} 张</p></div><b className="price"><small>¥</small>{money(offer.priceCents)}</b></div><p className="terms">{offer.terms}</p><div className="offer-bottom"><span className="muted small"><Timer size={13}/>{when(offer.endsAt)} 截止</span>{offer.available === 0 && open ? <button className="outline waitlist-button" disabled={busy || !ready} onClick={() => joinWaitlist(offer)}><Users size={16}/>{session ? '加入候补' : '登录后候补'}</button> : <button className="primary" disabled={!available || busy || !ready} onClick={() => purchase(offer, detail.shop)}>{!available ? '不在抢票时间' : session ? '立即抢票' : '登录后抢票'}<ArrowRight size={16}/></button>}</div></section>
-    })}{!detail.offers.length && <p className="empty">当前暂无在售票档。</p>}</div>}</Modal>}
+      return <section className="offer" key={offer.id}><div className="offer-header"><div><h3>{offer.title}</h3><p className="muted small">票面价 ¥{money(offer.faceValueCents)} · 剩余 {offer.available} / {offer.capacity} 张</p></div><b className="price"><small>¥</small>{money(offer.priceCents)}</b></div><p className="terms">{offer.terms}</p><div className="offer-bottom"><span className="muted small"><Timer size={13}/>{when(now < Date.parse(offer.startsAt) ? offer.startsAt : offer.endsAt)} {now < Date.parse(offer.startsAt) ? '开售' : '截止'}</span>{offer.available === 0 && open ? <button className="outline waitlist-button" disabled={busy || !ready} onClick={() => joinWaitlist(offer)}><Users size={16}/>{session ? '加入候补' : '登录后候补'}</button> : <button className="primary" disabled={!available || busy || !ready} onClick={() => purchase(offer, detail.shop)}>{!available ? now < Date.parse(offer.startsAt) ? '尚未开售' : '抢票已结束' : busy ? '正在提交…' : session ? '立即抢票' : '登录后抢票'}<ArrowRight size={16}/></button>}</div></section>
+    })}{!detail.offers.length && <p className="empty">当前暂无在售票档。</p>}{detail.offers.length > 0 && <div className="detail-booking-bar"><div><small>选择适合你的票档</small><strong>{detail.shop.fromPrice == null ? '查看票档' : `¥${money(detail.shop.fromPrice)} 起`}</strong></div><button className="primary" onClick={() => { offersHeading.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); offersHeading.current?.focus({ preventScroll: true }) }}>选择票档 <ArrowRight size={16}/></button></div>}</div>}</Modal>}
     {auth && <AuthForm close={() => setAuth(false)} done={value => { acceptSession(value); setAuth(false); setNotice('登录成功。'); setRefresh(x => x + 1) }}/>}
     {paymentOrder && session && <Modal title="订单支付" close={() => setPaymentOrder(null)}><Payment key={`${user}:${paymentOrder.id}`} item={paymentOrder} session={session} changed={() => setRefresh(x => x + 1)} sessionFailure={sessionFailure}/></Modal>}
     {cancel && <Modal title="取消这笔订单？" close={() => { if (!busy) setCancel(null) }}><p>取消后名额将回补，但你不能再次购买同一活动。</p><p className="muted small">{cancel.shopName} · {cancel.offerTitle}</p><div className="modal-actions"><button className="outline" disabled={busy} onClick={() => setCancel(null)}>保留订单</button><button className="danger" disabled={busy} onClick={() => transition(cancel, 'cancel')}>{busy ? '处理中…' : '确认取消'}</button></div></Modal>}
-    {notice && <div className="toast" role="status"><span>{notice}</span><button className="icon" aria-label="关闭提示" onClick={() => setNotice('')}><X size={18}/></button></div>}
+    {notice && !(selected && savedFeedback === notice) && <div className="toast" role="status"><span>{notice}</span><button className="icon" aria-label="关闭提示" onClick={() => setNotice('')}><X size={18}/></button></div>}
   </>
 }
 function Pager({ page, total, size, change }) { return <div className="pager"><button className="icon" title="上一页" aria-label="上一页" disabled={page === 1} onClick={() => change(page - 1)}><ChevronLeft size={19}/></button><span>{page} / {Math.ceil(total / size)}</span><button className="icon" title="下一页" aria-label="下一页" disabled={page * size >= total} onClick={() => change(page + 1)}><ChevronRight size={19}/></button></div> }
