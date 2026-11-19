@@ -8,6 +8,10 @@ server:
     max-connections: 128
     accept-count: 64
 spring:
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
   task:
     scheduling:
       pool:
@@ -30,6 +34,10 @@ spring:
       timeout: 300ms
       connect-timeout: 300ms
 upgrade:
+  local-life:
+    enabled: ${LOCAL_LIFE_ENABLED:false}
+    demo-data: ${LOCAL_LIFE_DEMO:false}
+    media-directory: ${LOCAL_LIFE_MEDIA:.local/local-life-media}
   rocketmq:
     nameserver: ${ROCKETMQ_NAMESERVER:127.0.0.1:39876}
     producer-group: ${ROCKETMQ_PRODUCER_GROUP:qupiao-producer}

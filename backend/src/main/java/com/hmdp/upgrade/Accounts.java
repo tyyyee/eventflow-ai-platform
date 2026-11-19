@@ -102,6 +102,10 @@ public class Accounts {
         return tx.run(()->{
             // Serialize session cap decisions per account, without involving Redis.
             db.queryForObject("SELECT id FROM ux_account WHERE id=? FOR UPDATE",Long.class,user.id());
+                // A reset may have committed after the BCrypt check but before this lock.
+                String currentHash=db.queryForObject("SELECT password_hash FROM ux_account WHERE id=?",String.class,user.id());
+                if(!MessageDigest.isEqual(user.hash().getBytes(StandardCharsets.UTF_8),currentHash.getBytes(StandardCharsets.UTF_8)))
+                    throw new Problem(401,"BAD_CREDENTIALS");
             var old=db.queryForList("SELECT token_hash FROM ux_session WHERE user_id=? ORDER BY created_at DESC,token_hash DESC",String.class,user.id());
             for(int i=7;i<old.size();i++) db.update("DELETE FROM ux_session WHERE token_hash=?",old.get(i));
             return createSession(identity);

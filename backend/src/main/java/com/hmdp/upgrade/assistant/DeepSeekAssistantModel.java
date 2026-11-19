@@ -35,7 +35,7 @@ public final class DeepSeekAssistantModel implements AssistantModel {
             factory.setReadTimeout((int)Math.min(8000,Math.max(1,remaining-1000)));
             byte[] bytes=RestClient.builder().requestFactory(factory).build().post().uri(endpoint)
                 .header("Authorization","Bearer "+key).contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                .body(Map.of("model",model,"messages",cp.messages,"tools",schemas(json),"tool_choice","auto",
+                .body(Map.of("model",model,"messages",cp.messages,"tools",schemas(json,cp.localEnabled),"tool_choice","auto",
                     "max_tokens",1000,"temperature",0,"thinking",Map.of("type","disabled")))
                 .exchange((req,res)->{
                     if(!res.getStatusCode().is2xxSuccessful())throw new Problem(503,"ASSISTANT_MODEL_UNAVAILABLE");
@@ -83,6 +83,23 @@ public final class DeepSeekAssistantModel implements AssistantModel {
                 schema("get_my_order","Read one request belonging to signed-in user, by requestId, not orderId. Unknown ownership returns not found.",Map.of("requestId",Map.of("type","string")),List.of("requestId")),
                 schema("ask_clarification","Ask only for information genuinely required to proceed, or clarify an ambiguous activity reference. End the turn after this.",Map.of("fields",Map.of("type","array","items",Map.of("type","string","enum",List.of("time","budget","campus","activity","goal")))),List.of("fields")));
         } catch(Exception impossible){throw new IllegalStateException(impossible);}
+    }
+    public static List<Map<String,Object>> schemas(ObjectMapper json,boolean local){
+        var result=new ArrayList<>(schemas(json));if(!local)return result;
+        Map<String,Object> text=Map.of("type","string"),number=Map.of("type","integer","minimum",0);
+        var filters=new LinkedHashMap<String,Object>();for(String k:List.of("q","category","campus","area","landmark","sort"))filters.put(k,Map.of("type",List.of("string","null")));
+        for(String k:List.of("maxPriceCents","maxDistanceMeters","minRating","totalBudgetCents","people"))filters.put(k,Map.of("type",List.of("number","null"),"minimum",0));
+        for(String k:List.of("openOnly","hasCoupon","cheaper"))filters.put(k,Map.of("type","boolean"));
+        result.add(schema("search_shops","Search campus local shops. PATCH retained shopFilters; null clears. category: 美食/咖啡茶饮/火锅/甜品烘焙/休闲娱乐/运动体验. campus 主校区/东校区/南校区. landmark main-east/main-library/east-gate/east-hall/south-gate/south-art. sort recommended/rating/distance/price. maxPriceCents is per-person cents. For TOTAL budget use totalBudgetCents and people; server divides. Never divide explicit per-person budget. Ask for party size when missing. No silent relaxation.",filters,List.of()));
+        var target=Map.<String,Object>of("shopId",text,"position",Map.of("type","integer","minimum",1,"maximum",3));
+        result.add(schema("get_shop","Read fresh details of a shop from last shopCandidates; no invented IDs.",target,List.of()));
+        result.add(schema("get_shop_coupons","Read current published coupon templates of a previously shown shop. Does not claim coupons.",target,List.of()));
+        result.add(schema("compare_shops","Compare 2 or 3 shops from last candidates; omit positions to compare the displayed list.",Map.of("positions",Map.of("type","array","items",Map.of("type","integer","minimum",1,"maximum",3),"minItems",2,"maxItems",3)),List.of()));
+        result.add(schema("get_my_coupons","Read current user's wallet, no redemption codes. No userId accepted.",Map.of(),List.of()));
+        result.add(schema("get_my_payment_status","Read current user's payment receipts and refund completion by requestId. Does not create payment or trigger refunds.",Map.of("requestId",text),List.of("requestId")));
+        result.add(schema("search_policies","Find published versioned help rules by question/keywords. No results means no evidence.",Map.of("q",text),List.of("q")));
+        result.add(schema("prepare_support_draft","Prepare a feedback draft from user's description. Does NOT submit. Never include secrets or claim resolution.",Map.of("title",text,"body",text),List.of("title","body")));
+        return result;
     }
     private static Map<String,Object> schema(String name,String description,Map<String,Object> properties,List<String> required) {
         return Map.of("type","function","function",Map.of("name",name,"description",description,"parameters",

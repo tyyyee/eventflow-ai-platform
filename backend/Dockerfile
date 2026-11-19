@@ -9,6 +9,7 @@ RUN if [ "$WITH_SHARDING" = "true" ]; then mvn -B -Psharding -DskipTests package
 FROM eclipse-temurin:17-jre-alpine
 RUN addgroup -S app && adduser -S -G app app
 WORKDIR /app
+RUN mkdir -p /app/data/media && chown -R app:app /app/data
 COPY --from=build /workspace/target/life-choice-backend-1.0.0.jar app.jar
 USER app
 EXPOSE 8093

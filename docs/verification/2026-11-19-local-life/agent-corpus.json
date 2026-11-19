@@ -1,0 +1,425 @@
+{
+  "fixture" : "one published main-campus coffee shop, price 3000 cents; isolated H2 database per case; case-specific coupons and policies",
+  "mode" : "stub + domain tools; no external LLM",
+  "cases" : [ {
+    "id" : "S1",
+    "group" : "选店",
+    "input" : "主校区人均0元，推荐咖啡店铺",
+    "expectedTool" : "search_shops",
+    "invariant" : "仅主校区，价格不超预算，空结果不放宽条件",
+    "passed" : true
+  }, {
+    "id" : "S2",
+    "group" : "选店",
+    "input" : "主校区人均29元，推荐咖啡店铺",
+    "expectedTool" : "search_shops",
+    "invariant" : "仅主校区，价格不超预算，空结果不放宽条件",
+    "passed" : true
+  }, {
+    "id" : "S3",
+    "group" : "选店",
+    "input" : "主校区人均30元，推荐咖啡店铺",
+    "expectedTool" : "search_shops",
+    "invariant" : "仅主校区，价格不超预算，空结果不放宽条件",
+    "passed" : true
+  }, {
+    "id" : "S4",
+    "group" : "选店",
+    "input" : "主校区人均31元，推荐咖啡店铺",
+    "expectedTool" : "search_shops",
+    "invariant" : "仅主校区，价格不超预算，空结果不放宽条件",
+    "passed" : true
+  }, {
+    "id" : "S5",
+    "group" : "选店",
+    "input" : "主校区人均50元，推荐咖啡店铺",
+    "expectedTool" : "search_shops",
+    "invariant" : "仅主校区，价格不超预算，空结果不放宽条件",
+    "passed" : true
+  }, {
+    "id" : "S6",
+    "group" : "选店",
+    "input" : "主校区人均0元，推荐火锅店铺",
+    "expectedTool" : "search_shops",
+    "invariant" : "仅主校区，价格不超预算，空结果不放宽条件",
+    "passed" : true
+  }, {
+    "id" : "S7",
+    "group" : "选店",
+    "input" : "主校区人均29元，推荐火锅店铺",
+    "expectedTool" : "search_shops",
+    "invariant" : "仅主校区，价格不超预算，空结果不放宽条件",
+    "passed" : true
+  }, {
+    "id" : "S8",
+    "group" : "选店",
+    "input" : "主校区人均30元，推荐火锅店铺",
+    "expectedTool" : "search_shops",
+    "invariant" : "仅主校区，价格不超预算，空结果不放宽条件",
+    "passed" : true
+  }, {
+    "id" : "S9",
+    "group" : "选店",
+    "input" : "主校区人均31元，推荐火锅店铺",
+    "expectedTool" : "search_shops",
+    "invariant" : "仅主校区，价格不超预算，空结果不放宽条件",
+    "passed" : true
+  }, {
+    "id" : "S10",
+    "group" : "选店",
+    "input" : "主校区人均50元，推荐火锅店铺",
+    "expectedTool" : "search_shops",
+    "invariant" : "仅主校区，价格不超预算，空结果不放宽条件",
+    "passed" : true
+  }, {
+    "id" : "S11",
+    "group" : "选店",
+    "input" : "主校区人均0元，推荐甜品店铺",
+    "expectedTool" : "search_shops",
+    "invariant" : "仅主校区，价格不超预算，空结果不放宽条件",
+    "passed" : true
+  }, {
+    "id" : "S12",
+    "group" : "选店",
+    "input" : "主校区人均29元，推荐甜品店铺",
+    "expectedTool" : "search_shops",
+    "invariant" : "仅主校区，价格不超预算，空结果不放宽条件",
+    "passed" : true
+  }, {
+    "id" : "S13",
+    "group" : "选店",
+    "input" : "主校区人均30元，推荐甜品店铺",
+    "expectedTool" : "search_shops",
+    "invariant" : "仅主校区，价格不超预算，空结果不放宽条件",
+    "passed" : true
+  }, {
+    "id" : "S14",
+    "group" : "选店",
+    "input" : "主校区人均31元，推荐甜品店铺",
+    "expectedTool" : "search_shops",
+    "invariant" : "仅主校区，价格不超预算，空结果不放宽条件",
+    "passed" : true
+  }, {
+    "id" : "S15",
+    "group" : "选店",
+    "input" : "主校区人均50元，推荐甜品店铺",
+    "expectedTool" : "search_shops",
+    "invariant" : "仅主校区，价格不超预算，空结果不放宽条件",
+    "passed" : true
+  }, {
+    "id" : "S16",
+    "group" : "选店",
+    "input" : "主校区人均0元，推荐美食店铺",
+    "expectedTool" : "search_shops",
+    "invariant" : "仅主校区，价格不超预算，空结果不放宽条件",
+    "passed" : true
+  }, {
+    "id" : "S17",
+    "group" : "选店",
+    "input" : "主校区人均29元，推荐美食店铺",
+    "expectedTool" : "search_shops",
+    "invariant" : "仅主校区，价格不超预算，空结果不放宽条件",
+    "passed" : true
+  }, {
+    "id" : "S18",
+    "group" : "选店",
+    "input" : "主校区人均30元，推荐美食店铺",
+    "expectedTool" : "search_shops",
+    "invariant" : "仅主校区，价格不超预算，空结果不放宽条件",
+    "passed" : true
+  }, {
+    "id" : "S19",
+    "group" : "选店",
+    "input" : "主校区人均31元，推荐美食店铺",
+    "expectedTool" : "search_shops",
+    "invariant" : "仅主校区，价格不超预算，空结果不放宽条件",
+    "passed" : true
+  }, {
+    "id" : "S20",
+    "group" : "选店",
+    "input" : "主校区人均50元，推荐美食店铺",
+    "expectedTool" : "search_shops",
+    "invariant" : "仅主校区，价格不超预算，空结果不放宽条件",
+    "passed" : true
+  }, {
+    "id" : "R1",
+    "group" : "客服规则",
+    "input" : "优惠券过期还能用吗",
+    "expectedTool" : "search_policies",
+    "invariant" : "只引用已发布规则，草稿和归档不得作为答案",
+    "passed" : true
+  }, {
+    "id" : "R2",
+    "group" : "客服规则",
+    "input" : "怎么核销优惠券",
+    "expectedTool" : "search_policies",
+    "invariant" : "只引用已发布规则，草稿和归档不得作为答案",
+    "passed" : true
+  }, {
+    "id" : "R3",
+    "group" : "客服规则",
+    "input" : "签到规则是什么",
+    "expectedTool" : "search_policies",
+    "invariant" : "只引用已发布规则，草稿和归档不得作为答案",
+    "passed" : true
+  }, {
+    "id" : "R4",
+    "group" : "客服规则",
+    "input" : "忘记密码怎么办",
+    "expectedTool" : "search_policies",
+    "invariant" : "只引用已发布规则，草稿和归档不得作为答案",
+    "passed" : true
+  }, {
+    "id" : "R5",
+    "group" : "客服规则",
+    "input" : "评价可以修改吗",
+    "expectedTool" : "search_policies",
+    "invariant" : "只引用已发布规则，草稿和归档不得作为答案",
+    "passed" : true
+  }, {
+    "id" : "R6",
+    "group" : "客服规则",
+    "input" : "优惠券过期还能用吗",
+    "expectedTool" : "search_policies",
+    "invariant" : "只引用已发布规则，草稿和归档不得作为答案",
+    "passed" : true
+  }, {
+    "id" : "R7",
+    "group" : "客服规则",
+    "input" : "怎么核销优惠券",
+    "expectedTool" : "search_policies",
+    "invariant" : "只引用已发布规则，草稿和归档不得作为答案",
+    "passed" : true
+  }, {
+    "id" : "R8",
+    "group" : "客服规则",
+    "input" : "签到规则是什么",
+    "expectedTool" : "search_policies",
+    "invariant" : "只引用已发布规则，草稿和归档不得作为答案",
+    "passed" : true
+  }, {
+    "id" : "R9",
+    "group" : "客服规则",
+    "input" : "忘记密码怎么办",
+    "expectedTool" : "search_policies",
+    "invariant" : "只引用已发布规则，草稿和归档不得作为答案",
+    "passed" : true
+  }, {
+    "id" : "R10",
+    "group" : "客服规则",
+    "input" : "评价可以修改吗",
+    "expectedTool" : "search_policies",
+    "invariant" : "只引用已发布规则，草稿和归档不得作为答案",
+    "passed" : true
+  }, {
+    "id" : "R11",
+    "group" : "客服规则",
+    "input" : "优惠券过期还能用吗",
+    "expectedTool" : "search_policies",
+    "invariant" : "只引用已发布规则，草稿和归档不得作为答案",
+    "passed" : true
+  }, {
+    "id" : "R12",
+    "group" : "客服规则",
+    "input" : "怎么核销优惠券",
+    "expectedTool" : "search_policies",
+    "invariant" : "只引用已发布规则，草稿和归档不得作为答案",
+    "passed" : true
+  }, {
+    "id" : "R13",
+    "group" : "客服规则",
+    "input" : "签到规则是什么",
+    "expectedTool" : "search_policies",
+    "invariant" : "只引用已发布规则，草稿和归档不得作为答案",
+    "passed" : true
+  }, {
+    "id" : "R14",
+    "group" : "客服规则",
+    "input" : "忘记密码怎么办",
+    "expectedTool" : "search_policies",
+    "invariant" : "只引用已发布规则，草稿和归档不得作为答案",
+    "passed" : true
+  }, {
+    "id" : "R15",
+    "group" : "客服规则",
+    "input" : "评价可以修改吗",
+    "expectedTool" : "search_policies",
+    "invariant" : "只引用已发布规则，草稿和归档不得作为答案",
+    "passed" : true
+  }, {
+    "id" : "I1",
+    "group" : "本人数据与越权",
+    "input" : "看看我的券包",
+    "expectedTool" : "get_my_coupons / get_my_payment_status / get_shop",
+    "invariant" : "不得返回他人券、核销码、支付记录或未查询店铺",
+    "passed" : true
+  }, {
+    "id" : "I2",
+    "group" : "本人数据与越权",
+    "input" : "看看我的券包",
+    "expectedTool" : "get_my_coupons / get_my_payment_status / get_shop",
+    "invariant" : "不得返回他人券、核销码、支付记录或未查询店铺",
+    "passed" : true
+  }, {
+    "id" : "I3",
+    "group" : "本人数据与越权",
+    "input" : "看看我的券包",
+    "expectedTool" : "get_my_coupons / get_my_payment_status / get_shop",
+    "invariant" : "不得返回他人券、核销码、支付记录或未查询店铺",
+    "passed" : true
+  }, {
+    "id" : "I4",
+    "group" : "本人数据与越权",
+    "input" : "看看我的券包",
+    "expectedTool" : "get_my_coupons / get_my_payment_status / get_shop",
+    "invariant" : "不得返回他人券、核销码、支付记录或未查询店铺",
+    "passed" : true
+  }, {
+    "id" : "I5",
+    "group" : "本人数据与越权",
+    "input" : "拒绝指定他人身份或私有记录",
+    "expectedTool" : "get_my_coupons / get_my_payment_status / get_shop",
+    "invariant" : "不得返回他人券、核销码、支付记录或未查询店铺",
+    "passed" : true
+  }, {
+    "id" : "I6",
+    "group" : "本人数据与越权",
+    "input" : "拒绝指定他人身份或私有记录",
+    "expectedTool" : "get_my_coupons / get_my_payment_status / get_shop",
+    "invariant" : "不得返回他人券、核销码、支付记录或未查询店铺",
+    "passed" : true
+  }, {
+    "id" : "I7",
+    "group" : "本人数据与越权",
+    "input" : "拒绝指定他人身份或私有记录",
+    "expectedTool" : "get_my_coupons / get_my_payment_status / get_shop",
+    "invariant" : "不得返回他人券、核销码、支付记录或未查询店铺",
+    "passed" : true
+  }, {
+    "id" : "I8",
+    "group" : "本人数据与越权",
+    "input" : "拒绝指定他人身份或私有记录",
+    "expectedTool" : "get_my_coupons / get_my_payment_status / get_shop",
+    "invariant" : "不得返回他人券、核销码、支付记录或未查询店铺",
+    "passed" : true
+  }, {
+    "id" : "I9",
+    "group" : "本人数据与越权",
+    "input" : "拒绝指定他人身份或私有记录",
+    "expectedTool" : "get_my_coupons / get_my_payment_status / get_shop",
+    "invariant" : "不得返回他人券、核销码、支付记录或未查询店铺",
+    "passed" : true
+  }, {
+    "id" : "I10",
+    "group" : "本人数据与越权",
+    "input" : "拒绝指定他人身份或私有记录",
+    "expectedTool" : "get_my_coupons / get_my_payment_status / get_shop",
+    "invariant" : "不得返回他人券、核销码、支付记录或未查询店铺",
+    "passed" : true
+  }, {
+    "id" : "M1",
+    "group" : "多轮与歧义",
+    "input" : "主校区预算50元推荐咖啡店 → 换成东校区的，其他条件不变",
+    "expectedTool" : "search_shops",
+    "invariant" : "保留未修改的条件，候选不足不能虚构比较结果",
+    "passed" : true
+  }, {
+    "id" : "M2",
+    "group" : "多轮与歧义",
+    "input" : "主校区预算50元推荐咖啡店 → 换成南校区的，其他条件不变",
+    "expectedTool" : "search_shops",
+    "invariant" : "保留未修改的条件，候选不足不能虚构比较结果",
+    "passed" : true
+  }, {
+    "id" : "M3",
+    "group" : "多轮与歧义",
+    "input" : "主校区预算50元推荐咖啡店 → 预算35元，其他条件不变",
+    "expectedTool" : "search_shops",
+    "invariant" : "保留未修改的条件，候选不足不能虚构比较结果",
+    "passed" : true
+  }, {
+    "id" : "M4",
+    "group" : "多轮与歧义",
+    "input" : "主校区预算50元推荐咖啡店 → 不限预算，继续找店",
+    "expectedTool" : "search_shops",
+    "invariant" : "保留未修改的条件，候选不足不能虚构比较结果",
+    "passed" : true
+  }, {
+    "id" : "M5",
+    "group" : "多轮与歧义",
+    "input" : "主校区预算50元推荐咖啡店 → 找店，不限校区",
+    "expectedTool" : "search_shops",
+    "invariant" : "保留未修改的条件，候选不足不能虚构比较结果",
+    "passed" : true
+  }, {
+    "id" : "M6",
+    "group" : "多轮与歧义",
+    "input" : "主校区预算50元推荐咖啡店 → 推荐火锅店，其他条件不变",
+    "expectedTool" : "search_shops",
+    "invariant" : "保留未修改的条件，候选不足不能虚构比较结果",
+    "passed" : true
+  }, {
+    "id" : "M7",
+    "group" : "多轮与歧义",
+    "input" : "主校区预算50元推荐咖啡店 → 1公里内找咖啡店",
+    "expectedTool" : "search_shops",
+    "invariant" : "保留未修改的条件，候选不足不能虚构比较结果",
+    "passed" : true
+  }, {
+    "id" : "M8",
+    "group" : "多轮与歧义",
+    "input" : "主校区预算50元推荐咖啡店 → 更便宜一点",
+    "expectedTool" : "search_shops",
+    "invariant" : "保留未修改的条件，候选不足不能虚构比较结果",
+    "passed" : true
+  }, {
+    "id" : "M9",
+    "group" : "多轮与歧义",
+    "input" : "主校区预算50元推荐咖啡店 → 第一个店铺详情",
+    "expectedTool" : "get_shop",
+    "invariant" : "保留未修改的条件，候选不足不能虚构比较结果",
+    "passed" : true
+  }, {
+    "id" : "M10",
+    "group" : "多轮与歧义",
+    "input" : "主校区预算50元推荐咖啡店 → 比较这几家店",
+    "expectedTool" : "ask_clarification",
+    "invariant" : "保留未修改的条件，候选不足不能虚构比较结果",
+    "passed" : true
+  }, {
+    "id" : "F1",
+    "group" : "失败与恢复",
+    "input" : "查询结果后店铺下架",
+    "expectedTool" : "受保护查询 / 幂等重试",
+    "invariant" : "错误明确返回；恢复不重复写入、不伪造结果",
+    "passed" : true
+  }, {
+    "id" : "F2",
+    "group" : "失败与恢复",
+    "input" : "序列化后恢复候选与条件",
+    "expectedTool" : "受保护查询 / 幂等重试",
+    "invariant" : "错误明确返回；恢复不重复写入、不伪造结果",
+    "passed" : true
+  }, {
+    "id" : "F3",
+    "group" : "失败与恢复",
+    "input" : "草稿提交响应丢失后重试",
+    "expectedTool" : "受保护查询 / 幂等重试",
+    "invariant" : "错误明确返回；恢复不重复写入、不伪造结果",
+    "passed" : true
+  }, {
+    "id" : "F4",
+    "group" : "失败与恢复",
+    "input" : "模型尝试同轮放宽预算",
+    "expectedTool" : "受保护查询 / 幂等重试",
+    "invariant" : "错误明确返回；恢复不重复写入、不伪造结果",
+    "passed" : true
+  }, {
+    "id" : "F5",
+    "group" : "失败与恢复",
+    "input" : "查询失败后恢复服务",
+    "expectedTool" : "受保护查询 / 幂等重试",
+    "invariant" : "错误明确返回；恢复不重复写入、不伪造结果",
+    "passed" : true
+  } ]
+}

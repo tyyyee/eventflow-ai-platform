@@ -10,7 +10,9 @@
     "test:e2e": "node tests/customer-flow.mjs",
     "test:payments": "node tests/payment-flow.mjs",
     "test:discovery": "node tests/discovery-flow.mjs",
-    "test:assistant": "node tests/assistant-flow.mjs"
+    "test:assistant": "node tests/assistant-flow.mjs",
+    "test:local-life": "node tests/local-life-flow.mjs",
+    "test:local-life-load": "node tests/local-life-load.mjs"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",

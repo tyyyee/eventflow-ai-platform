@@ -14,6 +14,9 @@ public class AssistantTools {
     private final AssistantCatalog catalog;
     private final AssistantOrders orders;
     private final ObjectMapper json;
+    @org.springframework.beans.factory.annotation.Autowired(required=false) private com.hmdp.upgrade.LocalAssistantTools local;
+    public boolean localEnabled(){return local!=null&&local.enabled();}
+    public boolean allowed(String name){return ALLOWED.contains(name)||(localEnabled()&&com.hmdp.upgrade.LocalAssistantTools.NAMES.contains(name));}
     public AssistantTools(AssistantCatalog catalog,AssistantOrders orders,ObjectMapper json) {this.catalog=catalog;this.orders=orders;this.json=json;}
     public static final Set<String> ALLOWED=Set.of("search_activities","get_activity","get_rules","get_my_orders","get_my_order","ask_clarification");
     private static final Set<String> FILTERS=Set.of("dateFrom","dateTo","campus","category","query","maxPriceCents","hourFrom","hourTo","sort");
@@ -42,6 +45,7 @@ public class AssistantTools {
         return id;
     }
     public JsonNode execute(String name,JsonNode args,long user,Checkpoint cp) {
+        if(localEnabled()&&com.hmdp.upgrade.LocalAssistantTools.NAMES.contains(name))return local.execute(name,args,user,cp);
         if(!ALLOWED.contains(name))throw new Problem(403,"ASSISTANT_TOOL_FORBIDDEN");
         switch(name) {
             case "search_activities" -> {

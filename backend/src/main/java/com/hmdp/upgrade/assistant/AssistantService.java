@@ -41,6 +41,7 @@ public class AssistantService {
     public Run submit(long user,String session,String key,String message){
         enabled();
         if(key==null||!key.matches("[A-Za-z0-9_-]{8,64}")||message==null||message.isBlank()||message.length()>1000||message.indexOf('\0')>=0)throw new Problem(400,"ASSISTANT_INVALID_REQUEST");
+        if(message.matches("(?is).*(?:[a-f0-9]{64}|sk-[a-z0-9_-]{16,}).*")||message.matches("(?is).*(?:密码|password|token|恢复码|核销码)[：: ]+[a-z0-9_!@#$%^-]{6,}.*"))throw new Problem(400,"ASSISTANT_SENSITIVE_INPUT");
         final String input=message.trim();expire();
         String id=tx.run(()->{
             db.queryForObject("SELECT id FROM ux_assistant_quota WHERE id=1 FOR UPDATE",Integer.class);

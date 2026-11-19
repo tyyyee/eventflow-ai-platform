@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { ArrowRight, Clock3, MessageCircle, Plus, Send, Sparkles, Ticket, Trash2 } from 'lucide-react'
 import { api, explain } from './api'
 import './assistant.css'
+import AssistantCards from './life/AssistantCards'
 
 const active = status => ['QUEUED', 'RUNNING'].includes(status)
 const money = value => (value / 100).toFixed(2).replace(/\.00$/, '')
@@ -16,8 +17,9 @@ function readIntent(user, session) {
   } catch { return null }
 }
 
-export default function TicketAssistant({ session, openAuth, openActivity, openOrders, sessionFailure }) {
+export default function TicketAssistant({ localLife=false, session, openAuth, openActivity, openOrders, sessionFailure }) {
   const user = session?.user.id
+  const samples=localLife?['主校区预算50元，推荐咖啡店','换成东校区的，其他条件不变','对比这几家店','第一个有什么优惠券？','看看我的券包','优惠券过期后还能用吗？']:examples
   const [sessions, setSessions] = useState([]), [id, setId] = useState(null), [data, setData] = useState(null)
   const [message, setMessage] = useState(''), [error, setError] = useState(''), [busy, setBusy] = useState(false), [loading, setLoading] = useState(true)
   const [retry, setRetry] = useState(null), [reload, setReload] = useState(0)
@@ -125,19 +127,20 @@ export default function TicketAssistant({ session, openAuth, openActivity, openO
   const criteria = data?.state?.criteria
   const chips = criteria ? [criteria.dateFrom && `${criteria.dateFrom}${criteria.dateTo && criteria.dateTo !== criteria.dateFrom ? ` 至 ${criteria.dateTo}` : ''}`, criteria.hourFrom != null && `${criteria.hourFrom}:00–${criteria.hourTo ?? 24}:00`, criteria.maxPriceCents != null && `预算 ≤ ¥${money(criteria.maxPriceCents)}`, criteria.campus, criteria.category, criteria.query].filter(Boolean) : []
   return <section className="assistant-page" aria-label="智能票务助手">
-    <div className="heading"><div><p className="eyebrow">TICKET ASSISTANT</p><h1><MessageCircle size={28}/>智能票务助手</h1><p className="muted">说说你的时间和预算，一起找到合适的活动。</p></div>{user && <div className="assistant-actions"><button className="outline" disabled={busy || running} onClick={newSession}><Plus size={16}/>新对话</button>{id && <button className="icon" aria-label="删除当前对话" disabled={busy || running} onClick={removeSession}><Trash2 size={18}/></button>}</div>}</div>
-    {!user ? <div className="empty assistant-signin"><Sparkles size={34}/><h2>登录后，开始选活动</h2><p className="muted">支持多轮调整条件、查询余票、了解规则和查看本人订单。</p><button className="primary" onClick={openAuth}>登录 / 注册</button></div> : <>
+    <div className="heading"><div><p className="eyebrow">TICKET ASSISTANT</p><h1><MessageCircle size={28}/>{localLife?"生活选店与客服助手":"智能票务助手"}</h1><p className="muted">{localLife?"说说预算和喜好，或告诉我遇到的问题。":"说说你的时间和预算，一起找到合适的活动。"}</p></div>{user && <div className="assistant-actions"><button className="outline" disabled={busy || running} onClick={newSession}><Plus size={16}/>新对话</button>{id && <button className="icon" aria-label="删除当前对话" disabled={busy || running} onClick={removeSession}><Trash2 size={18}/></button>}</div>}</div>
+    {!user ? <div className="empty assistant-signin"><Sparkles size={34}/><h2>{localLife?"登录后，开始发现好去处":"登录后，开始选活动"}</h2><p className="muted">支持多轮调整条件、查询余票、了解规则和查看本人订单。</p><button className="primary" onClick={openAuth}>登录 / 注册</button></div> : <>
       <div className="assistant-toolbar"><label>对话<select aria-label="选择票务对话" value={id || ''} disabled={busy || running} onChange={e => setId(e.target.value || null)}><option value="">开始新对话</option>{sessions.map((item, index) => <option key={item.id} value={item.id}>对话 {sessions.length - index} · {when(item.updatedAt)}</option>)}</select></label>{data?.mode === 'stub' && <span className="assistant-demo">本地演示</span>}<span className="muted small">查询提供建议，购票请在活动详情确认。</span></div>
       {data?.mode === 'stub' && <p className="assistant-mode-note">当前使用本地示例表达解析，无需模型密钥。可从下方示例开始。</p>}
-      <div className="assistant-examples" aria-label="示例问题">{examples.map(text => <button key={text} disabled={busy || running} onClick={() => setMessage(text)}>{text}</button>)}</div>
+      <div className="assistant-examples" aria-label="示例问题">{samples.map(text => <button key={text} disabled={busy || running} onClick={() => setMessage(text)}>{text}</button>)}</div>
       {chips.length > 0 && <div className="assistant-criteria" aria-label="当前活动筛选条件"><strong>当前条件</strong>{chips.map(chip => <span key={chip}>{chip}</span>)}</div>}
       <div className="assistant-conversation" aria-label="票务对话记录" aria-busy={running}>
-        {loading ? <p className="empty">正在读取对话…</p> : !data?.turns.length && <div className="assistant-welcome"><Sparkles size={28}/><h2>从一个具体需求开始</h2><p>例如：明天预算100元，想看音乐活动。</p><p className="muted small">之后可以说“换成主校区的”或“第一个还有票吗”。</p></div>}
+        {loading ? <p className="empty">正在读取对话…</p> : !data?.turns.length && <div className="assistant-welcome"><Sparkles size={28}/><h2>从一个具体需求开始</h2><p>{localLife?"例如：主校区预算50元，推荐咖啡店。":"例如：明天预算100元，想看音乐活动。"}</p><p className="muted small">之后可以说“换成主校区的”或“第一个还有票吗”。</p></div>}
         {data?.turns.map(turn => <div className="assistant-turn" key={turn.id}>
           <div className="assistant-user"><span>我</span><p>{turn.message}</p></div>
-          <div className="assistant-answer"><div className="assistant-answer-title"><Sparkles size={16}/><strong>趣票助手</strong></div>
+          <div className="assistant-answer"><div className="assistant-answer-title"><Sparkles size={16}/><strong>{localLife?"趣生活助手":"趣票助手"}</strong></div>
             {active(turn.status) ? <p className="assistant-working" role="status"><Clock3 size={15}/>正在查询，请稍候…</p> : <>
               <p className={turn.reply?.errorCode ? 'assistant-failed' : ''}>{turn.reply?.text || '本次查询未完成，请重试或打开活动详情核实。'}</p>
+              {turn.reply?.local && <AssistantCards result={turn.reply.local}/>}
               {turn.reply?.activities.length > 0 && <div className="assistant-card-grid">{turn.reply.activities.map((activity, index) => <article className="assistant-event" key={activity.activityId}>
                 <div className="assistant-event-head"><span className="assistant-number">{index + 1}</span><span className={`assistant-sale ${activity.saleStatus.toLowerCase()}`}>{sale[activity.saleStatus]}</span></div>
                 <h3>{activity.title}</h3><p>{activity.sessionTitle}</p><p className="muted small">{activity.campus} · {when(activity.startsAt)}–{when(activity.endsAt)}</p>
@@ -148,7 +151,7 @@ export default function TicketAssistant({ session, openAuth, openActivity, openO
               {turn.reply?.rules.map(rule => <article className="assistant-rule" key={`${rule.activityId || 'common'}-${rule.title}`}><strong>{rule.title}</strong><p>{rule.terms}</p>{rule.notice && <p className="muted small">{rule.notice}</p>}</article>)}
               {turn.reply?.orders.map(order => <article className="assistant-order" key={order.requestId}><h3><Ticket size={16}/>{order.title}</h3><p>{order.description}</p>{order.confirmUntil && <p className="muted small">支付截止：{when(order.confirmUntil)}</p>}<small className="muted">请求编号：{order.requestId}</small></article>)}
               {(turn.reply?.kind === 'ORDERS' || turn.reply?.orders.length > 0) && <button className="outline" onClick={openOrders}>打开我的票夹<ArrowRight size={15}/></button>}
-              {turn.reply?.sources.length > 0 && <p className="assistant-source">依据：{turn.reply.activities.length ? '已发布活动与交易余票查询' : turn.reply.rules.length ? '平台及活动已发布规则' : '本人请求与订单记录'} · {when(turn.reply.checkedAt)} 查询</p>}
+              {!turn.reply?.local && turn.reply?.sources.length > 0 && <p className="assistant-source">依据：{turn.reply.activities.length ? '已发布活动与交易余票查询' : turn.reply.rules.length ? '平台及活动已发布规则' : '本人请求与订单记录'} · {when(turn.reply.checkedAt)} 查询</p>}
             </>}
           </div>
         </div>)}

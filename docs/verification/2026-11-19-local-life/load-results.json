@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-19T14:51:27.993Z",
+  "environment": {
+    "os": "Windows_NT 10.0.26100",
+    "cpu": "Intel(R) Core(TM) 7 240H",
+    "logicalCpus": 16,
+    "memoryGiB": 32,
+    "node": "v24.15.0",
+    "database": "isolated qulife_local_verify",
+    "transport": "HTTP directly to Spring Boot; same machine",
+    "sqlQueryCount": "not measured"
+  },
+  "limitations": "Small fictional dataset; sequential phases; no external model, no production capacity claim; repeated writes test idempotent paths, not distinct-user coupon issuance.",
+  "results": [
+    {
+      "name": "public shop list and detail",
+      "concurrency": 20,
+      "seconds": 60,
+      "requests": 125716,
+      "statuses": {
+        "200": 125716
+      },
+      "p50Ms": 6.14,
+      "p95Ms": 34.89,
+      "p99Ms": 54.66,
+      "successfulRequestsPerSecond": 2095.13,
+      "responseBytes": 943236865,
+      "paths": [
+        {
+          "path": "/local/shops"
+        },
+        {
+          "path": "/local/shops/32001"
+        }
+      ]
+    },
+    {
+      "name": "authenticated idempotent sign and favorite writes",
+      "concurrency": 20,
+      "perWorkerIntervalMs": 667,
+      "seconds": 60.54,
+      "requests": 1800,
+      "statuses": {
+        "200": 1800
+      },
+      "p50Ms": 7.69,
+      "p95Ms": 12.24,
+      "p99Ms": 15.07,
+      "successfulRequestsPerSecond": 29.73,
+      "responseBytes": 122400,
+      "paths": [
+        {
+          "path": "/account/signs/today",
+          "method": "PUT"
+        },
+        {
+          "path": "/account/favorites/SHOP/32001",
+          "method": "PUT"
+        }
+      ]
+    }
+  ]
+}

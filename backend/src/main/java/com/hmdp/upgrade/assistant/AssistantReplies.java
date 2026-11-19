@@ -7,6 +7,15 @@ import static com.hmdp.upgrade.assistant.AssistantData.*;
 public final class AssistantReplies {
     private AssistantReplies() {}
     public static Reply render(Checkpoint cp,Instant now) {
+        if(cp.view.startsWith("LOCAL_")&&cp.localResult!=null){String kind=cp.localResult.path("kind").asText();String text=switch(kind){
+            case "SHOPS" -> cp.localResult.path("data").path("shops").isEmpty()?"没有找到同时满足这些条件的小店。可以明确调整预算、距离或分类后再查。":"按你的条件找到这些小店。人均和评分来自当前店铺信息，距离为直线距离，不能据此判断等位时间。";
+            case "COMPARE" -> "以下按同一组公开信息比较这些店，未提供的字段暂无法确认。";
+            case "SHOP_COUPONS" -> "这是刚查询到的优惠券。是否可领取仍以点击领取时的校验为准，当前没有替你领券。";
+            case "MY_COUPONS" -> "以下仅展示当前账号的券包。优惠券有效期和使用状态以服务端查询为准。";
+            case "PAYMENT" -> cp.localResult.path("data").path("items").isEmpty()?"当前请求没有付款记录，不能据此认定已付款或已退款。":"已查询本人付款和退款记录。只有退款完成时间存在，才表示模拟退款已完成。";
+            case "POLICIES" -> cp.localResult.path("data").path("items").isEmpty()?"已发布的帮助规则中暂未找到依据。可以说明具体问题，或填写反馈。":"以下是已发布的规则及版本。未写明的内容暂无法确认。";
+            default -> "已整理为反馈草稿，尚未提交。请检查内容，再点击确认提交。";
+        };List<String> sources=new ArrayList<>();cp.localResult.path("sources").forEach(x->sources.add(x.asText()));return new Reply(cp.view,text,List.of(),List.of(),List.of(),sources,cp.evidenceAt,null,cp.localResult);}
         String text=switch(cp.view) {
             case "SEARCH" -> cp.activities.isEmpty()?"没有找到同时满足当前条件且有余票的活动。可以调整时间、预算或校区后再查。"
                 :"按当前条件找到以下活动，已按"+(cp.state.criteria.sort.equals("price")?"价格":"活动时间")+"排序。余票以查询时为准，进入详情后仍需重新校验；当前没有为你占票。";
@@ -37,6 +46,9 @@ public final class AssistantReplies {
     public static Reply failure(String code,Instant now) {
         String text=switch(code) {
             case "ASSISTANT_ACTIVITY_REQUIRED","ASSISTANT_UNKNOWN_CANDIDATE" -> "请说明要查询哪场活动，可以用上一轮列表中的序号；若活动已不在列表，请先重新搜索。";
+            case "LOCAL_PARTY_SIZE_REQUIRED" -> "这是总预算，需要知道一共几个人，才能折算为人均参考预算。";
+            case "LOCAL_SHOP_REQUIRED" -> "请先搜索店铺，或明确选择刚才列表中的哪一家。对比需要至少两家店。";
+            case "LOCAL_PRICE_UNKNOWN" -> "该店没有提供人均价格，暂时不能据此寻找更便宜的店。";
             case "ASSISTANT_QUERY_TOO_BROAD" -> "检索范围较大，请缩小日期、校区或活动类型后再试。";
             case "ASSISTANT_ALREADY_FREE" -> "当前参考活动已是免费活动，无法再降低价格。可以调整时间、校区或活动类型。";
             case "REQUEST_NOT_FOUND" -> "未找到属于当前账号的这笔请求，请核对编号或打开我的票夹。";

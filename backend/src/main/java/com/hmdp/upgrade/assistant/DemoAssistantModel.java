@@ -25,7 +25,12 @@ public final class DemoAssistantModel implements AssistantModel {
     }
     public ModelAnswer next(Checkpoint cp,String request,Instant now,long remaining) {
         Set<String> called=called(cp);String text=request.trim();
+        if(cp.localEnabled&&called.isEmpty()){ModelAnswer local=local(cp,text);if(local!=null)return local;}
         if(!called.isEmpty()) {
+            if(cp.localEnabled&&called.contains("get_my_orders")&&!called.contains("get_my_payment_status")&&text.matches(".*(退款进度|付款记录|退款状态|退了没).*")){
+                if(cp.orders.size()==1)return call("get_my_payment_status",json.createObjectNode().put("requestId",cp.orders.get(0).requestId()));
+                return ask("goal");
+            }
             if(called.contains("get_activity")&&!called.contains("search_activities")&&text.matches(".*(没票就|售罄就|类似|换个).*")) {
                 Activity selected=cp.state.candidates.stream().filter(a->a.activityId().equals(cp.state.selectedActivityId)).findFirst().orElse(null);
                 if(selected!=null&&selected.saleStatus().equals("SOLD_OUT"))return call("search_activities",json.createObjectNode().put("excludeSelected",true));
@@ -86,6 +91,30 @@ public final class DemoAssistantModel implements AssistantModel {
         if(text.contains("重新开始")||text.contains("清空条件"))for(String f:List.of("dateFrom","dateTo","campus","category","query","maxPriceCents","hourFrom","hourTo"))patch.putNull(f);
         if(patch.isEmpty()&&cp.state.candidates.isEmpty()&&!text.matches(".*(推荐|活动|看看|找|演出).*"))return ask("goal");
         return call("search_activities",patch);
+    }
+    private ModelAnswer local(Checkpoint cp,String text){
+        if(text.matches(".*(反馈|投诉).*")&&!text.matches(".*(怎么|如何|规则|为什么).*"))return call("prepare_support_draft",json.createObjectNode().put("title","校园生活体验反馈").put("body",text.length()>=10?text:"我想反馈一个校园生活平台使用问题："+text));
+        if(text.matches(".*(退款进度|付款记录|退款状态|退了没).*")){
+            Matcher id=Pattern.compile("[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}").matcher(text);
+            return id.find()?call("get_my_payment_status",json.createObjectNode().put("requestId",id.group())):call("get_my_orders",json.createObjectNode());
+        }
+        if(text.matches(".*(我的券|我的优惠券|券包).*"))return call("get_my_coupons",json.createObjectNode());
+        if(text.matches(".*(怎么|为什么|规则|如何|忘记|能不能|可以|过期).*")&&text.matches(".*(券|签到|密码|恢复码|核销|评论|评价|打卡|退款|取消).*"))return call("search_policies",json.createObjectNode().put("q",text));
+        if(text.matches(".*(对比|比较|比一比).*")){if(cp.state.shopCandidates.size()<2)return ask("goal");return call("compare_shops",json.createObjectNode());}
+        if(!cp.state.shopCandidates.isEmpty()&&text.matches(".*(优惠券|有券|领券|优惠).*")) {var target=json.createObjectNode();Integer pos=position(text);if(pos!=null)target.put("position",pos);return call("get_shop_coupons",target);}
+        if(!cp.state.shopCandidates.isEmpty()&&text.matches(".*(第.个|这家|店铺详情).*")){var target=json.createObjectNode();Integer pos=position(text);if(pos!=null)target.put("position",pos);return call("get_shop",target);}
+        boolean follow=!cp.state.shopCandidates.isEmpty()&&text.matches(".*(便宜|换成|预算|校区|不变|不限|有券|近一点).*"),shop=text.matches(".*(找店|选店|小店|店铺|商铺|吃|咖啡|火锅|甜品|烘焙|聚餐|茶饮).*" );
+        if(!shop&&!follow)return null;
+        var a=json.createObjectNode();String[][] cats={{"咖啡茶饮","咖啡|茶饮"},{"火锅","火锅"},{"甜品烘焙","甜品|烘焙|蛋糕"},{"休闲娱乐","桌游|自习|娱乐"},{"运动体验","运动|攀岩|瑜伽"},{"美食","美食|吃|聚餐"}};
+        for(var cat:cats)if(text.matches(".*("+cat[1]+").*")){a.put("category",cat[0]);break;}
+        for(String campus:List.of("主校区","东校区","南校区"))if(text.contains(campus)){a.put("campus",campus);a.put("landmark",campus.equals("主校区")?"main-east":campus.equals("东校区")?"east-gate":"south-gate");}
+        Matcher budget=Pattern.compile("(?:预算|不超过|最多|人均)[：: ]*([0-9]+)").matcher(text);if(budget.find())a.put("maxPriceCents",Integer.parseInt(budget.group(1))*100);
+        Matcher distance=Pattern.compile("([1-9][0-9]?)公里").matcher(text);if(distance.find())a.put("maxDistanceMeters",Integer.parseInt(distance.group(1))*1000);
+        Matcher total=Pattern.compile("(?:一共|总预算|总共)[：: ]*([0-9]+)").matcher(text);Matcher people=Pattern.compile("([1-9][0-9]?)个?人").matcher(text);if(total.find()&&!text.contains("人均")){a.put("totalBudgetCents",Integer.parseInt(total.group(1))*100);if(people.find())a.put("people",Integer.parseInt(people.group(1)));}
+        if(text.contains("营业"))a.put("openOnly",true);if(text.contains("有优惠")||text.contains("有券"))a.put("hasCoupon",true);
+        if(text.contains("安静"))a.put("q","安静");if(text.contains("不限预算"))a.putNull("maxPriceCents");if(text.contains("不限校区"))a.putNull("campus");if(text.contains("不限类型"))a.putNull("category");
+        if(text.matches(".*(更便宜|便宜点|便宜一点).*"))a.put("cheaper",true);if(text.contains("近一点"))a.put("sort","distance");
+        return call("search_shops",a);
     }
     private Integer position(String text) {
         Matcher m=Pattern.compile("第([一二三四五六七八12345678])(?:个|场|项)?").matcher(text);

@@ -11,13 +11,18 @@ export async function api(path, { method = 'GET', body, csrf, signal } = {}) {
     body: body ? JSON.stringify(body) : undefined,
     signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(10000)]) : AbortSignal.timeout(10000),
   })
-  if (response.status === 204) return null
-  const data = await response.json().catch(() => ({}))
-  if (!response.ok) throw new ApiError(response.status, data.error || 'SERVICE_UNAVAILABLE')
+  if (response.status === 204) {if(path==='/auth/logout')window.dispatchEvent(new CustomEvent('life-session',{detail:null}));return null}
+  let data
+  try { data = await response.json() } catch(error) { if(signal?.aborted || ['AbortError','TimeoutError'].includes(error.name))throw error;throw new ApiError(response.status>=400?response.status:502,'INVALID_RESPONSE') }
+  if (!response.ok) {if(['UNAUTHORIZED','SESSION_CHANGED'].includes(data.error))window.dispatchEvent(new CustomEvent('life-session',{detail:null}));throw new ApiError(response.status, data.error || 'SERVICE_UNAVAILABLE')}
+  if(['/auth/login','/auth/register'].includes(path))window.dispatchEvent(new CustomEvent('life-session',{detail:data}));
   return data
 }
 
 const messages = {
+  ASSISTANT_SENSITIVE_INPUT:'请勿向助手发送密码、恢复码、核销码或密钥。删除敏感内容后重新提问。', LOCAL_INVALID_INPUT:'请检查填写的内容、时间和金额。', LOCAL_VERSION_CONFLICT:'内容已被更新，请刷新后再操作。', LOCAL_NOT_FOUND:'这条内容不存在或已下架。', LOCAL_LIFE_DISABLED:'生活服务暂未开放。', OPERATOR_REQUIRED:'此操作需要运营权限。',
+  REVIEW_EXISTS:'你已评价过这家店，请在我的评价中编辑原评价。', SELF_LIKE_FORBIDDEN:'不能给自己的评价点赞。', COUPON_NOT_CLAIMABLE:'这张券暂时不可领取，请查看领取时间和发放状态。', COUPON_SOLD_OUT:'这张券已经领完。', COUPON_NOT_USABLE:'这张券当前不可使用，请核对状态和有效期。', COUPON_MINIMUM_NOT_MET:'消费金额未达到使用门槛。', COUPON_RULES_FROZEN:'已发布的规则不能修改，请新建优惠券。', LOCAL_KEY_CONFLICT:'这次操作与原请求内容不同，请先确认原操作结果。', RECOVERY_FAILED:'用户名或恢复码不正确。', LOCAL_INVALID_IMAGE:'图片不可使用，请重新选择 JPG、PNG 或 WebP。', MEDIA_TOO_LARGE:'图片超过大小或像素限制。', MEDIA_QUOTA:'今天的上传次数或存储空间已达到上限。', MEDIA_ALREADY_USED:'这张图片已用于其他内容，请重新上传。', FAVORITE_LIMIT:'收藏数量已达到上限。',
+
   ASSISTANT_DISABLED: '票务助手暂未开启，请先使用活动广场。',
   ASSISTANT_BUSY: '上一条问题仍在处理，请等待结果或刷新对话。',
   ASSISTANT_QUEUE_FULL: '助手当前较忙，请稍后再试。',

@@ -1,0 +1,83 @@
+{
+  "date": "2026-11-19T14:54:13.426Z",
+  "environment": "isolated verification database + Chrome context",
+  "tests": [
+    {
+      "name": "homepage has 30 seeded shops and working illustration assets",
+      "passed": true
+    },
+    {
+      "name": "mobile home has no horizontal overflow at 360, 390 and 768",
+      "passed": true
+    },
+    {
+      "name": "failed images and interrupted shop requests can recover without a blank page",
+      "passed": true
+    },
+    {
+      "name": "register form creates a real account and personal center",
+      "passed": true
+    },
+    {
+      "name": "daily sign survives page refresh and duplicate PUT counts once",
+      "passed": true
+    },
+    {
+      "name": "shop detail loads gallery, review score and live coupons",
+      "passed": true
+    },
+    {
+      "name": "favorite is persisted per account",
+      "passed": true
+    },
+    {
+      "name": "free coupon claim and wallet detail are real persisted records",
+      "passed": true
+    },
+    {
+      "name": "review create/edit and reload update actual shop rating",
+      "passed": true
+    },
+    {
+      "name": "a second customer can like a review and cannot read the first customer wallet",
+      "passed": true
+    },
+    {
+      "name": "shop checkin is unique per user/shop/day",
+      "passed": true
+    },
+    {
+      "name": "assistant searches shops and returns factual source cards",
+      "passed": true
+    },
+    {
+      "name": "assistant coupon tool never exposes redemption code",
+      "passed": true
+    },
+    {
+      "name": "non-operator cannot access operations endpoints or UI controls",
+      "passed": true
+    },
+    {
+      "name": "password recovery code is generated and old sessions are revoked after reset",
+      "passed": true
+    },
+    {
+      "name": "shop filter and deep link refresh retain the query",
+      "passed": true
+    },
+    {
+      "name": "ticket purchase, persisted order and simulated payment remain usable",
+      "passed": true
+    },
+    {
+      "name": "operator can preview and redeem a coupon through the UI",
+      "passed": true
+    },
+    {
+      "name": "operator can create a shop with real form data",
+      "passed": true
+    }
+  ],
+  "uncaughtErrors": []
+}
