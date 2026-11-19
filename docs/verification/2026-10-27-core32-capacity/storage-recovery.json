@@ -1,0 +1,44 @@
+{
+  "scope": "Primary order tables only, real logical export/restore with full field comparisons; no full-business recovery or replica failover claim",
+  "completedAt": "2026-10-27T17:40:36.7610093+08:00",
+  "startedAt": "2026-10-27T17:39:31.0106408+08:00",
+  "units": [
+    {
+      "exportSeconds": 2.8200123,
+      "exportBytes": 118559250,
+      "restoredSchema": "qupiao_cap_restore_single_20261027173930",
+      "differentRows": 0,
+      "restoreSeconds": 42.5591473,
+      "verifiedRows": 1028759,
+      "rows": 1028759,
+      "port": 33307,
+      "tables": [
+        "cx_order"
+      ],
+      "sha256": "3386ECB840E4313A71F2B6B1DD07778F5DDD0DD780106B90D54027C55ECD2779",
+      "mode": "single"
+    },
+    {
+      "exportSeconds": 0.3978208,
+      "exportBytes": 29789650,
+      "restoredSchema": "qupiao_cap_restore_one_of_four_20261027173930",
+      "differentRows": 0,
+      "restoreSeconds": 5.0615877,
+      "verifiedRows": 258272,
+      "rows": 258272,
+      "port": 33400,
+      "tables": [
+        "cx_order_0",
+        "cx_order_1",
+        "cx_order_2",
+        "cx_order_3",
+        "cx_order_4",
+        "cx_order_5",
+        "cx_order_6",
+        "cx_order_7"
+      ],
+      "sha256": "0DEA963753EC489C15A8A08716A0B82280B66831CA8AEA6606CD824B4EA2B320",
+      "mode": "one-of-four"
+    }
+  ]
+}

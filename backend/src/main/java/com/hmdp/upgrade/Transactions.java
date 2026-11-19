@@ -16,8 +16,18 @@ public class Transactions {
         tx.setTimeout(5);
     }
     public <T> T run(Supplier<T> action) {
+        return execute(tx,action);
+    }
+    /** Batch maintenance must not extend the timeout used by trading transactions. */
+    public <T> T runWithTimeout(int seconds,Supplier<T> action) {
+        if(seconds<1)throw new IllegalArgumentException("Positive transaction timeout required");
+        var maintenance=new TransactionTemplate(tx.getTransactionManager(),tx);
+        maintenance.setTimeout(seconds);
+        return execute(maintenance,action);
+    }
+    private <T> T execute(TransactionTemplate template,Supplier<T> action) {
         for(int attempt=0;;attempt++) {
-            try { return tx.execute(status -> action.get()); }
+            try { return template.execute(status -> action.get()); }
             catch(ConcurrencyFailureException retryable) {
                 if(attempt==2) throw retryable;
                 try { Thread.sleep(10L*(attempt+1)); }

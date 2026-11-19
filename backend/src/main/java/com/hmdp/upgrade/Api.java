@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 @RestController
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name="upgrade.core32.enabled",havingValue="false",matchIfMissing=true)
 @RequestMapping("/v2")
 public class Api {
     @org.springframework.beans.factory.annotation.Autowired(required=false)

@@ -1,0 +1,255 @@
+{
+  "skipped": 25.0,
+  "generatedAt": "2026-10-27T16:34:09.7545517+08:00",
+  "failures": 0.0,
+  "scope": "complete sharding-profile suite in legacy application mode; separate verification schema/Redis DB13; CORE32 integration separately verified",
+  "environment": {
+    "startedAt": "2026-10-27T16:31:05.0169483+08:00",
+    "schema": "qupiao_verify_20261027163104",
+    "redisDatabase": 13,
+    "topic": "qupiao_verify_20261027163104-orders"
+  },
+  "suites": [
+    {
+      "skipped": 0,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.AccountsTest",
+      "tests": 7,
+      "errors": 0
+    },
+    {
+      "skipped": 0,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.AuthSecretConfigurationTest",
+      "tests": 2,
+      "errors": 0
+    },
+    {
+      "skipped": 0,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.AuthTest",
+      "tests": 5,
+      "errors": 0
+    },
+    {
+      "skipped": 0,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.CacheCircuitTest",
+      "tests": 2,
+      "errors": 0
+    },
+    {
+      "skipped": 0,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.core32.Core32IdsTest",
+      "tests": 3,
+      "errors": 0
+    },
+    {
+      "skipped": 1,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.core32.Core32LeaseTest",
+      "tests": 1,
+      "errors": 0
+    },
+    {
+      "skipped": 1,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.core32.Core32MigrationTest",
+      "tests": 1,
+      "errors": 0
+    },
+    {
+      "skipped": 3,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.core32.Core32StoreTest",
+      "tests": 3,
+      "errors": 0
+    },
+    {
+      "skipped": 7,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.core32.Core32TradingTest",
+      "tests": 7,
+      "errors": 0
+    },
+    {
+      "skipped": 0,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.CustomerAuthTest",
+      "tests": 9,
+      "errors": 0
+    },
+    {
+      "skipped": 0,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.CustomerHttpTest",
+      "tests": 10,
+      "errors": 0
+    },
+    {
+      "skipped": 0,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.DeliveryErrorTest",
+      "tests": 5,
+      "errors": 0
+    },
+    {
+      "skipped": 0,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.DeliveryWindowTest",
+      "tests": 3,
+      "errors": 0
+    },
+    {
+      "skipped": 0,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.ExternalHistoryConfigurationTest",
+      "tests": 3,
+      "errors": 0
+    },
+    {
+      "skipped": 8,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.ExternalOrderHistoryTest",
+      "tests": 8,
+      "errors": 0
+    },
+    {
+      "skipped": 1,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.HistoryBenchmarkCleanupTest",
+      "tests": 1,
+      "errors": 0
+    },
+    {
+      "skipped": 1,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.HistoryBenchmarkTest",
+      "tests": 1,
+      "errors": 0
+    },
+    {
+      "skipped": 0,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.HistoryDeploymentTest",
+      "tests": 1,
+      "errors": 0
+    },
+    {
+      "skipped": 1,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.HistoryRoutingTest",
+      "tests": 1,
+      "errors": 0
+    },
+    {
+      "skipped": 1,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.HistoryVolumeTest",
+      "tests": 1,
+      "errors": 0
+    },
+    {
+      "skipped": 0,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.MiddlewareTest",
+      "tests": 32,
+      "errors": 0
+    },
+    {
+      "skipped": 0,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.OrderProjectionTest",
+      "tests": 5,
+      "errors": 0
+    },
+    {
+      "skipped": 0,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.OrderShardingSecurityTest",
+      "tests": 1,
+      "errors": 0
+    },
+    {
+      "skipped": 0,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.PaymentsTest",
+      "tests": 11,
+      "errors": 0
+    },
+    {
+      "skipped": 0,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.PipelineMetricsTest",
+      "tests": 4,
+      "errors": 0
+    },
+    {
+      "skipped": 0,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.planning.PlanningWorkflowTest",
+      "tests": 3,
+      "errors": 0
+    },
+    {
+      "skipped": 0,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.ReliabilityIntegrationTest",
+      "tests": 7,
+      "errors": 0
+    },
+    {
+      "skipped": 0,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.ReservationsPagingTest",
+      "tests": 3,
+      "errors": 0
+    },
+    {
+      "skipped": 1,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.ShardingEnvironmentTest",
+      "tests": 1,
+      "errors": 0
+    },
+    {
+      "skipped": 0,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.ShopBloomTest",
+      "tests": 2,
+      "errors": 0
+    },
+    {
+      "skipped": 0,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.ShopCacheTest",
+      "tests": 5,
+      "errors": 0
+    },
+    {
+      "skipped": 0,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.TradingTest",
+      "tests": 20,
+      "errors": 0
+    },
+    {
+      "skipped": 0,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.TransactionsTest",
+      "tests": 2,
+      "errors": 0
+    },
+    {
+      "skipped": 0,
+      "failures": 0,
+      "name": "com.hmdp.upgrade.WaitlistsTest",
+      "tests": 3,
+      "errors": 0
+    }
+  ],
+  "errors": 0.0,
+  "tests": 173.0,
+  "passed": 148.0
+}

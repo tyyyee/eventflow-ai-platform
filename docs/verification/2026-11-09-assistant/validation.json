@@ -1,0 +1,66 @@
+{
+  "existingDiscoveryBrowser": {
+    "scenarioCount": 6,
+    "results": "discovery-regression/results.json",
+    "passed": true
+  },
+  "frontendBuild": "passed",
+  "backendFull": {
+    "tests": 219,
+    "errors": 0,
+    "log": ".local/assistant/test-all.log",
+    "failures": 0,
+    "skipped": 84,
+    "buildSucceeded": true
+  },
+  "reportCountsOverlap": true,
+  "latestJUnitReports": {
+    "skipped": 82,
+    "failures": 0,
+    "tests": 219,
+    "errors": 0
+  },
+  "assistantMiddleware": {
+    "tests": 2,
+    "errors": 0,
+    "log": ".local/assistant/test-integration.log",
+    "failures": 0,
+    "skipped": 0,
+    "buildSucceeded": true
+  },
+  "model": {
+    "providerContractTest": "local HTTP fixture; not real model quality or billed tokens",
+    "runningMode": "stub",
+    "realProviderEvaluationExecuted": false
+  },
+  "projectDirectory": "F:\\00简历整体修改\\04-魔改点评\\加了agent之后的内容",
+  "assistantBrowser": {
+    "scenarioCount": 9,
+    "results": "browser/results.json",
+    "passed": true
+  },
+  "recordedAt": "2026-11-09T13:49:21.6932331+08:00",
+  "runtime": {
+    "frontend": 4286,
+    "database": "qupiao_assistant",
+    "redis": 37380,
+    "verificationDatabase": "qupiao_assistant_verify",
+    "nameserver": 40876,
+    "mysql": 34307,
+    "broker": 40911,
+    "backend": 8193
+  },
+  "limits": [
+    "No real model quality or production performance results",
+    "CORE32 adapter compiled; no new four-instance end-to-end assistant test",
+    "Compose environment wired; containers not rebuilt in this acceptance"
+  ],
+  "assistantFocused": {
+    "tests": 28,
+    "errors": 0,
+    "log": ".local/assistant/test-focused.log",
+    "failures": 0,
+    "skipped": 0,
+    "buildSucceeded": true
+  }
+}

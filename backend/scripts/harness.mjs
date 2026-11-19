@@ -71,17 +71,15 @@ export async function invariant() {
     throw new Error(`Invariant violation: ${JSON.stringify(r)}`);
   return r.data;
 }
-export async function kafkaDrained(timeout=90000) {
+// Business settlement only; this does not claim that broker physical message lag is zero.
+export async function ordersDrained(timeout=90000) {
   const started=Date.now();
-  const group=process.env.UPGRADE_GROUP??process.env.SPRING_KAFKA_CONSUMER_GROUP_ID??'upgrade-orders-v1';
-  const topic=process.env.UPGRADE_TOPIC??'upgrade-orders-v1';
   while(Date.now()-started<timeout) {
-    const output=compose('exec','-T','kafka','/opt/kafka/bin/kafka-consumer-groups.sh','--bootstrap-server','localhost:29092','--describe','--group',group);
-    const rows=output.split('\n').map(line=>line.trim().split(/\s+/)).filter(row=>row[0]===group&&row[1]===topic);
-    if(rows.length===3 && rows.every(row=>row[5]==='0')) return;
+    const pending=Number(sql("SELECT (SELECT COUNT(*) FROM ux_outbox WHERE sent_at IS NULL)+(SELECT COUNT(*) FROM ux_request WHERE state='ACCEPTED')"));
+    if(pending===0)return;
     await sleep(1000);
   }
-  throw new Error('Kafka offsets did not catch up after restart');
+  throw new Error('Accepted requests and outbox did not settle');
 }
 export function save(file,data) { writeFileSync(file,JSON.stringify(data,null,2)+'\n'); }
 

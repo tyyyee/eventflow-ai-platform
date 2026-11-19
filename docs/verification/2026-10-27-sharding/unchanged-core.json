@@ -1,0 +1,22 @@
+[
+  {
+    "unchanged": true,
+    "path": "backend/src/main/java/com/hmdp/upgrade/OrderProjection.java"
+  },
+  {
+    "unchanged": true,
+    "path": "backend/src/main/java/com/hmdp/upgrade/Trading.java"
+  },
+  {
+    "unchanged": true,
+    "path": "backend/src/main/java/com/hmdp/upgrade/Payments.java"
+  },
+  {
+    "unchanged": true,
+    "path": "backend/src/main/java/com/hmdp/upgrade/DelayedClose.java"
+  },
+  {
+    "unchanged": true,
+    "path": "backend/src/main/java/com/hmdp/upgrade/ShopCache.java"
+  }
+]

@@ -10,13 +10,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.CompletableFuture;
 import java.util.ArrayDeque;
-import org.springframework.kafka.support.SendResult;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -27,12 +22,13 @@ public class Delivery {
     private final JdbcTemplate db;
     private final Transactions tx;
     private final Trading trading;
-    private final KafkaTemplate<String,String> kafka;
+    private final OrderMessages messages;
     private final ObjectMapper json;
     private final Admission admission;
     private final Reservations reservations;
     private final String topic;
     private final boolean jobs;
+    @Value("${upgrade.core32.enabled:false}") private boolean core32;
     @Value("${upgrade.relay-batch:20}") private int relayBatch=20;
     @Value("${upgrade.relay-window:1}") private int relayWindow=1;
     @Value("${upgrade.relay-delay-ms:100}") private long relayDelay=100;
@@ -43,12 +39,14 @@ public class Delivery {
     }
     Map<String,Object> settings() { return Map.of("batch",relayBatch,"sendWindow",relayWindow,"relayDelayMs",relayDelay,"repairDelayMs",repairDelay); }
     @Value("${upgrade.compact-transactions:true}") private boolean compactTransactions=true;
-    private record Pending(Map<String,Object> row,CompletableFuture<SendResult<String,String>> sent) {}
+    private record Pending(Map<String,Object> row,CompletableFuture<Void> sent) {}
+    @Value("${upgrade.group:qupiao-orders-v2}") private String group;
+    @jakarta.annotation.PostConstruct void subscribe(){if(jobs&&!core32)messages.subscribe(topic,group,this::consume);}
     @org.springframework.beans.factory.annotation.Autowired(required=false)
     private Faults faults;
-    public Delivery(JdbcTemplate db,Transactions tx,Trading trading,KafkaTemplate<String,String> kafka,
+    public Delivery(JdbcTemplate db,Transactions tx,Trading trading,OrderMessages messages,
         ObjectMapper json,Admission admission,Reservations reservations,@Value("${upgrade.topic}") String topic,@Value("${upgrade.jobs:true}") boolean jobs) {
-        this.db=db;this.tx=tx;this.trading=trading;this.kafka=kafka;this.json=json;this.admission=admission;this.reservations=reservations;this.topic=topic;this.jobs=jobs;
+        this.db=db;this.tx=tx;this.trading=trading;this.messages=messages;this.json=json;this.admission=admission;this.reservations=reservations;this.topic=topic;this.jobs=jobs;
     }
     public Map<String,Object> claim() {
         return telemetry.measure(OUTBOX_CLAIM,()->tx.run(()->{
@@ -67,7 +65,7 @@ public class Delivery {
     }
     @Scheduled(fixedDelayString="${upgrade.relay-delay-ms:100}")
     public void relay() {
-        if(!jobs) return;
+        if(!jobs||core32) return;
         telemetry.measure(RELAY_CYCLE,()->{relayBatch();return null;});
     }
     private void relayBatch() {
@@ -87,10 +85,10 @@ public class Delivery {
         var event=new Trading.Event(1,(String)row.get("id"),(String)row.get("request_id"),((Number)row.get("activity_id")).longValue());
         String body=json.writeValueAsString(event);long began=System.nanoTime();
         try {
-            var future=kafka.send(topic,""+event.activityId(),body);
-            future.whenComplete((result,error)->telemetry.record(KAFKA_SEND,System.nanoTime()-began,error==null));
+            var future=messages.send(topic,""+event.activityId(),body);
+            future.whenComplete((result,error)->telemetry.record(MQ_SEND,System.nanoTime()-began,error==null));
             return new Pending(row,future);
-        } catch(RuntimeException error) {telemetry.record(KAFKA_SEND,System.nanoTime()-began,false);throw error;}
+        } catch(RuntimeException error) {telemetry.record(MQ_SEND,System.nanoTime()-began,false);throw error;}
     }
     private boolean complete(Pending pending) {
         var row=pending.row();
@@ -107,20 +105,19 @@ public class Delivery {
         db.update("UPDATE ux_outbox SET owner=NULL,lease_until=NULL,next_at=? WHERE id=? AND owner=? AND sent_at IS NULL",
             Timestamp.from(trading.now().plusSeconds(delay)),row.get("id"),row.get("owner"));
     }
-    @KafkaListener(topics="${upgrade.topic}",autoStartup="${upgrade.jobs:true}")
-    public void consume(ConsumerRecord<String,String> record,Acknowledgment ack) throws Exception {
+    public void consume(OrderMessages.Received record) throws Exception {
         Trading.Event event;
         try {
-            event=json.readValue(record.value(),Trading.Event.class);
+            event=json.readValue(record.body(),Trading.Event.class);
             if(event==null || event.schemaVersion()!=1 || event.activityId()<=0 || event.eventId()==null || event.requestId()==null
                 || !Long.toString(event.activityId()).equals(record.key())) throw new IllegalArgumentException();
-        } catch(Exception malformed) { isolate(record,"INVALID_EVENT");ack.acknowledge();return; }
-        telemetry.age(KAFKA_RECORD_AGE,record.timestamp());
+        } catch(Exception malformed) { isolate(record,"INVALID_EVENT");return; }
+        telemetry.age(MQ_RECORD_AGE,record.timestamp());
         Trading.Request result;
         try { result=trading.process(event); }
         catch(Problem invalid) {
             if(invalid.status!=400 && invalid.status!=404) throw invalid;
-            isolate(record,invalid.code);ack.acknowledge();return;
+            isolate(record,invalid.code);return;
         }
         String reason=compactTransactions?result.reason():telemetry.measure(SQL_POST_COMMIT_READ,()->(String)db.queryForMap("SELECT reason FROM ux_request WHERE id=?",event.requestId()).get("reason"));
         if("SOLD_OUT".equals(reason)) {
@@ -128,21 +125,17 @@ public class Delivery {
             catch(org.springframework.dao.DataAccessException unavailable) { /* Optional short-lived hint. */ }
         }
         // The transaction already persisted reservation actions. Redis repair runs
-        // independently; an outage must not hold Kafka acknowledgement hostage.
+        // independently; an outage must not hold message acknowledgement hostage.
         if(faults!=null) faults.hit("commit-before-ack");
-        ack.acknowledge();
     }
-    private void isolate(ConsumerRecord<String,String> record,String reason) {
+    private void isolate(OrderMessages.Received record,String reason) {
         tx.run(()->{
-            if(db.queryForObject("SELECT COUNT(*) FROM ux_poison WHERE topic=? AND partition_id=? AND offset_id=?",Integer.class,
-                record.topic(),record.partition(),record.offset())==0)
-                db.update("INSERT INTO ux_poison(id,topic,partition_id,offset_id,body,reason,created_at) VALUES(?,?,?,?,?,?,CURRENT_TIMESTAMP(3))",
-                    Trading.uuid(),record.topic(),record.partition(),record.offset(),record.value()==null?"null":record.value().substring(0,Math.min(record.value().length(),8192)),reason);
+            MqPoison.persist(db,record,reason);
             return null;
         });
     }
     public List<Map<String,Object>> quarantined() {
-        return db.queryForList("SELECT id,topic,partition_id,offset_id,reason,created_at FROM ux_poison ORDER BY created_at DESC LIMIT 100");
+        return db.queryForList("SELECT id,topic,broker,queue_id,offset_id,reason,created_at FROM ux_mq_poison ORDER BY created_at DESC LIMIT 100");
     }
     public void replay(long actor,String event) {
         tx.run(()->{
@@ -154,13 +147,13 @@ public class Delivery {
     }
     @Scheduled(fixedDelay=1000)
     public void expire() {
-        if(!jobs) return;
+        if(!jobs||core32) return;
         trading.expireRequests();
         telemetry.measure(RECONCILE_CYCLE,()->reservations.reconcileStale());
     }
     @Scheduled(fixedDelayString="${upgrade.repair-delay-ms:1000}")
     public void repair() {
-        if(jobs) telemetry.measure(REPAIR_CYCLE,()->reservations.drainActions());
+        if(jobs&&!core32) telemetry.measure(REPAIR_CYCLE,()->reservations.drainActions());
     }
 
 }

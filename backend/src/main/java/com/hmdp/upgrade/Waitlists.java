@@ -24,6 +24,7 @@ public class Waitlists {
     private final Admission admission;
     private final Trading trading;
     private final boolean jobs;
+    @Value("${upgrade.core32.enabled:false}") private boolean core32;
 
     Waitlists(JdbcTemplate db,Transactions tx,Reservations reservations,Admission admission,Trading trading,
               @Value("${upgrade.jobs:true}") boolean jobs) {
@@ -82,7 +83,7 @@ public class Waitlists {
     }
     @Scheduled(fixedDelay=1000)
     public void promote() {
-        if(!jobs) return;
+        if(!jobs||core32) return;
         db.update("UPDATE ux_waitlist SET state='WAITING',updated_at=CURRENT_TIMESTAMP(3) WHERE state='PROMOTING' AND updated_at<DATE_SUB(CURRENT_TIMESTAMP(3),INTERVAL 30 SECOND)");
         for(int i=0;i<20;i++) {
             Claim claim=claim();if(claim==null) break;
@@ -143,6 +144,7 @@ public class Waitlists {
 }
 
 @RestController
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name="upgrade.core32.enabled",havingValue="false",matchIfMissing=true)
 @RequestMapping("/v2")
 class WaitlistApi {
     private final Waitlists service;

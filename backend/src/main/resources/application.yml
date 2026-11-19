@@ -29,36 +29,32 @@ spring:
       password: ${REDIS_PASSWORD:${UPGRADE_REDIS_PASSWORD:}}
       timeout: 300ms
       connect-timeout: 300ms
-  kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:127.0.0.1:29093}
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
-      acks: all
-      properties:
-        enable.idempotence: true
-        delivery.timeout.ms: 5000
-        request.timeout.ms: 3000
-        max.block.ms: 2000
-    consumer:
-      group-id: ${UPGRADE_GROUP:upgrade-orders-v1}
-      auto-offset-reset: earliest
-      enable-auto-commit: false
-      max-poll-records: 10
-      properties:
-        session.timeout.ms: 15000
-        heartbeat.interval.ms: 3000
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    listener:
-      ack-mode: manual_immediate
-      concurrency: 2
-      missing-topics-fatal: false
 upgrade:
-  auth-secret: ${APP_AUTH_SECRET:${UPGRADE_AUTH_SECRET}}
+  rocketmq:
+    nameserver: ${ROCKETMQ_NAMESERVER:127.0.0.1:39876}
+    producer-group: ${ROCKETMQ_PRODUCER_GROUP:qupiao-producer}
+    create-topics: ${ROCKETMQ_CREATE_TOPICS:true}
+  group: ${UPGRADE_GROUP:qupiao-orders-v2}
+  close-topic: ${CLOSE_TOPIC:qupiao-close-v2}
+  close-group: ${CLOSE_GROUP:qupiao-close-v2}
+  close-fallback-ms: ${CLOSE_FALLBACK_MS:60000}
+  core32:
+    enabled: ${CORE32_ENABLED:false}
+    urls: ${CORE32_URLS:jdbc:mysql://127.0.0.1:33400/qupiao_core32,jdbc:mysql://127.0.0.1:33401/qupiao_core32,jdbc:mysql://127.0.0.1:33402/qupiao_core32,jdbc:mysql://127.0.0.1:33403/qupiao_core32}
+    username: ${CORE32_DB_USER:qupiao}
+    password: ${CORE32_DB_PASSWORD:}
+    topic: ${CORE32_TOPIC:qupiao-core32-orders}
+    group: ${CORE32_GROUP:qupiao-core32-orders-v2}
+    close-topic: ${CORE32_CLOSE_TOPIC:qupiao-core32-close-v2}
+    close-group: ${CORE32_CLOSE_GROUP:qupiao-core32-close-v2}
+  history:
+    replica-enabled: ${HISTORY_REPLICA_ENABLED:false}
+    urls: ${HISTORY_URLS:jdbc:mysql://127.0.0.1:33317/qupiao_history,jdbc:mysql://127.0.0.1:33318/qupiao_history}
+    username: ${HISTORY_DB_USER:qupiao}
+    password: ${HISTORY_DB_PASSWORD:}
+  auth-secret: ${APP_AUTH_SECRET:${UPGRADE_AUTH_SECRET:}}
   metrics-token: ${METRICS_TOKEN:}
   sandbox-payments: ${SANDBOX_PAYMENTS:false}
-  close-queue-key: ${CLOSE_QUEUE_KEY:ux:close:due}
   topic: ${UPGRADE_TOPIC:upgrade-orders-v1}
   jobs: true
   compact-transactions: true
@@ -82,6 +78,12 @@ upgrade:
     base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
     model: ${DEEPSEEK_MODEL:deepseek-chat}
     timeout: 20s
+  assistant:
+    mode: ${ASSISTANT_MODE:stub}
+    jobs: ${ASSISTANT_JOBS:true}
+    api-key: ${DEEPSEEK_API_KEY:}
+    base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+    model: ${ASSISTANT_MODEL:deepseek-flash}
 
 management:
   endpoints:

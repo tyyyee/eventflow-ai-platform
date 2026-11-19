@@ -1,0 +1,22 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const root=fileURLToPath(new URL('../..',import.meta.url));
+const dir=path.join(root,'docs/verification/2026-10-27-core32-capacity');
+const data=JSON.parse(fs.readFileSync(path.join(dir,'benchmark.json')));
+if(!data.completedAt)throw Error('Benchmark did not finish');
+const median=values=>[...values].sort((a,b)=>a-b)[Math.floor(values.length/2)];
+const field=(row,key)=>row[Object.keys(row).find(k=>k.toLowerCase()===key.toLowerCase())];
+const groups=new Map();for(const r of data.rounds){const key=[r.seedOrders,r.workload,r.concurrency,r.mode].join('/');if(!groups.has(key))groups.set(key,[]);groups.get(key).push(r);}
+const summaries=[...groups.values()].map(rows=>({seedOrders:rows[0].seedOrders,workload:rows[0].workload,concurrency:rows[0].concurrency,mode:rows[0].mode,rounds:rows.length,qpsMedian:median(rows.map(r=>r.operationsPerSecond)),p95MsMedian:median(rows.map(r=>r.p95Ms)),attempts:rows.reduce((a,r)=>a+r.attempts,0),errors:rows.reduce((a,r)=>a+Object.values(r.errors).reduce((x,y)=>x+y,0),0)}));
+const volumes=data.volumes.map(v=>{const parts=v.distribution.map(p=>({shard:p.shard,rows:p.rows,bytes:Number(field(p.storage,'data_length'))+Number(field(p.storage,'index_length'))}));return{seedOrders:v.seedOrders,singleBytes:Number(field(v.singleStorage,'data_length'))+Number(field(v.singleStorage,'index_length')),fourTotalBytes:parts.reduce((s,p)=>s+p.bytes,0),minShardRows:Math.min(...parts.map(p=>p.rows)),maxShardRows:Math.max(...parts.map(p=>p.rows)),maxShardBytes:Math.max(...parts.map(p=>p.bytes)),databaseBytes:[0,1,2,3].map(db=>parts.filter(p=>Math.floor(p.shard/8)===db).reduce((s,p)=>s+p.bytes,0))};});
+const result={generatedAt:new Date().toISOString(),conditions:data.conditions,scope:data.scope,summaries,volumes,writeValidation:data.writeValidation,attempts:summaries.reduce((s,x)=>s+x.attempts,0),errors:summaries.reduce((s,x)=>s+x.errors,0)};
+fs.writeFileSync(path.join(dir,'summary.json'),JSON.stringify(result,null,2)+'\n');
+const names={single:'单库单表','four-core32':'四库＋实际ShardingSphere','four-direct':'四库直接路由（诊断）'};
+let text='# 主订单SQL对照结果\n\n每组3轮，各轮4秒，顺序轮换；表中QPS和P95各取三轮中位数。总连接预算均为24，MySQL总缓冲池预算均为256MiB；所有进程共用本机CPU与磁盘。不是HTTP或完整秒杀吞吐。错误列是三轮合计，保留连接超时和事务无法开启等过载结果。\n\n| 合成主订单 | 工作负载 | 并发 | 模式 | 操作/秒中位数 | P95中位数ms | 错误数 |\n|---|---|---|---|---|---|---|\n';
+for(const r of summaries)text+=`| ${r.seedOrders} | ${r.workload} | ${r.concurrency} | ${names[r.mode]} | ${r.qpsMedian.toFixed(1)} | ${r.p95MsMedian.toFixed(2)} | ${r.errors} |\n`;
+text+='\nread为订单列表＋数量查询，并核验返回用户、订单、状态及数量；write为请求/Outbox本地提交，再进行订单及close任务的本地持久化。未执行源库存裁决、Redis、RocketMQ或模拟支付。four-direct绕过中间件，只用于定位开销，不能写成项目接口吞吐。\n\n热点写入将所有请求集中到同一个用户，仍落同一分片；各轮波动较大，存在连接/事务排队，不能据个别中位数差异声称解决热点。\n\n## 订单表空间\n\n来自ANALYZE后的information_schema分配页空间，不是操作系统物理文件占用或备份大小。原始数据和索引分别留在benchmark.json中。\n\n| 合成订单 | 单表数据＋索引MiB | 四库全部订单表MiB | 每张分表行数范围 | 最大分表MiB |\n|---|---|---|---|---|\n';
+for(const v of volumes)text+=`| ${v.seedOrders} | ${(v.singleBytes/1048576).toFixed(2)} | ${(v.fourTotalBytes/1048576).toFixed(2)} | ${v.minShardRows}–${v.maxShardRows} | ${(v.maxShardBytes/1048576).toFixed(2)} |\n`;
+text+='\n分片降低了每张表的体量，但会增加多张表及索引的固定开销，不代表总空间减少。两个数据规模下单表查询仍有有效索引，没有验证出统一的“百万行开始失效”阈值。\n';
+fs.writeFileSync(path.join(dir,'benchmark-table.md'),text);
+console.log(JSON.stringify({rounds:data.rounds.length,attempts:result.attempts,errors:result.errors,volumes}));

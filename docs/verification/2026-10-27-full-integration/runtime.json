@@ -1,0 +1,29 @@
+{
+  "redis": "3.2.100 (Windows)",
+  "java": "17.0.3.1",
+  "mysql": [
+    {
+      "version": "8.0.31",
+      "uuid": "bc9a9973-d166-11f1-aa84-0826ae3c73bc",
+      "name": "source",
+      "port": 33307
+    },
+    {
+      "version": "8.0.31",
+      "uuid": "bec2283f-d166-11f1-9ef4-0826ae3c73bc",
+      "name": "history0",
+      "port": 33317
+    },
+    {
+      "version": "8.0.31",
+      "uuid": "c08a7732-d166-11f1-8e40-0826ae3c73bc",
+      "name": "history1",
+      "port": 33318
+    }
+  ],
+  "kafka": "3.9.0",
+  "dockerExecuted": false,
+  "jarSha256": "e9338e93cad6d02e9cad2e48a83e6019bd99c6ec253078a1b1b6c898452ab38e",
+  "checkedAt": "2026-10-27T12:53:54.1199095+08:00",
+  "httpBackend": "127.0.0.1:38093"
+}

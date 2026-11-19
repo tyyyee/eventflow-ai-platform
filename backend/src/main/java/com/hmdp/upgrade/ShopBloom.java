@@ -15,6 +15,7 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 /** Immutable local snapshots; a shared insertion journal closes the cross-instance update gap. */
 @Component
 public class ShopBloom {
+    private static final org.slf4j.Logger log=org.slf4j.LoggerFactory.getLogger(ShopBloom.class);
     static final String EPOCH="ux:shop:bloom:{index}:epoch", ADDED="ux:shop:bloom:{index}:added";
     static final DefaultRedisScript<Long> CHECK=new DefaultRedisScript<>("""
         if redis.call('GET',KEYS[1])~=ARGV[1] or redis.call('EXISTS',KEYS[2])==0 then return -1 end
@@ -39,6 +40,8 @@ public class ShopBloom {
     record Snapshot(Filter filter,String epoch,long count) {}
     private final JdbcTemplate db;private final StringRedisTemplate redis;private final Transactions tx;
     private volatile Snapshot current;
+    @org.springframework.beans.factory.annotation.Value("${upgrade.cache.bloom-rebuild-timeout-seconds:120}")
+    private int rebuildTimeoutSeconds=120;
     private final LongAdder checks=new LongAdder(),blocked=new LongAdder(),bypassed=new LongAdder();
     public ShopBloom(JdbcTemplate db,StringRedisTemplate redis,Transactions tx) { this.db=db;this.redis=redis;this.tx=tx; }
     @EventListener(ApplicationReadyEvent.class) public void start() { rebuild(); }
@@ -46,8 +49,8 @@ public class ShopBloom {
     public synchronized void rebuild() {
         try {
             if(tx==null) rebuildLocked();
-            else tx.run(()->{lockIndex();rebuildLocked();return null;});
-        } catch(RuntimeException unavailable) {current=null;bypassed.increment();}
+            else tx.runWithTimeout(rebuildTimeoutSeconds,()->{lockIndex();rebuildLocked();return null;});
+        } catch(RuntimeException unavailable) {current=null;bypassed.increment();log.warn("Shop Bloom snapshot rebuild failed; allowing database fallback",unavailable);}
     }
     private void lockIndex() {
         db.queryForObject("SELECT id FROM ux_shop_index_guard WHERE id=1 FOR UPDATE",Integer.class);
@@ -67,7 +70,7 @@ public class ShopBloom {
             // The shared journal is not cleared: other instances may still hold older snapshots.
             if(epoch.equals(redis.opsForValue().get(EPOCH))) current=new Snapshot(next,epoch,count);
             else current=null;
-        } catch(RuntimeException unavailable) { current=null;bypassed.increment(); }
+        } catch(RuntimeException unavailable) { current=null;bypassed.increment();log.warn("Shop Bloom snapshot scan failed; allowing database fallback",unavailable); }
     }
     public void beforeInsert(long id) {
         if(tx!=null) {

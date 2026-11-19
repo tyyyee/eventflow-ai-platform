@@ -1,0 +1,10 @@
+{
+  "backfillBatches" : 101,
+  "concurrentSourceChange" : true,
+  "elapsedSeconds" : 33.786714,
+  "scope" : "Synthetic historical fixture; this is not a seckill throughput test.",
+  "checkpointResume" : true,
+  "differences" : 0,
+  "syntheticOrders" : 10000,
+  "misplacedRows" : 0
+}

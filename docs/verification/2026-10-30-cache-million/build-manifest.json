@@ -1,0 +1,22 @@
+{
+  "recordedAt": "2026-10-30T05:48:59.076Z",
+  "testedJarSha256": "4c1b25a6705d3dd183f8fc76a2e82fa5436348d1ea5ea6cf4d59f5225b790f1e",
+  "currentJarSha256": "4c1b25a6705d3dd183f8fc76a2e82fa5436348d1ea5ea6cf4d59f5225b790f1e",
+  "sources": {
+    "backend/src/main/java/com/hmdp/upgrade/ShopCache.java": "3eb57f21f9a110e53c3f9d49ad5f484fc718050d59079a2da0fbab4bd0efd21e",
+    "backend/src/main/java/com/hmdp/upgrade/ShopBloom.java": "c0ce864486f23277fc93f7add33894f8e00dd9c89977bd077d9061581fe0adb1",
+    "backend/src/main/java/com/hmdp/upgrade/Transactions.java": "6b74a55ee5ae276a3045b9db24d9ff9cdd05e895429a71175c8ca41fad83a892",
+    "backend/scripts/cache-million-local.ps1": "412f03b14e26007d5c2d189c5d80ff117b55b07e45827bed9b0254eb13991569",
+    "backend/scripts/cache-million-benchmark.mjs": "411672ede4bc15814796c3ff41f052a330d7d4caf6e6d594060ea51aa390f7c5",
+    "backend/scripts/cache-million-worker.mjs": "11c014b6cb923d922446e56c617b71787bcac3d07c5cc5cf35ce6f78e348c64f",
+    "backend/scripts/cache-million-redis.mjs": "61b379994f6e4191279360e771c74ff2040ea4d28ab823e174330ab4a72eba46",
+    "backend/scripts/cache-million-report.mjs": "cd05bcde54f66f5debd909afe9d7c2d17d70bba6b030da56eabf69c0b56f7b60"
+  },
+  "regressionBuild": {
+    "total": 189,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 82,
+    "buildSuccess": true
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "scope": "CORE32 real MySQL/Redis integration, verification schemas and DB12",
+  "failures": 0.0,
+  "tests": 15.0,
+  "suites": [
+    {
+      "seconds": 0.039,
+      "failures": 0,
+      "tests": 3,
+      "errors": 0,
+      "name": "com.hmdp.upgrade.core32.Core32IdsTest",
+      "skipped": 0
+    },
+    {
+      "seconds": 33.576,
+      "failures": 0,
+      "tests": 1,
+      "errors": 0,
+      "name": "com.hmdp.upgrade.core32.Core32LeaseTest",
+      "skipped": 0
+    },
+    {
+      "seconds": 42.089,
+      "failures": 0,
+      "tests": 1,
+      "errors": 0,
+      "name": "com.hmdp.upgrade.core32.Core32MigrationTest",
+      "skipped": 0
+    },
+    {
+      "seconds": 9.815,
+      "failures": 0,
+      "tests": 3,
+      "errors": 0,
+      "name": "com.hmdp.upgrade.core32.Core32StoreTest",
+      "skipped": 0
+    },
+    {
+      "seconds": 19.032,
+      "failures": 0,
+      "tests": 7,
+      "errors": 0,
+      "name": "com.hmdp.upgrade.core32.Core32TradingTest",
+      "skipped": 0
+    }
+  ],
+  "generatedAt": "2026-10-27T16:27:19.6606548+08:00",
+  "errors": 0.0,
+  "skipped": 0.0
+}

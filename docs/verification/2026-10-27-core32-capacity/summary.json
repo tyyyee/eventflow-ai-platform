@@ -1,0 +1,261 @@
+{
+  "generatedAt": "2026-10-27T09:40:42.884Z",
+  "conditions": {
+    "host": "all MySQL processes and client share one Windows host/disk",
+    "secondsPerRound": 4,
+    "totalConnectionsPerMode": 24,
+    "rounds": 3,
+    "seed": "deterministic order rows only; request/outbox/close families populated by write samples",
+    "users": 4096,
+    "totalBufferPoolBytesPerMode": 268435456
+  },
+  "scope": "Synthetic primary-order SQL/JDBC benchmark. Persistence stages only; excludes source inventory, Redis, Kafka and HTTP/auth. Four-direct is diagnostic, not application performance.",
+  "summaries": [
+    {
+      "seedOrders": 100000,
+      "workload": "read",
+      "concurrency": 16,
+      "mode": "single",
+      "rounds": 3,
+      "qpsMedian": 20759.765681971487,
+      "p95MsMedian": 1.0888,
+      "attempts": 246156,
+      "errors": 0
+    },
+    {
+      "seedOrders": 100000,
+      "workload": "read",
+      "concurrency": 16,
+      "mode": "four-core32",
+      "rounds": 3,
+      "qpsMedian": 8447.031648805001,
+      "p95MsMedian": 2.9172,
+      "attempts": 89885,
+      "errors": 0
+    },
+    {
+      "seedOrders": 100000,
+      "workload": "read",
+      "concurrency": 16,
+      "mode": "four-direct",
+      "rounds": 3,
+      "qpsMedian": 11883.698870158456,
+      "p95MsMedian": 2.0402,
+      "attempts": 137815,
+      "errors": 0
+    },
+    {
+      "seedOrders": 100000,
+      "workload": "read",
+      "concurrency": 64,
+      "mode": "single",
+      "rounds": 3,
+      "qpsMedian": 15361.768870892398,
+      "p95MsMedian": 2.0401,
+      "attempts": 195696,
+      "errors": 2
+    },
+    {
+      "seedOrders": 100000,
+      "workload": "read",
+      "concurrency": 64,
+      "mode": "four-core32",
+      "rounds": 3,
+      "qpsMedian": 6864.993356675459,
+      "p95MsMedian": 44.2959,
+      "attempts": 87696,
+      "errors": 0
+    },
+    {
+      "seedOrders": 100000,
+      "workload": "read",
+      "concurrency": 64,
+      "mode": "four-direct",
+      "rounds": 3,
+      "qpsMedian": 15070.50862954133,
+      "p95MsMedian": 21.7759,
+      "attempts": 192194,
+      "errors": 0
+    },
+    {
+      "seedOrders": 1000000,
+      "workload": "read",
+      "concurrency": 16,
+      "mode": "single",
+      "rounds": 3,
+      "qpsMedian": 10069.308562066199,
+      "p95MsMedian": 2.3103,
+      "attempts": 128658,
+      "errors": 0
+    },
+    {
+      "seedOrders": 1000000,
+      "workload": "read",
+      "concurrency": 16,
+      "mode": "four-core32",
+      "rounds": 3,
+      "qpsMedian": 6296.084335513991,
+      "p95MsMedian": 3.7369,
+      "attempts": 82462,
+      "errors": 0
+    },
+    {
+      "seedOrders": 1000000,
+      "workload": "read",
+      "concurrency": 16,
+      "mode": "four-direct",
+      "rounds": 3,
+      "qpsMedian": 11983.225433981697,
+      "p95MsMedian": 2.2443,
+      "attempts": 145072,
+      "errors": 0
+    },
+    {
+      "seedOrders": 1000000,
+      "workload": "read",
+      "concurrency": 64,
+      "mode": "single",
+      "rounds": 3,
+      "qpsMedian": 8815.090526038828,
+      "p95MsMedian": 10.5783,
+      "attempts": 107735,
+      "errors": 1
+    },
+    {
+      "seedOrders": 1000000,
+      "workload": "read",
+      "concurrency": 64,
+      "mode": "four-core32",
+      "rounds": 3,
+      "qpsMedian": 5763.5059177885905,
+      "p95MsMedian": 49.7965,
+      "attempts": 69724,
+      "errors": 0
+    },
+    {
+      "seedOrders": 1000000,
+      "workload": "read",
+      "concurrency": 64,
+      "mode": "four-direct",
+      "rounds": 3,
+      "qpsMedian": 10085.89086335036,
+      "p95MsMedian": 29.7745,
+      "attempts": 120721,
+      "errors": 0
+    },
+    {
+      "seedOrders": 1000000,
+      "workload": "write-distributed",
+      "concurrency": 32,
+      "mode": "single",
+      "rounds": 3,
+      "qpsMedian": 1803.868764115941,
+      "p95MsMedian": 49.019,
+      "attempts": 22774,
+      "errors": 0
+    },
+    {
+      "seedOrders": 1000000,
+      "workload": "write-distributed",
+      "concurrency": 32,
+      "mode": "four-core32",
+      "rounds": 3,
+      "qpsMedian": 1442.7582413850205,
+      "p95MsMedian": 77.6186,
+      "attempts": 16633,
+      "errors": 0
+    },
+    {
+      "seedOrders": 1000000,
+      "workload": "write-distributed",
+      "concurrency": 32,
+      "mode": "four-direct",
+      "rounds": 3,
+      "qpsMedian": 1186.5151324679637,
+      "p95MsMedian": 104.2259,
+      "attempts": 16078,
+      "errors": 0
+    },
+    {
+      "seedOrders": 1000000,
+      "workload": "write-hot-user",
+      "concurrency": 32,
+      "mode": "single",
+      "rounds": 3,
+      "qpsMedian": 204.76556007092057,
+      "p95MsMedian": 304.9768,
+      "attempts": 5992,
+      "errors": 7
+    },
+    {
+      "seedOrders": 1000000,
+      "workload": "write-hot-user",
+      "concurrency": 32,
+      "mode": "four-core32",
+      "rounds": 3,
+      "qpsMedian": 227.08905781940004,
+      "p95MsMedian": 547.2797,
+      "attempts": 5581,
+      "errors": 0
+    },
+    {
+      "seedOrders": 1000000,
+      "workload": "write-hot-user",
+      "concurrency": 32,
+      "mode": "four-direct",
+      "rounds": 3,
+      "qpsMedian": 264.70757710083484,
+      "p95MsMedian": 782.2379,
+      "attempts": 3543,
+      "errors": 67
+    }
+  ],
+  "volumes": [
+    {
+      "seedOrders": 100000,
+      "singleBytes": 28917760,
+      "fourTotalBytes": 29884416,
+      "minShardRows": 3125,
+      "maxShardRows": 3125,
+      "maxShardBytes": 933888,
+      "databaseBytes": [
+        7471104,
+        7471104,
+        7471104,
+        7471104
+      ]
+    },
+    {
+      "seedOrders": 1000000,
+      "singleBytes": 297074688,
+      "fourTotalBytes": 388497408,
+      "minShardRows": 31250,
+      "maxShardRows": 31250,
+      "maxShardBytes": 12140544,
+      "databaseBytes": [
+        97124352,
+        97124352,
+        97124352,
+        97124352
+      ]
+    }
+  ],
+  "writeValidation": [
+    {
+      "requests": 28763,
+      "orders": 28759,
+      "stateViolations": 0,
+      "outbox": 28763,
+      "mode": "single"
+    },
+    {
+      "requests": 41774,
+      "orders": 41768,
+      "stateViolations": 0,
+      "outbox": 41774,
+      "mode": "four-direct"
+    }
+  ],
+  "attempts": 1674415,
+  "errors": 77
+}

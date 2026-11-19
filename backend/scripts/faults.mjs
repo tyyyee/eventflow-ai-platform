@@ -1,7 +1,7 @@
 import {mkdirSync,writeFileSync} from 'node:fs';
 import {once} from 'node:events';
 import assert from 'node:assert/strict';
-import {root,start,stop,request,fixture,terminal,invariant,sql,compose,sleep,save,kafkaDrained} from './harness.mjs';
+import {root,start,stop,request,fixture,terminal,invariant,sql,compose,sleep,save,ordersDrained} from './harness.mjs';
 const dir=`${root}/evidence/faults-${Date.now()}`;mkdirSync(dir,{recursive:true});
 const markers=`${root}/target/faults`;mkdirSync(markers,{recursive:true});
 let child;let id=Date.now();const results=[];
@@ -38,7 +38,7 @@ try {
     const requestId=r?.data.id ?? sql(`SELECT id FROM ux_request WHERE activity_id=${a}`);
     assert.equal((await terminal(a,requestId)).state,'SUCCEEDED');
     await sleep(16000);
-    await kafkaDrained();
+    await ordersDrained();
     assert.equal(sql(`SELECT COUNT(*) FROM ux_order WHERE activity_id=${a}`),'1');
     assert.equal(sql(`SELECT COUNT(*) FROM ux_outbox WHERE activity_id=${a} AND sent_at IS NULL`),'0');
   });
@@ -50,8 +50,8 @@ try {
     for(let i=0;i<3;i++) assert.equal((await request(`/v2/requests/${r.data.id}/cancel`,{user:a,method:'POST'})).data.state,'CANCELLED');
     assert.equal(sql(`SELECT available FROM ux_activity WHERE id=${a}`),'10000');
   });
-  await check('kafka-outage-durable-acceptance-recovery',async()=>{
-    const a=++id;await fixture(a);compose('stop','kafka');
+  await check('rocketmq-outage-durable-acceptance-recovery',async()=>{
+    const a=++id;await fixture(a);compose('stop','rocketmq-broker');
     const r=await request('/v2/requests',{user:a,method:'POST',body:{requestId:`offline_${a}`,activityId:a}});
     assert.equal(r.status,202);assert.equal(r.data.state,'ACCEPTED');
     const expiring=await request('/v2/requests',{user:a+1,method:'POST',body:{requestId:`expires_${a}`,activityId:a}});
@@ -60,8 +60,8 @@ try {
     await sleep(6000);
     assert.equal(sql(`SELECT state FROM ux_request WHERE id='${r.data.id}'`),'ACCEPTED');
     assert.equal(sql(`SELECT state FROM ux_request WHERE id='${expiring.data.id}'`),'EXPIRED');
-    compose('start','kafka');assert.equal((await terminal(a,r.data.id,90000)).state,'SUCCEEDED');
-    await kafkaDrained();
+    compose('start','rocketmq-broker');assert.equal((await terminal(a,r.data.id,90000)).state,'SUCCEEDED');
+    await ordersDrained();
     assert.equal((await terminal(a+1,expiring.data.id)).state,'EXPIRED');
     assert.equal(sql(`SELECT COUNT(*) FROM ux_order WHERE request_id='${expiring.data.id}'`),'0');
   });
@@ -108,4 +108,4 @@ try {
   });
   console.log(`Evidence: ${dir}`);
 } catch(e) {save(`${dir}/failure.json`,{message:e.message,stack:e.stack,completed:results});throw e;}
-finally {compose('start','redis','kafka');await stop(child);}
+finally {compose('start','redis','rocketmq-broker');await stop(child);}

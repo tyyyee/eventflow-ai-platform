@@ -1,7 +1,7 @@
 import {mkdirSync} from 'node:fs';
 import os from 'node:os';
 import {performance} from 'node:perf_hooks';
-import {root,start,stop,request,fixture,invariant,sql,rootSql,sleep,save,kafkaDrained} from './harness.mjs';
+import {root,start,stop,request,fixture,invariant,sql,rootSql,sleep,save,ordersDrained} from './harness.mjs';
 
 const smoke=process.argv.includes('--smoke');
 const rounds=smoke?1:Number(process.env.FULL_CHAIN_ROUNDS??3);
@@ -44,7 +44,7 @@ try {
   child=await start(`${dir}/server.log`,['--upgrade.rate-user=100','--upgrade.rate-activity=100000','--upgrade.backlog-limit=100000']);
   save(`${dir}/environment.json`,{started:new Date().toISOString(),platform:os.platform(),arch:os.arch(),cpus:os.cpus().length,
     model:os.cpus()[0]?.model,totalMemory:os.totalmem(),heap:'384m',pool:12,httpThreads:48,rounds,requests,stock,concurrency,
-    scope:'Local single-node full path: HTTP -> Redis Lua -> MySQL request/outbox -> Kafka -> MySQL order -> reservation confirmation.'});
+    scope:'Local single-node full path: HTTP -> Redis Lua -> MySQL request/outbox -> RocketMQ -> MySQL order -> reservation confirmation.'});
   for(let round=1;round<=rounds;round++) {
     const activity=++sequence;await fixture(activity,stock);await sleep(300);
     rootSql('TRUNCATE TABLE performance_schema.events_statements_summary_by_digest;');
@@ -59,7 +59,7 @@ try {
       if(Date.now()-drainStarted>120000) throw new Error(`Full path did not drain: ${pending}/${outbox}/${actions}`);
       await sleep(100);
     }
-    await kafkaDrained();
+    await ordersDrained();
     const dbRows=sql(`SELECT id,ROUND(UNIX_TIMESTAMP(created_at)*1000),ROUND(UNIX_TIMESTAMP(completed_at)*1000),state FROM ux_request WHERE activity_id=${activity}`)
       .split('\n').filter(Boolean).map(line=>{const [id,created,completed,state]=line.split('\t');return {id,created:Number(created),completed:Number(completed),state};});
     const byId=new Map(dbRows.map(row=>[row.id,row]));

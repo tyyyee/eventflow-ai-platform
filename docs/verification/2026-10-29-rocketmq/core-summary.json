@@ -1,0 +1,53 @@
+{
+  "recordedAt": "2026-10-29T13:57:32.829Z",
+  "scope": "core",
+  "totals": {
+    "tests": 18,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "passed": 18
+  },
+  "suites": [
+    {
+      "name": "com.hmdp.upgrade.core32.Core32IdsTest",
+      "time": 0.042,
+      "tests": 3,
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "com.hmdp.upgrade.core32.Core32LeaseTest",
+      "time": 32.903,
+      "tests": 1,
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "com.hmdp.upgrade.core32.Core32MigrationTest",
+      "time": 7.135,
+      "tests": 1,
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "com.hmdp.upgrade.core32.Core32StoreTest",
+      "time": 1.908,
+      "tests": 3,
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "com.hmdp.upgrade.core32.Core32TradingTest",
+      "time": 18.034,
+      "tests": 10,
+      "errors": 0,
+      "skipped": 0,
+      "failures": 0
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "recordedBeforeRuns": "2026-10-30T05:29:22.853Z",
+  "node": "v24.21.0",
+  "nodeExecutable": "C:\\Users\\17302\\AppData\\Local\\OpenAI\\Codex\\runtimes\\cua_node\\2b841c3d44b123ec\\bin\\node.exe",
+  "cases": [
+    {
+      "id": "hot1000-c32",
+      "shops": 1000,
+      "distribution": "hot80",
+      "concurrency": 32,
+      "rounds": 3,
+      "seconds": 30,
+      "warmup": 10,
+      "primary": true
+    },
+    {
+      "id": "uniform10000-c32",
+      "shops": 10000,
+      "distribution": "uniform",
+      "concurrency": 32,
+      "rounds": 3,
+      "seconds": 30,
+      "warmup": 10
+    },
+    {
+      "id": "hot1000-c8",
+      "shops": 1000,
+      "distribution": "hot80",
+      "concurrency": 8,
+      "rounds": 2,
+      "seconds": 30,
+      "warmup": 10
+    },
+    {
+      "id": "hot1000-c64",
+      "shops": 1000,
+      "distribution": "hot80",
+      "concurrency": 64,
+      "rounds": 2,
+      "seconds": 30,
+      "warmup": 10
+    },
+    {
+      "id": "diagnostic-hot20-c32",
+      "shops": 20,
+      "distribution": "hot80",
+      "concurrency": 32,
+      "rounds": 2,
+      "seconds": 30,
+      "warmup": 10,
+      "diagnostic": "Added after an interrupted initial round showed a regression at 1000 active shops; secondary only, never replaces the primary case"
+    }
+  ],
+  "modes": [
+    "ttl",
+    "optimized"
+  ],
+  "modeOrder": "AB then BA, alternating by round",
+  "shopRows": 1000000,
+  "baseId": 1000000,
+  "workers": 4,
+  "loadDriver": "Four independent Node child processes; runs interrupted by native Windows Node 24.15 client crashes are excluded. Durations/rounds fixed before this complete run.",
+  "instances": 2,
+  "heapPerInstanceMiB": 384,
+  "sameHost": true,
+  "rawFormat": "little-endian Float64 milliseconds; positive=validated success, negative=failure; timing starts after worker barrier",
+  "scope": "Redis single TTL baseline vs existing whole multilevel-cache policy; steady-state authenticated basic merchant/venue query, not full detail page, order TPS or isolated Caffeine attribution"
+}

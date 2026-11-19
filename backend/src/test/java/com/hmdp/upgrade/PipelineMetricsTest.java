@@ -26,10 +26,10 @@ class PipelineMetricsTest {
         var metrics=new PipelineMetrics();var pool=Executors.newFixedThreadPool(4);
         try {
             var tasks=new ArrayList<Callable<Void>>();
-            for(int i=0;i<4;i++) tasks.add(()->{for(int j=0;j<1000;j++) metrics.record(KAFKA_SEND,1_000_000,true);return null;});
+            for(int i=0;i<4;i++) tasks.add(()->{for(int j=0;j<1000;j++) metrics.record(MQ_SEND,1_000_000,true);return null;});
             for(var result:pool.invokeAll(tasks)) result.get();
-            assertEquals(4000L,stage(metrics,"KAFKA_SEND").get("count"));
-            assertEquals(4000.0,stage(metrics,"KAFKA_SEND").get("sumMs"));
+            assertEquals(4000L,stage(metrics,"MQ_SEND").get("count"));
+            assertEquals(4000.0,stage(metrics,"MQ_SEND").get("sumMs"));
         } finally {pool.shutdownNow();}
     }
     @Test void futureClockSamplesAreNotPresentedAsZeroLatency() {

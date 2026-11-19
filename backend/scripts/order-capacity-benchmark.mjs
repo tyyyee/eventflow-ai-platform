@@ -1,7 +1,7 @@
 import {mkdirSync} from 'node:fs';
 import os from 'node:os';
 import {performance} from 'node:perf_hooks';
-import {root,start,stop,request,fixture,invariant,sql,rootSql,sleep,save,kafkaDrained} from './harness.mjs';
+import {root,start,stop,request,fixture,invariant,sql,rootSql,sleep,save,ordersDrained} from './harness.mjs';
 
 const smoke=process.argv.includes('--smoke');
 const rounds=smoke?1:Number(process.env.ORDER_CAPACITY_ROUNDS??3);
@@ -84,7 +84,7 @@ try {
     started:new Date().toISOString(),platform:os.platform(),arch:os.arch(),cpus:os.cpus().length,
     model:os.cpus()[0]?.model,totalMemory:os.totalmem(),heap:'384m',pool:12,httpThreads:48,
     rounds,requestsPerStage:requests,concurrencies,
-    scope:'Local single-node all-success path: HTTP -> Redis Lua -> MySQL request/outbox -> Kafka -> MySQL order -> Redis confirmation.',
+    scope:'Local single-node all-success path: HTTP -> Redis Lua -> MySQL request/outbox -> RocketMQ -> MySQL order -> Redis confirmation.',
     interpretation:'Stock equals request count and every request uses a unique user. QPS therefore measures successful full-path orders, not sold-out fast failures.'
   });
 
@@ -102,7 +102,7 @@ try {
         throw new Error(`Load exceeds zero-error admission range: concurrency=${concurrency}, statuses=${JSON.stringify(statuses)}`);
       }
       const drainMs=await waitForCompletion(activity);
-      await kafkaDrained();
+      await ordersDrained();
 
       const rows=sql(`SELECT id,state,ROUND(UNIX_TIMESTAMP(created_at)*1000),ROUND(UNIX_TIMESTAMP(completed_at)*1000)
         FROM ux_request WHERE activity_id=${activity}`)

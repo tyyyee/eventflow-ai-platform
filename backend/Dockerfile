@@ -1,9 +1,10 @@
 FROM maven:3.9.11-eclipse-temurin-17 AS build
+ARG WITH_SHARDING=false
 WORKDIR /workspace
 COPY pom.xml .
 RUN mvn -B -DskipTests dependency:go-offline
 COPY src src
-RUN mvn -B -DskipTests package
+RUN if [ "$WITH_SHARDING" = "true" ]; then mvn -B -Psharding -DskipTests package; else mvn -B -DskipTests package; fi
 
 FROM eclipse-temurin:17-jre-alpine
 RUN addgroup -S app && adduser -S -G app app

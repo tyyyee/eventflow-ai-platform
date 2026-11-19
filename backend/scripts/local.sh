@@ -15,7 +15,7 @@ export DATABASE_URL="${DATABASE_URL:-jdbc:mysql://127.0.0.1:${MYSQL_PORT:-23307}
 export DATABASE_USERNAME="${DATABASE_USERNAME:-life_choice}"
 export DATABASE_PASSWORD="${DATABASE_PASSWORD:-$MYSQL_PASSWORD}"
 export REDIS_PORT="${REDIS_PORT:-26380}"
-export KAFKA_BOOTSTRAP_SERVERS="${KAFKA_BOOTSTRAP_SERVERS:-127.0.0.1:${KAFKA_PORT:-29093}}"
+export ROCKETMQ_NAMESERVER="${ROCKETMQ_NAMESERVER:-127.0.0.1:39876}"
 tools="$HOME/Library/Application Support/EventFlow/tools"
 if [[ -d "$tools/jdk17/Contents/Home" ]]; then
   export JAVA_HOME="$tools/jdk17/Contents/Home"
@@ -25,8 +25,8 @@ maven=(mvn)
 if [[ -d "$project/.m2" ]]; then maven+=("-Dmaven.repo.local=$project/.m2");
 elif [[ -d "$tools/m2" ]]; then maven+=("-Dmaven.repo.local=$tools/m2"); fi
 case "${1:-test}" in
-  up) docker compose -f "$project/compose.yaml" up -d --wait --wait-timeout 240 mysql redis kafka ;;
-  stop) docker compose -f "$project/compose.yaml" stop mysql redis kafka ;;
+  up) docker compose -f "$project/compose.yaml" -f "$project/compose.host.yaml" up -d --wait --wait-timeout 240 mysql redis rocketmq-namesrv rocketmq-broker ;;
+  stop) docker compose -f "$project/compose.yaml" -f "$project/compose.host.yaml" stop mysql redis rocketmq-broker rocketmq-namesrv ;;
   test) exec "${maven[@]}" test ;;
   package) exec "${maven[@]}" clean package ;;
   integration) export UPGRADE_INTEGRATION=true; exec "${maven[@]}" -Dtest=MiddlewareTest test ;;

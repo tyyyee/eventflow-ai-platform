@@ -1,26 +1,24 @@
 package com.hmdp.upgrade;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.dao.CannotAcquireLockException;
+import org.mockito.ArgumentCaptor;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.SimpleTransactionStatus;
-import java.util.concurrent.atomic.AtomicInteger;
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class TransactionsTest {
-    @Test void retryIsBoundedAndEachFailedAttemptRollsBack() {
+    @Test void maintenanceTimeoutDoesNotChangeTradingTimeout() {
         var manager=mock(PlatformTransactionManager.class);
-        when(manager.getTransaction(any())).thenAnswer(x->new SimpleTransactionStatus());
-        var count=new AtomicInteger();
-        assertThrows(CannotAcquireLockException.class,()->new Transactions(manager).run(()->{count.incrementAndGet();throw new CannotAcquireLockException("deadlock");}));
-        assertEquals(3,count.get());verify(manager,times(3)).rollback(any());verify(manager,never()).commit(any());
-    }
-    @Test void retryRunsEntireActionThenCommitsOnce() {
-        var manager=mock(PlatformTransactionManager.class);
-        when(manager.getTransaction(any())).thenAnswer(x->new SimpleTransactionStatus());
-        var count=new AtomicInteger();
-        assertEquals("ok",new Transactions(manager).run(()->{if(count.incrementAndGet()<3)throw new CannotAcquireLockException("busy");return "ok";}));
-        verify(manager,times(2)).rollback(any());verify(manager,times(1)).commit(any());
+        when(manager.getTransaction(any())).thenAnswer(call->new SimpleTransactionStatus());
+        var transactions=new Transactions(manager);
+        assertEquals("before",transactions.run(()->"before"));
+        assertEquals("maintenance",transactions.runWithTimeout(120,()->"maintenance"));
+        assertEquals("after",transactions.run(()->"after"));
+        var definitions=ArgumentCaptor.forClass(TransactionDefinition.class);
+        verify(manager,times(3)).getTransaction(definitions.capture());
+        assertEquals(java.util.List.of(5,120,5),definitions.getAllValues().stream().map(TransactionDefinition::getTimeout).toList());
+        assertThrows(IllegalArgumentException.class,()->transactions.runWithTimeout(0,()->null));
     }
 }

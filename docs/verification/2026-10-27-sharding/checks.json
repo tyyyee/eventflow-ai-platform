@@ -1,0 +1,62 @@
+{
+  "maintenance": {
+    "readModeAfterAcceptance": "LOCAL",
+    "localRollback": "passed",
+    "verify": "passed"
+  },
+  "limits": [
+    "Original Redis/Kafka conditional integration tests were not enabled.",
+    "Docker overlay was statically checked, not started.",
+    "Benchmarks measure local JDBC list+count operations, not HTTP or seckill TPS."
+  ],
+  "artifact": {
+    "file": "backend/target/life-choice-backend-1.0.0.jar",
+    "applicationEntry": "com.hmdp.upgrade.UpgradeApplication",
+    "includesShardingSphere552": true,
+    "sha256": "d45f92179b4ae86fd737a532dae4fca59bf0c49c0b06fe76021777d65d2aafb5",
+    "bytes": 114022531,
+    "includesH2MetadataRuntime": true
+  },
+  "checks": [
+    {
+      "errors": 0,
+      "tests": 138,
+      "failures": 0,
+      "buildSuccess": true,
+      "skipped": 49,
+      "name": "originalBaseline"
+    },
+    {
+      "errors": 0,
+      "tests": 144,
+      "failures": 0,
+      "buildSuccess": true,
+      "skipped": 50,
+      "name": "defaultRegression"
+    },
+    {
+      "errors": 0,
+      "tests": 156,
+      "failures": 0,
+      "buildSuccess": true,
+      "skipped": 51,
+      "name": "fullShardingRegression"
+    },
+    {
+      "errors": 0,
+      "tests": 13,
+      "failures": 0,
+      "buildSuccess": true,
+      "skipped": 0,
+      "name": "finalRuntimeRecheck"
+    },
+    {
+      "errors": 0,
+      "tests": 1,
+      "failures": 0,
+      "buildSuccess": true,
+      "skipped": 0,
+      "name": "benchmark"
+    }
+  ]
+}

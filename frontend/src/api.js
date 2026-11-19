@@ -18,6 +18,16 @@ export async function api(path, { method = 'GET', body, csrf, signal } = {}) {
 }
 
 const messages = {
+  ASSISTANT_DISABLED: '票务助手暂未开启，请先使用活动广场。',
+  ASSISTANT_BUSY: '上一条问题仍在处理，请等待结果或刷新对话。',
+  ASSISTANT_QUEUE_FULL: '助手当前较忙，请稍后再试。',
+  ASSISTANT_RATE_LIMIT: '提问比较频繁，请稍等一分钟再试。',
+  ASSISTANT_SESSION_LIMIT: '已达到对话数量上限，请删除不需要的旧对话。',
+  ASSISTANT_TURN_LIMIT: '当前对话已较长，请新建对话后继续。',
+  ASSISTANT_INVALID_REQUEST: '问题或请求标识不正确，请输入1000字以内的问题。',
+  ASSISTANT_SESSION_NOT_FOUND: '这段对话不存在，请刷新后重新选择。',
+  ASSISTANT_RUN_NOT_FOUND: '未找到这条问题，请刷新对话。',
+  ASSISTANT_KEY_CONFLICT: '原问题与重试内容不一致，请先刷新对话核实。',
   SANDBOX_PAYMENTS_DISABLED: '当前环境未开启模拟支付，请联系演示环境维护者。',
   ORDER_NOT_PAYABLE: '订单已关闭或超过支付时间，请刷新订单查看最新状态。',
   PAYMENT_REQUIRED: '这笔订单已进入支付流程，请通过模拟支付完成。',

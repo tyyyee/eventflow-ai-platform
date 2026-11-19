@@ -3,7 +3,7 @@ import {mkdirSync,writeFileSync} from 'node:fs';
 import {performance} from 'node:perf_hooks';
 import os from 'node:os';
 import {createServer,connect} from 'node:net';
-import {root,projectRoot,start,stop,request,fixture,invariant,sql,compose,sleep,save,terminal,kafkaDrained,sourceManifest} from './harness.mjs';
+import {root,projectRoot,start,stop,request,fixture,invariant,sql,compose,sleep,save,terminal,ordersDrained,sourceManifest} from './harness.mjs';
 
 if(process.env.UPGRADE_DB_SCHEMA!=='life_choice_verification' || !process.env.UPGRADE_DB_URL?.includes('/life_choice_verification?') || process.env.SPRING_DATA_REDIS_DATABASE!=='13')
   throw new Error('Run through scripts/verification.sh; this experiment only accepts the isolated verification environment.');
@@ -58,11 +58,10 @@ try {
   await launch();
   save(`${dir}/environment.json`,{date:new Date().toISOString(),mode,smoke,platform:os.platform(),arch:os.arch(),cpu:os.cpus()[0]?.model,
     manifest:sourceManifest(),cpuCount:os.cpus().length,totalMemory:os.totalmem(),database:'life_choice_verification',redisDatabase:13,topic:process.env.UPGRADE_TOPIC,heap:'384m',instances:1,
-    kafkaSessionTimeoutMs:Number(process.env.UPGRADE_KAFKA_SESSION_TIMEOUT_MS??15000),kafkaHeartbeatMs:Number(process.env.UPGRADE_KAFKA_HEARTBEAT_MS??3000),
-    scope:'Real HTTP, Redis, MySQL, Kafka on one host. Process crashes affect only the child JVM started by this script.'});
+    scope:'Real HTTP, Redis, MySQL, RocketMQ on one host. Process crashes affect only the child JVM started by this script.'});
   if(mode==='faults') {
     for(const point of ['reserve-before-db','accept-before-response','send-before-mark','commit-before-ack']) {
-      await kafkaDrained();
+      await ordersDrained();
       const activity=next(),user=next(),key=`fault_${activity}`;await fixture(activity,1);
       await crash(point,()=>submit(activity,user,key));
       const began=Date.now();

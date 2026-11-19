@@ -36,8 +36,12 @@ public class CustomerRequests {
     }
     private Instant now() { return db.queryForObject("SELECT CURRENT_TIMESTAMP(3)",Timestamp.class).toInstant(); }
     public Listing list(long user,int page,String state) {
+        return listing(user,page,state,true);
+    }
+    public Listing readOnlyList(long user,String state) { return listing(user,1,state,false); }
+    private Listing listing(long user,int page,String state,boolean refresh) {
         if(page<1 || page>500 || !List.of("","pending","confirmed","closed").contains(state)) throw new Problem(400,"INVALID_FILTER");
-        refreshExpired(user);
+        if(refresh) refreshExpired(user);
         String filter=switch(state) {
             case "pending" -> " AND (r.state='ACCEPTED' OR o.state='PENDING_CONFIRM')";
             case "confirmed" -> " AND o.state='CONFIRMED'";
@@ -55,6 +59,10 @@ public class CustomerRequests {
     }
     public Detail get(long user,String value,boolean byKey) {
         refreshExpired(user);
+        return detail(user,value,byKey);
+    }
+    public Detail readOnlyDetail(long user,String requestId) { return detail(user,requestId,false); }
+    private Detail detail(long user,String value,boolean byKey) {
         var rows=db.query(SELECT+" WHERE r.user_id=? AND r."+(byKey?"request_key":"id")+"=?",CustomerRequests::item,user,value);
         if(rows.isEmpty()) throw new Problem(404,"REQUEST_NOT_FOUND");
         return new Detail(rows.get(0),now());
@@ -62,6 +70,7 @@ public class CustomerRequests {
 }
 
 @RestController
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name="upgrade.core32.enabled",havingValue="false",matchIfMissing=true)
 @RequestMapping("/v2/account/requests")
 class CustomerRequestApi {
     private final CustomerRequests queries;

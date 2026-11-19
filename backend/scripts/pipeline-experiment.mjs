@@ -4,7 +4,7 @@ import {spawn} from 'node:child_process';
 import {createInterface} from 'node:readline';
 import {performance} from 'node:perf_hooks';
 import os from 'node:os';
-import {root,projectRoot,start,stop,request,fixture,invariant,sql,sleep,save,kafkaDrained,sourceManifest} from './harness.mjs';
+import {root,projectRoot,start,stop,request,fixture,invariant,sql,sleep,save,ordersDrained,sourceManifest} from './harness.mjs';
 if(process.env.UPGRADE_DB_SCHEMA!=='life_choice_verification'||!process.env.UPGRADE_DB_URL?.includes('/life_choice_verification?')||process.env.SPRING_DATA_REDIS_DATABASE!=='13') throw Error('Use verification.sh');
 const mode=process.argv.includes('--sustained')?'sustained':'variants';
 const dir=`${root}/evidence/pipeline-${mode}-${Date.now()}`;mkdirSync(dir,{recursive:true});
@@ -32,7 +32,7 @@ function locks() {
 async function pooled(items,fn,n=4){let cursor=0;await Promise.all(Array.from({length:n},async()=>{while(cursor<items.length){const i=cursor++;await fn(items[i],i);}}));}
 async function run(name,overrides,round,profile) {
  const config={...settings,...overrides};child=await start(`${dir}/${round}-${name}.log`,[...common,`--upgrade.relay-batch=${config.batch}`,`--upgrade.relay-window=${config.window}`,`--upgrade.repair-batch=${config.repairBatch}`,`--upgrade.repair-delay-ms=${config.repairDelay}`]);
- await kafkaDrained();
+ await ordersDrained();
  const prepare=process.argv.find(a=>a.startsWith('--confirm-from='));
  if(prepare&&!results.length){const previous=JSON.parse(readFileSync(prepare.slice('--confirm-from='.length),'utf8')).samples.filter(s=>s.finalState==='SUCCEEDED');await pooled(previous,async s=>{assert.equal((await request(`/v2/requests/${s.id}/confirm`,{user:s.user,method:'POST'})).status,200);});}
  // Let earlier fixtures expire naturally before the measured interval.

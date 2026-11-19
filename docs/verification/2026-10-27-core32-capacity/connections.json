@@ -1,0 +1,52 @@
+{
+  "scope" : "Actual database connection admission with application and benchmark pools stopped. This intentionally adds instances and aggregate server connection capacity, not an equal-total-resource TPS comparison.",
+  "single" : {
+    "opened" : 40,
+    "serverLimits" : {
+      "33307" : 40
+    },
+    "perPort" : {
+      "33307" : 40
+    },
+    "failures" : [ {
+      "sqlState" : "08004",
+      "port" : 33307,
+      "errorCode" : 1040
+    }, {
+      "sqlState" : "08004",
+      "port" : 33307,
+      "errorCode" : 1040
+    }, {
+      "sqlState" : "08004",
+      "port" : 33307,
+      "errorCode" : 1040
+    }, {
+      "sqlState" : "08004",
+      "port" : 33307,
+      "errorCode" : 1040
+    }, {
+      "sqlState" : "08004",
+      "port" : 33307,
+      "errorCode" : 1040
+    } ],
+    "wanted" : 45
+  },
+  "four" : {
+    "opened" : 45,
+    "serverLimits" : {
+      "33400" : 40,
+      "33401" : 40,
+      "33402" : 40,
+      "33403" : 40
+    },
+    "perPort" : {
+      "33400" : 12,
+      "33401" : 11,
+      "33402" : 11,
+      "33403" : 11
+    },
+    "failures" : [ ],
+    "wanted" : 45
+  },
+  "verifiedAt" : "2026-10-27T09:39:36.955094200Z"
+}

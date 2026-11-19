@@ -11,7 +11,7 @@ const seconds=smoke?3:duration,repeats=smoke?1:rounds;
 const dir=`${root}/evidence/${smoke?'smoke':'benchmark'}-${Date.now()}`;mkdirSync(dir,{recursive:true});
 const results=[];let child;let sequence=Date.now();
 function quantile(values,p) {if(!values.length)return null;const sorted=[...values].sort((a,b)=>a-b);return sorted[Math.min(sorted.length-1,Math.ceil(sorted.length*p)-1)];}
-function dockerStats(){return execFileSync('docker',['stats','--no-stream','--format','{{json .}}','life-choice-mysql-1','life-choice-redis-1','life-choice-kafka-1'],{encoding:'utf8',timeout:15000}).trim().split('\n').map(JSON.parse);}
+function dockerStats(){return execFileSync('docker',['stats','--no-stream','--format','{{json .}}','life-choice-mysql-1','life-choice-redis-1','life-choice-rocketmq-broker-1'],{encoding:'utf8',timeout:15000}).trim().split('\n').map(JSON.parse);}
 function manifest(dir){const out={};function visit(folder){for(const e of readdirSync(folder,{withFileTypes:true})){const p=`${folder}/${e.name}`;if(e.isDirectory())visit(p);else out[p.slice(root.length)]=createHash('sha256').update(readFileSync(p)).digest('hex');}}visit(`${root}/src`);visit(`${root}/scripts`);return out;}
 async function load(mode,activity,rate,seconds) {
   const samples=[],inflight=new Set();let skipped=0;

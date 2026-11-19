@@ -1,0 +1,232 @@
+{
+  "startedAt": "2026-10-27T04:50:09.550Z",
+  "base": "http://127.0.0.1:38093",
+  "checks": [
+    {
+      "name": "real registration/login, anonymous denial, admin denial and CSRF rejection",
+      "passed": true,
+      "users": 18,
+      "userIds": [
+        "4000000000000054",
+        "4000000000000055",
+        "4000000000000056",
+        "4000000000000057",
+        "4000000000000058",
+        "4000000000000059",
+        "4000000000000060",
+        "4000000000000061",
+        "4000000000000062",
+        "4000000000000063",
+        "4000000000000064",
+        "4000000000000065",
+        "4000000000000066",
+        "4000000000000067",
+        "4000000000000068",
+        "4000000000000069",
+        "4000000000000070",
+        "4000000000000071"
+      ]
+    },
+    {
+      "name": "Kafka asynchronous order creation, payment receipt replay, cancellation, request idempotence and owner isolation",
+      "passed": true,
+      "activityId": 1793076620547,
+      "orders": 18
+    },
+    {
+      "name": "backfill, complete field verification, guarded cutover and login-based shard isolation",
+      "passed": true,
+      "verification": {
+        "passed": true,
+        "differences": 0,
+        "done": true,
+        "topology": {
+          "rows": 78,
+          "misplaced": 0
+        },
+        "checked": 78
+      }
+    },
+    {
+      "name": "history outage: HTTP 503, source-only LOCAL rollback, continuing trade, unsafe cutover blocked and durable retry recovery",
+      "passed": true
+    },
+    {
+      "name": "Kafka interruption plus backend restart: accepted outbox recovered and exactly one authoritative order",
+      "passed": true
+    },
+    {
+      "name": "Redis interruption: reservations fail closed, history remains usable and same-key retry recovers",
+      "passed": true,
+      "transient503s": 6,
+      "observedMs": 3856
+    },
+    {
+      "name": "live create/cancel visible through sharded authenticated HTTP",
+      "passed": true,
+      "createVisibilityMs": 1211,
+      "cancelVisibilityMs": 477,
+      "pollIntervalMs": 300,
+      "basis": "source timestamp to first successful authenticated HTTP observation; includes polling and SQL observation overhead"
+    },
+    {
+      "name": "unchanged five-minute delayed close, one stock restoration, late-payment refund and sharded EXPIRED visibility",
+      "passed": true,
+      "confirmDeadline": "2026-10-27T04:55:21.444Z"
+    },
+    {
+      "name": "session logout invalidation and final inventory/order invariants",
+      "passed": true
+    }
+  ],
+  "benchmark": [
+    {
+      "mode": "LOCAL",
+      "round": 1,
+      "workers": 8,
+      "pacingMs": 25,
+      "users": 17,
+      "operations": 1343,
+      "errors": 0,
+      "mismatches": 0,
+      "elapsedMs": 10044.878200000006,
+      "qps": 133.69997856220886,
+      "p50Ms": 15.86380000000645,
+      "p95Ms": 58.622099999993225,
+      "maxMs": 203.55449999999837
+    },
+    {
+      "mode": "SHARDED",
+      "round": 1,
+      "workers": 8,
+      "pacingMs": 25,
+      "users": 17,
+      "operations": 1214,
+      "errors": 0,
+      "mismatches": 0,
+      "elapsedMs": 10007.799699999989,
+      "qps": 121.30538543851965,
+      "p50Ms": 19.437200000000303,
+      "p95Ms": 71.79770000001008,
+      "maxMs": 321.1137000000017
+    },
+    {
+      "mode": "SHARDED",
+      "round": 2,
+      "workers": 8,
+      "pacingMs": 25,
+      "users": 17,
+      "operations": 1619,
+      "errors": 0,
+      "mismatches": 0,
+      "elapsedMs": 10018.030599999998,
+      "qps": 161.60860997969004,
+      "p50Ms": 12.642300000006799,
+      "p95Ms": 34.87770000001183,
+      "maxMs": 78.95350000000326
+    },
+    {
+      "mode": "LOCAL",
+      "round": 2,
+      "workers": 8,
+      "pacingMs": 25,
+      "users": 17,
+      "operations": 1614,
+      "errors": 0,
+      "mismatches": 0,
+      "elapsedMs": 10027.232900000003,
+      "qps": 160.9616547352759,
+      "p50Ms": 12.517800000001444,
+      "p95Ms": 31.532600000005914,
+      "maxMs": 104.414300000004
+    },
+    {
+      "mode": "LOCAL",
+      "round": 3,
+      "workers": 8,
+      "pacingMs": 25,
+      "users": 17,
+      "operations": 1806,
+      "errors": 0,
+      "mismatches": 0,
+      "elapsedMs": 10023.454999999987,
+      "qps": 180.17739392255487,
+      "p50Ms": 8.897299999982351,
+      "p95Ms": 27.58479999998235,
+      "maxMs": 106.67729999998119
+    },
+    {
+      "mode": "SHARDED",
+      "round": 3,
+      "workers": 8,
+      "pacingMs": 25,
+      "users": 17,
+      "operations": 1346,
+      "errors": 0,
+      "mismatches": 0,
+      "elapsedMs": 10041.751599999989,
+      "qps": 134.0403600503324,
+      "p50Ms": 13.671300000016345,
+      "p95Ms": 74.59470000001602,
+      "maxMs": 222.5917999999947
+    }
+  ],
+  "boundaries": {
+    "http": true,
+    "customerAuthentication": "registered Cookie session plus CSRF for mutations",
+    "adminAuthentication": "existing laboratory HMAC, isolated environment only",
+    "data": "actual HTTP-created test orders, small functional dataset",
+    "capacityClaim": false
+  },
+  "redisRecovery": {
+    "transient503s": 6,
+    "observedMs": 3856
+  },
+  "freshness": {
+    "createVisibilityMs": 1211,
+    "cancelVisibilityMs": 477,
+    "pollIntervalMs": 300,
+    "basis": "source timestamp to first successful authenticated HTTP observation; includes polling and SQL observation overhead"
+  },
+  "final": {
+    "readMode": "LOCAL",
+    "invariants": {
+      "pending": 0,
+      "stockViolations": 0,
+      "stateViolations": 0
+    },
+    "history": {
+      "id": 1,
+      "read_mode": "LOCAL",
+      "backfill_cursor": "c6625f6c-c30d-4bee-8743-5a770aaa6064",
+      "backfill_done": true,
+      "lease_until": null,
+      "verify_cursor": "",
+      "verify_checked": 0,
+      "verify_mismatches": 0,
+      "verified_at": "2026-10-27T04:55:23.541+00:00",
+      "enabled": true,
+      "pending": 0,
+      "failures": 0,
+      "oldestPendingAt": null,
+      "physicalQueryDatabases": 2,
+      "tables": 32
+    },
+    "queues": {
+      "accepted": {
+        "size": 0,
+        "oldestMs": 0
+      },
+      "outbox": {
+        "size": 0,
+        "oldestMs": 0
+      },
+      "reservationActions": {
+        "size": 0,
+        "oldestMs": 0
+      }
+    }
+  },
+  "completedAt": "2026-10-27T04:55:23.831Z",
+  "passed": true
+}

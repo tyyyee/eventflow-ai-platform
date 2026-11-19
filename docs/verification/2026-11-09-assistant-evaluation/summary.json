@@ -1,0 +1,129 @@
+{
+  "createdAt": "2026-11-09T07:56:10.073Z",
+  "suiteVersion": "qupiao-agent-v1",
+  "deterministic": {
+    "cases": 40,
+    "passed": 40,
+    "report": "deterministic-after-fixes.json"
+  },
+  "liveRegressionBefore": {
+    "cases": 20,
+    "passed": 17,
+    "failed": 3,
+    "report": "live-initial.json"
+  },
+  "liveRegressionAfter": {
+    "cases": 20,
+    "passed": 20,
+    "failed": 0,
+    "report": "live-after-fixes.json"
+  },
+  "liveHeldOut": {
+    "cases": 8,
+    "passed": 8,
+    "failed": 0,
+    "report": "live-heldout.json",
+    "note": "Newly authored after fixes, not used to tune the prompt; synthetic fixtures and a small hand-written sample."
+  },
+  "assertionsUnchangedAcrossRegression": true,
+  "heldOutRuntimeUnchanged": true,
+  "heldOutSourceSha256": "7f6a0253314a561799138bba30ad84e68c1e9f254f03de3fe82edd5129f03166",
+  "fixes": [
+    {
+      "caseId": "A06",
+      "problem": "No-match category was silently cleared",
+      "fix": "Pin first search criteria per turn and require explicit user changes in a new turn"
+    },
+    {
+      "caseId": "A09",
+      "problem": "Order details overwrote earlier order list",
+      "fix": "Merge same-turn order facts by request ID"
+    },
+    {
+      "caseId": "B09",
+      "problem": "Supplementary rules hid replacement activity cards",
+      "fix": "Keep same-turn activity cards alongside rules; report oldest visible evidence time"
+    }
+  ],
+  "providerCalls": 158,
+  "reportedTotalTokens": 306439,
+  "conservativeReportedTokenCostYuan": 2.451512,
+  "costNote": "All reported tokens multiplied by 8 CNY/million. Not an actual invoice; includes before, after and held-out batches, excludes earlier five-turn smoke.",
+  "rawBalanceObservations": [
+    {
+      "currency": "CNY",
+      "before": 9.92,
+      "after": 9.92,
+      "note": "Account balance observation, not per-request billing."
+    },
+    {
+      "currency": "CNY",
+      "before": 9.8,
+      "after": 9.8,
+      "note": "Account balance observation, not per-request billing."
+    },
+    {
+      "currency": "CNY",
+      "before": 9.77,
+      "after": 9.69,
+      "note": "Account balance observation, not per-request billing."
+    }
+  ],
+  "limits": [
+    "No population-wide accuracy claim",
+    "Regression cases participated in debugging",
+    "No real payment or production data",
+    "Live model tests use isolated H2 fixtures; separate MySQL/Redis/MQ integration covers real middleware",
+    "No LLM-as-Judge paid calls"
+  ],
+  "junitVerification": [
+    {
+      "name": "AssistantEvaluationTest",
+      "tests": 40,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "AssistantBusinessTest",
+      "tests": 23,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "AssistantHttpTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "DeepSeekAssistantModelTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "AssistantIntegrationTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "localRegressionTotal": 71,
+  "browser": {
+    "passed": true,
+    "scenarios": 9,
+    "mode": "stub",
+    "report": "browser/results.json"
+  },
+  "finalBalanceObservation": {
+    "currency": "CNY",
+    "remaining": "9.65",
+    "checkedAt": "2026-11-09T07:54:55.2532231+00:00",
+    "note": "Balance observation after evaluation; settlement may lag."
+  }
+}

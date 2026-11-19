@@ -1,0 +1,54 @@
+# Optional overlay: docker compose -f compose.yaml -f compose.history.yaml up -d --build
+services:
+  history0:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: qupiao_history
+      MYSQL_USER: qupiao
+      MYSQL_PASSWORD: ${HISTORY_DB_PASSWORD:?set HISTORY_DB_PASSWORD for the history overlay}
+      MYSQL_INITDB_SKIP_TZINFO: "1"
+    command: ["--default-time-zone=+00:00", "--innodb-buffer-pool-size=128M"]
+    volumes:
+      - history0-data:/var/lib/mysql
+      - ./infra/mysql/history0.sql:/docker-entrypoint-initdb.d/01-history.sql:ro
+    ports: ["127.0.0.1:${HISTORY0_PORT:-33317}:3306"]
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=$$MYSQL_PASSWORD mysql -uqupiao -h127.0.0.1 qupiao_history -e 'SELECT 1' >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+  history1:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: qupiao_history
+      MYSQL_USER: qupiao
+      MYSQL_PASSWORD: ${HISTORY_DB_PASSWORD:?set HISTORY_DB_PASSWORD for the history overlay}
+      MYSQL_INITDB_SKIP_TZINFO: "1"
+    command: ["--default-time-zone=+00:00", "--innodb-buffer-pool-size=128M"]
+    volumes:
+      - history1-data:/var/lib/mysql
+      - ./infra/mysql/history1.sql:/docker-entrypoint-initdb.d/01-history.sql:ro
+    ports: ["127.0.0.1:${HISTORY1_PORT:-33318}:3306"]
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=$$MYSQL_PASSWORD mysql -uqupiao -h127.0.0.1 qupiao_history -e 'SELECT 1' >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+  backend:
+    build:
+      context: ./backend
+      args:
+        WITH_SHARDING: "true"
+    environment:
+      HISTORY_REPLICA_ENABLED: "true"
+      HISTORY_URLS: jdbc:mysql://history0:3306/qupiao_history?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true,jdbc:mysql://history1:3306/qupiao_history?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true
+      HISTORY_DB_USER: qupiao
+      HISTORY_DB_PASSWORD: ${HISTORY_DB_PASSWORD}
+    depends_on:
+      history0: {condition: service_healthy}
+      history1: {condition: service_healthy}
+volumes:
+  history0-data:
+  history1-data:
