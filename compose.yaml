@@ -32,31 +32,33 @@ services:
       retries: 30
     restart: unless-stopped
 
-  kafka:
-    image: apache/kafka:3.9.1
+  rocketmq-namesrv:
+    image: apache/rocketmq:5.3.2
+    command: sh mqnamesrv
     environment:
-      KAFKA_NODE_ID: "1"
-      KAFKA_PROCESS_ROLES: broker,controller
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
-      KAFKA_LISTENERS: CONTROLLER://:29093,INTERNAL://:29092,EXTERNAL://:9092
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://127.0.0.1:${KAFKA_PORT:-29093}
-      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
-      CLUSTER_ID: fL6g3nShT-eMCtK--X86sx
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: "0"
-      KAFKA_LOG_RETENTION_HOURS: "24"
-      KAFKA_HEAP_OPTS: -Xms128m -Xmx384m
-    volumes: ["kafka-data:/var/lib/kafka/data"]
-    ports: ["127.0.0.1:${KAFKA_PORT:-29093}:9092"]
+      JAVA_OPT_EXT: -Xms64m -Xmx128m
     healthcheck:
-      test: ["CMD", "/opt/kafka/bin/kafka-topics.sh", "--bootstrap-server", "localhost:29092", "--list"]
-      interval: 10s
-      timeout: 10s
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/127.0.0.1/9876'"]
+      interval: 5s
+      timeout: 3s
       retries: 30
+    restart: unless-stopped
+
+  rocketmq-broker:
+    image: apache/rocketmq:5.3.2
+    command: sh mqbroker -n rocketmq-namesrv:9876 -c /home/rocketmq/broker.conf
+    environment:
+      JAVA_OPT_EXT: -Xms128m -Xmx512m
+    volumes:
+      - ./infra/rocketmq/broker.conf:/home/rocketmq/broker.conf:ro
+      - rocketmq-data:/home/rocketmq/store
+    depends_on:
+      rocketmq-namesrv: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/127.0.0.1/10911'"]
+      interval: 5s
+      timeout: 3s
+      retries: 40
     restart: unless-stopped
 
   backend:
@@ -69,21 +71,29 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD}
-      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      ROCKETMQ_NAMESERVER: rocketmq-namesrv:9876
       APP_AUTH_SECRET: ${APP_AUTH_SECRET}
       METRICS_TOKEN: ${METRICS_TOKEN:-local-observability-token-change-me-2026}
       SANDBOX_PAYMENTS: ${SANDBOX_PAYMENTS:-false}
-      CLOSE_QUEUE_KEY: ${CLOSE_QUEUE_KEY:-ux:close:due}
+      LOCAL_LIFE_ENABLED: ${LOCAL_LIFE_ENABLED:-false}
+      LOCAL_LIFE_DEMO: ${LOCAL_LIFE_DEMO:-false}
+      LOCAL_LIFE_DEMO_PASSWORD: ${LOCAL_LIFE_DEMO_PASSWORD:-}
+      LOCAL_LIFE_OPERATOR_PASSWORD: ${LOCAL_LIFE_OPERATOR_PASSWORD:-}
+      LOCAL_LIFE_MEDIA: /app/data/media
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
       DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
       PLANNING_MODE: ${PLANNING_MODE:-stub}
+      ASSISTANT_MODE: ${ASSISTANT_MODE:-stub}
+      ASSISTANT_MODEL: ${ASSISTANT_MODEL:-deepseek-flash}
+      ASSISTANT_JOBS: ${ASSISTANT_JOBS:-true}
       DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
       DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-deepseek-chat}
       JAVA_TOOL_OPTIONS: -XX:MaxRAMPercentage=70 -XX:+UseG1GC
+    volumes: ["local-media:/app/data/media"]
     depends_on:
       mysql: { condition: service_healthy }
       redis: { condition: service_healthy }
-      kafka: { condition: service_healthy }
+      rocketmq-broker: { condition: service_healthy }
     ports: ["127.0.0.1:${BACKEND_PORT:-8093}:8093"]
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8093/actuator/health/readiness"]
@@ -93,7 +103,10 @@ services:
     restart: unless-stopped
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        VITE_SANDBOX_PAYMENTS: ${SANDBOX_PAYMENTS:-false}
     ports: ["127.0.0.1:8080:8080"]
     depends_on:
       backend: { condition: service_healthy }
@@ -131,8 +144,9 @@ services:
 
 volumes:
   mysql-data:
+  local-media:
   redis-data:
-  kafka-data:
+  rocketmq-data:
   prometheus-data:
   grafana-data:
 

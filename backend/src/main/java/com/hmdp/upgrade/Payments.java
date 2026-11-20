@@ -12,12 +12,15 @@ import org.springframework.stereotype.Service;
 public class Payments {
     private final JdbcTemplate db;private final Transactions tx;private final Trading trading;
     @Value("${upgrade.jobs:true}") private boolean jobs;
+    @Value("${upgrade.core32.enabled:false}") private boolean core32;
+    @org.springframework.beans.factory.annotation.Autowired(required=false) private CoreModeGate coreModeGate;
     public Payments(JdbcTemplate db,Transactions tx,Trading trading) {this.db=db;this.tx=tx;this.trading=trading;}
     private void lock(String request,long user) {
         var r=trading.result(user,request);
         db.queryForList("SELECT id FROM ux_activity WHERE id=? FOR UPDATE",r.activityId());
     }
     public Map<String,Object> create(long user,String request) {
+        if(coreModeGate!=null)coreModeGate.legacy();
         return tx.run(()->{
             lock(request,user);
             var previous=db.queryForList("SELECT * FROM ux_payment WHERE request_id=?",request);
@@ -39,6 +42,7 @@ public class Payments {
     }
     // Authenticated sandbox callback: channelId is a stable provider transaction identifier.
     public Map<String,Object> received(long user,String payment,String channelId,int amount) {
+        if(coreModeGate!=null)coreModeGate.legacy();
         if(channelId==null || !channelId.matches("[A-Za-z0-9_-]{8,64}")) throw new Problem(400,"INVALID_CHANNEL_ID");
         var initial=get(user,payment);
         return tx.run(()->{
@@ -93,5 +97,5 @@ public class Payments {
             }
         }
     }
-    @Scheduled(fixedDelay=1000) public void scheduled() {if(jobs) refunds();}
+    @Scheduled(fixedDelay=1000) public void scheduled() {if(jobs&&!core32) refunds();}
 }

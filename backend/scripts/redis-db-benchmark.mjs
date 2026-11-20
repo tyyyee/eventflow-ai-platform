@@ -51,7 +51,7 @@ try {
   child=await start(`${dir}/server.log`,['--upgrade.jobs=false']);
   save(`${dir}/environment.json`,{started:new Date().toISOString(),platform:os.platform(),arch:os.arch(),cpus:os.cpus().length,
     model:os.cpus()[0]?.model,totalMemory:os.totalmem(),heap:'384m',pool:12,httpThreads:48,rounds,requests,stock,concurrency,
-    scope:'Local single-node Redis/MySQL A/B. HMAC benchmark identity excludes customer-session SQL. Synchronous order completion isolates the admission decision; Kafka is not part of this experiment.'});
+    scope:'Local single-node Redis/MySQL A/B. HMAC benchmark identity excludes customer-session SQL. Synchronous order completion isolates the admission decision; RocketMQ is not part of this experiment.'});
   for(let round=1;round<=rounds;round++) {
     const modes=round%2===1?['mysql-first','redis-first']:['redis-first','mysql-first'];
     for(const mode of modes) {

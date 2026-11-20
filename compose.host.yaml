@@ -1,0 +1,8 @@
+# Host JVM development only. The full container stack uses compose.yaml without this overlay.
+services:
+  rocketmq-namesrv:
+    ports: ["127.0.0.1:39876:9876"]
+  rocketmq-broker:
+    volumes:
+      - ./infra/rocketmq/broker-host.conf:/home/rocketmq/broker.conf:ro
+    ports: ["127.0.0.1:39911:39911", "127.0.0.1:39909:39909"]

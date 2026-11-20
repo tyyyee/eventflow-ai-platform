@@ -1,0 +1,24 @@
+{
+  "existingOrderProjectionTables" : 32,
+  "sourceCounts" : {
+    "ux_activity" : 0,
+    "ux_request" : 0,
+    "ux_order" : 0,
+    "ux_order_projection" : 0,
+    "ux_shop" : 0
+  },
+  "instances" : [ {
+    "version" : "8.0.31",
+    "port" : 33307,
+    "serverUuid" : "bc9a9973-d166-11f1-aa84-0826ae3c73bc"
+  }, {
+    "version" : "8.0.31",
+    "port" : 33317,
+    "serverUuid" : "bec2283f-d166-11f1-9ef4-0826ae3c73bc"
+  }, {
+    "version" : "8.0.31",
+    "port" : 33318,
+    "serverUuid" : "c08a7732-d166-11f1-8e40-0826ae3c73bc"
+  } ],
+  "scope" : "Isolated MySQL instances; existing Windows service on 3306 untouched."
+}

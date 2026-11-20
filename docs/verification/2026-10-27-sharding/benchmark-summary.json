@@ -1,0 +1,139 @@
+{
+  "scope": "SQL/JDBC list+count, closed-loop local read benchmark. No HTTP or normal session authentication cost.",
+  "rounds": 36,
+  "rawSampleRecalculation": "passed",
+  "groups": [
+    {
+      "rows": 100000,
+      "workload": "normal",
+      "mode": "single",
+      "operationsPerSecondMedian": 15063.236530808244,
+      "p95MsMedian": 0.7383,
+      "operationsPerSecondMin": 13973.756919887615,
+      "operationsPerSecondMax": 16597.645347380054,
+      "completed": 136923,
+      "failures": 0
+    },
+    {
+      "rows": 100000,
+      "workload": "normal",
+      "mode": "same-instance-32",
+      "operationsPerSecondMedian": 16378.066063054672,
+      "p95MsMedian": 0.6245,
+      "operationsPerSecondMin": 14784.372215724596,
+      "operationsPerSecondMax": 17148.29795829098,
+      "completed": 144970,
+      "failures": 0
+    },
+    {
+      "rows": 100000,
+      "workload": "normal",
+      "mode": "two-instance-32",
+      "operationsPerSecondMedian": 7752.4515328486805,
+      "p95MsMedian": 1.3835,
+      "operationsPerSecondMin": 2869.3494434939857,
+      "operationsPerSecondMax": 8079.831104003982,
+      "completed": 56131,
+      "failures": 0
+    },
+    {
+      "rows": 100000,
+      "workload": "mixed-10pct-heavy",
+      "mode": "single",
+      "operationsPerSecondMedian": 8083.006220325154,
+      "p95MsMedian": 2.1249,
+      "operationsPerSecondMin": 2248.7699324982964,
+      "operationsPerSecondMax": 10532.405626227945,
+      "completed": 62650,
+      "failures": 0
+    },
+    {
+      "rows": 100000,
+      "workload": "mixed-10pct-heavy",
+      "mode": "same-instance-32",
+      "operationsPerSecondMedian": 2346.948982938924,
+      "p95MsMedian": 21.0841,
+      "operationsPerSecondMin": 2182.4129133884576,
+      "operationsPerSecondMax": 11752.854040860233,
+      "completed": 48897,
+      "failures": 0
+    },
+    {
+      "rows": 100000,
+      "workload": "mixed-10pct-heavy",
+      "mode": "two-instance-32",
+      "operationsPerSecondMedian": 5065.6591848086455,
+      "p95MsMedian": 3.5033,
+      "operationsPerSecondMin": 1118.9189153209354,
+      "operationsPerSecondMax": 6060.039535255458,
+      "completed": 36811,
+      "failures": 0
+    },
+    {
+      "rows": 1000000,
+      "workload": "normal",
+      "mode": "single",
+      "operationsPerSecondMedian": 3546.1464204056847,
+      "p95MsMedian": 3.4175,
+      "operationsPerSecondMin": 1630.9578776414053,
+      "operationsPerSecondMax": 4239.041283711231,
+      "completed": 28269,
+      "failures": 0
+    },
+    {
+      "rows": 1000000,
+      "workload": "normal",
+      "mode": "same-instance-32",
+      "operationsPerSecondMedian": 2035.4308089996998,
+      "p95MsMedian": 5.911,
+      "operationsPerSecondMin": 1627.4700435682716,
+      "operationsPerSecondMax": 2177.1056106608135,
+      "completed": 17545,
+      "failures": 0
+    },
+    {
+      "rows": 1000000,
+      "workload": "normal",
+      "mode": "two-instance-32",
+      "operationsPerSecondMedian": 6551.318763607347,
+      "p95MsMedian": 1.6148,
+      "operationsPerSecondMin": 6471.01692212374,
+      "operationsPerSecondMax": 6914.7186477220075,
+      "completed": 59851,
+      "failures": 0
+    },
+    {
+      "rows": 1000000,
+      "workload": "mixed-10pct-heavy",
+      "mode": "single",
+      "operationsPerSecondMedian": 1920.1438630352716,
+      "p95MsMedian": 19.2754,
+      "operationsPerSecondMin": 1903.6623006303328,
+      "operationsPerSecondMax": 2115.1563684678945,
+      "completed": 17855,
+      "failures": 0
+    },
+    {
+      "rows": 1000000,
+      "workload": "mixed-10pct-heavy",
+      "mode": "same-instance-32",
+      "operationsPerSecondMedian": 1468.9361791687868,
+      "p95MsMedian": 24.4108,
+      "operationsPerSecondMin": 1363.5790588636405,
+      "operationsPerSecondMax": 1528.0966852734127,
+      "completed": 13117,
+      "failures": 0
+    },
+    {
+      "rows": 1000000,
+      "workload": "mixed-10pct-heavy",
+      "mode": "two-instance-32",
+      "operationsPerSecondMedian": 1954.5547267355198,
+      "p95MsMedian": 18.5237,
+      "operationsPerSecondMin": 1922.310493963226,
+      "operationsPerSecondMax": 2035.9252878017373,
+      "completed": 17836,
+      "failures": 0
+    }
+  ]
+}

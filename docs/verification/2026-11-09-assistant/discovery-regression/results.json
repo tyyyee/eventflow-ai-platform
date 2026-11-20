@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "checks": [
+    "saved empty state and persistent collection",
+    "collection synchronizes between browser tabs",
+    "empty search reset clears filters and pagination",
+    "responsive catalog and accessible detail ticket navigation",
+    "storage failure explains result without claiming success",
+    "view navigation restores browsing position"
+  ],
+  "errors": []
+}

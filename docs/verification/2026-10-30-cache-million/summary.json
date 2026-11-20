@@ -1,0 +1,2612 @@
+{
+  "completedAt": "2026-10-30T05:48:13.462Z",
+  "evidenceDirectory": "F:\\00简历整体修改\\04-魔改点评\\eventflow-ai-platform-main\\eventflow-ai-platform-main\\backend\\evidence\\cache-million-20261030052922-matrix",
+  "verification": "Every raw latency checksum, request count, success count, QPS and success percentile independently recomputed",
+  "dataset": {
+    "rows": 1000000,
+    "maxId": 1999999,
+    "minId": 1000000,
+    "descriptionBytes": 512000000,
+    "source": "deterministic synthetic campus merchant/venue basic information",
+    "descriptionBytesPerRow": 512,
+    "users": 256,
+    "auth": "SQL-seeded mock Cookie sessions; actual Accounts.authenticate and user limiter enabled; no Bearer load traffic",
+    "mysql": {
+      "port": 33507,
+      "version": "8.0.31",
+      "maxConnections": 64,
+      "bufferPoolBytes": 268435456
+    },
+    "storage": {
+      "dataBytes": 1643118592,
+      "indexBytes": 0,
+      "estimatedRows": 783108
+    }
+  },
+  "environment": {
+    "demoBackendTemporarilyStopped": true,
+    "mysqlBufferBytes": 268435456,
+    "shopRows": 1000000,
+    "startedAt": "2026-10-30T13:29:20.3229490+08:00",
+    "redisMaxBytes": 268435456,
+    "hardware": {
+      "cpu": "Intel(R) Core(TM) 7 240H",
+      "logicalProcessors": 16,
+      "memoryMiB": 32398,
+      "freeMiB": 7269
+    },
+    "schema": "qupiao_cache_bench",
+    "sourcePort": 33507,
+    "redisPort": 36480,
+    "node": "v24.21.0",
+    "platform": "win32",
+    "cpu": "Intel(R) Core(TM) 7 240H",
+    "cpuCount": 16,
+    "memoryBytes": 33971306496,
+    "jarSha256": "4c1b25a6705d3dd183f8fc76a2e82fa5436348d1ea5ea6cf4d59f5225b790f1e",
+    "cacheSourceSha256": "3eb57f21f9a110e53c3f9d49ad5f484fc718050d59079a2da0fbab4bd0efd21e",
+    "sourceChanges": "Bloom batch rebuild uses an isolated 120s maintenance transaction after million-row preflight reproduced its former 5s transaction timeout; trading transactions remain 5s. ShopCache query policies unchanged. Both arms run the same rebuilt jar.",
+    "application": {
+      "instances": 2,
+      "heapMiB": 384,
+      "cacheSoftMs": 5000,
+      "cacheHardMs": 15000,
+      "localMaximumSize": 10000,
+      "localBusinessLifetimeMs": 1000,
+      "jdbcPoolMaxPerInstance": 12
+    },
+    "initial": {
+      "apps": [
+        {
+          "cache": {
+            "staleHits": 0,
+            "fallbackRejected": 0,
+            "rebuildRejected": 0,
+            "hits": 0,
+            "localHits": 0,
+            "localSize": 0,
+            "fallbacks": 0,
+            "databaseReads": 0,
+            "ttlHits": 0
+          },
+          "bloom": {
+            "ready": 1,
+            "bypassed": 0,
+            "blocked": 0,
+            "checks": 0,
+            "entries": 1000000
+          },
+          "circuit": {
+            "manual": false,
+            "sampleCount": 0,
+            "state": "CLOSED",
+            "healthyProbes": 0,
+            "consecutiveFailures": 0
+          }
+        },
+        {
+          "circuit": {
+            "sampleCount": 0,
+            "manual": false,
+            "consecutiveFailures": 0,
+            "healthyProbes": 0,
+            "state": "CLOSED"
+          },
+          "bloom": {
+            "ready": 1,
+            "entries": 1000000,
+            "checks": 0,
+            "blocked": 0,
+            "bypassed": 0
+          },
+          "cache": {
+            "ttlHits": 0,
+            "databaseReads": 0,
+            "fallbacks": 0,
+            "localSize": 0,
+            "localHits": 0,
+            "hits": 0,
+            "rebuildRejected": 0,
+            "fallbackRejected": 0,
+            "staleHits": 0
+          }
+        }
+      ],
+      "runtime": [
+        {
+          "timers": {
+            "stages": {
+              "RESERVE": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "ADMISSION": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "ACCEPT_TX": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "ACCEPT_LOCK_QUERY": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "ORDER_TX": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "ORDER_LOCK_QUERY": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "ACCEPT_LOCK_HELD": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "ORDER_LOCK_HELD": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "SQL_CLOCK": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "SQL_REQUEST_READ": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "SQL_EPOCH_CHECK": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "SQL_REQUEST_INSERT": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "SQL_OUTBOX_INSERT": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "SQL_EVENT_CHECK": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "SQL_DUPLICATE_CHECK": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "SQL_STOCK_UPDATE": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "SQL_ORDER_INSERT": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "SQL_REQUEST_FINISH": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "SQL_ACTION_INSERT": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "SQL_POST_COMMIT_READ": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "RECONCILE_ACTIVITY": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "MAINTENANCE_LOCK_QUERY": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "OUTBOX_CLAIM": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "OUTBOX_AGE": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "MQ_SEND": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "MQ_RECORD_AGE": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "RESERVATION_APPLY": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "RESERVATION_AGE": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "RELAY_CYCLE": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "REPAIR_CYCLE": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              },
+              "RECONCILE_CYCLE": {
+                "failures": 0,
+                "sumMs": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "count": 0
+              }
+            },
+            "overflowBucket": "greater than last bound",
+            "clockSkewSamples": 0,
+            "bucketUpperMs": [
+              0.1,
+              0.25,
+              0.5,
+              1,
+              2,
+              5,
+              10,
+              25,
+              50,
+              100,
+              250,
+              500,
+              1000,
+              2000,
+              5000,
+              10000,
+              30000,
+              60000
+            ],
+            "scope": "per-instance attempt counters since startup; snapshots are approximate under concurrency"
+          },
+          "delivery": {
+            "relayDelayMs": 100,
+            "batch": 100,
+            "repairDelayMs": 1000,
+            "sendWindow": 1
+          },
+          "repair": {
+            "reconcileBudget": 100,
+            "scannedActivities": 0,
+            "batch": 100,
+            "reconcilePageSize": 32,
+            "completedSweeps": 0
+          },
+          "queues": {
+            "accepted": {
+              "size": 0,
+              "oldestMs": 0
+            },
+            "outbox": {
+              "size": 0,
+              "oldestMs": 0
+            },
+            "reservationActions": {
+              "size": 0,
+              "oldestMs": 0
+            }
+          },
+          "runtime": {
+            "heapUsedBytes": 120817152,
+            "heapMaxBytes": 402653184,
+            "gcCount": 14,
+            "uptimeMs": 45679
+          }
+        },
+        {
+          "runtime": {
+            "heapUsedBytes": 63481440,
+            "uptimeMs": 23149,
+            "gcCount": 15,
+            "heapMaxBytes": 402653184
+          },
+          "queues": {
+            "accepted": {
+              "size": 0,
+              "oldestMs": 0
+            },
+            "outbox": {
+              "size": 0,
+              "oldestMs": 0
+            },
+            "reservationActions": {
+              "size": 0,
+              "oldestMs": 0
+            }
+          },
+          "repair": {
+            "scannedActivities": 0,
+            "reconcileBudget": 100,
+            "completedSweeps": 0,
+            "reconcilePageSize": 32,
+            "batch": 100
+          },
+          "delivery": {
+            "batch": 100,
+            "relayDelayMs": 100,
+            "sendWindow": 1,
+            "repairDelayMs": 1000
+          },
+          "timers": {
+            "stages": {
+              "RESERVE": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "ADMISSION": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "ACCEPT_TX": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "ACCEPT_LOCK_QUERY": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "ORDER_TX": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "ORDER_LOCK_QUERY": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "ACCEPT_LOCK_HELD": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "ORDER_LOCK_HELD": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "SQL_CLOCK": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "SQL_REQUEST_READ": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "SQL_EPOCH_CHECK": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "SQL_REQUEST_INSERT": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "SQL_OUTBOX_INSERT": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "SQL_EVENT_CHECK": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "SQL_DUPLICATE_CHECK": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "SQL_STOCK_UPDATE": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "SQL_ORDER_INSERT": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "SQL_REQUEST_FINISH": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "SQL_ACTION_INSERT": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "SQL_POST_COMMIT_READ": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "RECONCILE_ACTIVITY": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "MAINTENANCE_LOCK_QUERY": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "OUTBOX_CLAIM": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "OUTBOX_AGE": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "MQ_SEND": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "MQ_RECORD_AGE": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "RESERVATION_APPLY": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "RESERVATION_AGE": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "RELAY_CYCLE": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "REPAIR_CYCLE": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "RECONCILE_CYCLE": {
+                "sumMs": 0,
+                "failures": 0,
+                "count": 0,
+                "buckets": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            },
+            "scope": "per-instance attempt counters since startup; snapshots are approximate under concurrency",
+            "bucketUpperMs": [
+              0.1,
+              0.25,
+              0.5,
+              1,
+              2,
+              5,
+              10,
+              25,
+              50,
+              100,
+              250,
+              500,
+              1000,
+              2000,
+              5000,
+              10000,
+              30000,
+              60000
+            ],
+            "clockSkewSamples": 0,
+            "overflowBucket": "greater than last bound"
+          }
+        }
+      ],
+      "redis": {
+        "redis_version": "3.2.100",
+        "redis_git_sha1": "00000000",
+        "redis_git_dirty": "0",
+        "redis_build_id": "dd26f1f93c5130ee",
+        "redis_mode": "standalone",
+        "os": "Windows  ",
+        "arch_bits": "64",
+        "multiplexing_api": "WinSock_IOCP",
+        "process_id": "39764",
+        "run_id": "2c5b0d713843b4b9d6aabd47468fc92ca3646b56",
+        "tcp_port": "36480",
+        "uptime_in_seconds": "60",
+        "uptime_in_days": "0",
+        "hz": "10",
+        "lru_clock": "14953323",
+        "executable": "F:\\software\\Redis-x64-3.2.100\\redis-server.exe",
+        "config_file": "C:\\Users\\17302\\AppData\\Local\\Temp\\qupiao-cache-million-b41ebe6f4bec\\redis\\redis.conf",
+        "connected_clients": "5",
+        "client_longest_output_list": "0",
+        "client_biggest_input_buf": "0",
+        "blocked_clients": "0",
+        "used_memory": "775072",
+        "used_memory_human": "756.91K",
+        "used_memory_rss": "716224",
+        "used_memory_rss_human": "699.44K",
+        "used_memory_peak": "789936",
+        "used_memory_peak_human": "771.42K",
+        "total_system_memory": "0",
+        "total_system_memory_human": "0B",
+        "used_memory_lua": "41984",
+        "used_memory_lua_human": "41.00K",
+        "maxmemory": "268435456",
+        "maxmemory_human": "256.00M",
+        "maxmemory_policy": "noeviction",
+        "mem_fragmentation_ratio": "0.92",
+        "mem_allocator": "jemalloc-3.6.0",
+        "loading": "0",
+        "rdb_changes_since_last_save": "2",
+        "rdb_bgsave_in_progress": "0",
+        "rdb_last_save_time": "1793338159",
+        "rdb_last_bgsave_status": "ok",
+        "rdb_last_bgsave_time_sec": "-1",
+        "rdb_current_bgsave_time_sec": "-1",
+        "aof_enabled": "0",
+        "aof_rewrite_in_progress": "0",
+        "aof_rewrite_scheduled": "0",
+        "aof_last_rewrite_time_sec": "-1",
+        "aof_current_rewrite_time_sec": "-1",
+        "aof_last_bgrewrite_status": "ok",
+        "aof_last_write_status": "ok",
+        "total_connections_received": "6",
+        "total_commands_processed": "22",
+        "instantaneous_ops_per_sec": "0",
+        "total_net_input_bytes": "1892",
+        "total_net_output_bytes": "542",
+        "instantaneous_input_kbps": "0.03",
+        "instantaneous_output_kbps": "0.02",
+        "rejected_connections": "0",
+        "sync_full": "0",
+        "sync_partial_ok": "0",
+        "sync_partial_err": "0",
+        "expired_keys": "0",
+        "evicted_keys": "0",
+        "keyspace_hits": "7",
+        "keyspace_misses": "1",
+        "pubsub_channels": "1",
+        "pubsub_patterns": "0",
+        "latest_fork_usec": "0",
+        "migrate_cached_sockets": "0",
+        "role": "master",
+        "connected_slaves": "0",
+        "master_repl_offset": "0",
+        "repl_backlog_active": "0",
+        "repl_backlog_size": "1048576",
+        "repl_backlog_first_byte_offset": "0",
+        "repl_backlog_histlen": "0",
+        "used_cpu_sys": "0.02",
+        "used_cpu_user": "0.05",
+        "used_cpu_sys_children": "0.00",
+        "used_cpu_user_children": "0.00",
+        "cmdstat_get": "calls=8,usec=12,usec_per_call=1.50",
+        "cmdstat_set": "calls=1,usec=3,usec_per_call=3.00",
+        "cmdstat_exists": "calls=1,usec=1,usec_per_call=1.00",
+        "cmdstat_sadd": "calls=2,usec=3,usec_per_call=1.50",
+        "cmdstat_auth": "calls=5,usec=5,usec_per_call=1.00",
+        "cmdstat_subscribe": "calls=2,usec=8,usec_per_call=4.00",
+        "cmdstat_eval": "calls=1,usec=74,usec_per_call=74.00",
+        "cmdstat_evalsha": "calls=2,usec=50,usec_per_call=25.00",
+        "cluster_enabled": "0",
+        "db0": "keys=2,expires=0,avg_ttl=0"
+      },
+      "sql": "Com_select\t2244\r\nInnodb_buffer_pool_read_requests\t1818437\r\nInnodb_buffer_pool_reads\t244469\r\nQuestions\t2883\r\nThreads_connected\t25\r\nThreads_running\t2"
+    }
+  },
+  "probes": {
+    "invalidUniqueIds": 2000,
+    "statuses": {
+      "404": 2000
+    },
+    "bloomBlocked": 1982,
+    "merchantDatabaseReadAttempts": 18,
+    "before": [
+      {
+        "cache": {
+          "staleHits": 119763,
+          "fallbackRejected": 0,
+          "rebuildRejected": 1987,
+          "hits": 612785,
+          "localHits": 1938292,
+          "localSize": 20,
+          "fallbacks": 0,
+          "databaseReads": 192312,
+          "ttlHits": 2325656
+        },
+        "bloom": {
+          "ready": 1,
+          "bypassed": 0,
+          "blocked": 0,
+          "checks": 631814,
+          "entries": 1000000
+        },
+        "circuit": {
+          "manual": false,
+          "sampleCount": 1000,
+          "state": "CLOSED",
+          "healthyProbes": 0,
+          "consecutiveFailures": 0
+        }
+      },
+      {
+        "circuit": {
+          "sampleCount": 1000,
+          "manual": false,
+          "consecutiveFailures": 0,
+          "healthyProbes": 0,
+          "state": "CLOSED"
+        },
+        "bloom": {
+          "ready": 1,
+          "entries": 1000000,
+          "checks": 631080,
+          "blocked": 0,
+          "bypassed": 0
+        },
+        "cache": {
+          "ttlHits": 2325320,
+          "databaseReads": 191147,
+          "fallbacks": 0,
+          "localSize": 20,
+          "localHits": 1939019,
+          "hits": 611998,
+          "rebuildRejected": 3414,
+          "fallbackRejected": 0,
+          "staleHits": 119599
+        }
+      }
+    ],
+    "after": [
+      {
+        "cache": {
+          "staleHits": 119763,
+          "fallbackRejected": 0,
+          "rebuildRejected": 1987,
+          "hits": 612785,
+          "localHits": 1938292,
+          "localSize": 6,
+          "fallbacks": 0,
+          "databaseReads": 192318,
+          "ttlHits": 2325656
+        },
+        "bloom": {
+          "ready": 1,
+          "bypassed": 0,
+          "blocked": 994,
+          "checks": 632814,
+          "entries": 1000000
+        },
+        "circuit": {
+          "manual": false,
+          "sampleCount": 442,
+          "state": "CLOSED",
+          "healthyProbes": 0,
+          "consecutiveFailures": 0
+        }
+      },
+      {
+        "circuit": {
+          "sampleCount": 438,
+          "manual": false,
+          "consecutiveFailures": 0,
+          "healthyProbes": 0,
+          "state": "CLOSED"
+        },
+        "bloom": {
+          "ready": 1,
+          "entries": 1000000,
+          "checks": 632080,
+          "blocked": 988,
+          "bypassed": 0
+        },
+        "cache": {
+          "ttlHits": 2325320,
+          "databaseReads": 191159,
+          "fallbacks": 0,
+          "localSize": 12,
+          "localHits": 1939019,
+          "hits": 611998,
+          "rebuildRejected": 3414,
+          "fallbackRejected": 0,
+          "staleHits": 119599
+        }
+      }
+    ],
+    "excludedFromMeasurements": true
+  },
+  "aggregation": "Median of per-round QPS/P95; not a pooled percentile and not the best round",
+  "requests": 7349486,
+  "cases": [
+    {
+      "config": {
+        "id": "hot1000-c32",
+        "shops": 1000,
+        "distribution": "hot80",
+        "concurrency": 32,
+        "rounds": 3,
+        "seconds": 30,
+        "warmup": 10,
+        "primary": true
+      },
+      "modes": {
+        "ttl": {
+          "rounds": 3,
+          "requests": 947098,
+          "successes": 947098,
+          "errors": 0,
+          "medianQps": 10519.553029391047,
+          "minQps": 10236.147066553704,
+          "maxQps": 10812.635489629174,
+          "medianP95Ms": 5.387299999998504,
+          "medianP99Ms": 8.151499999999942,
+          "medianMeanMs": 3.030214346460824,
+          "merchantDatabaseReadAttempts": 6034,
+          "localHits": 0,
+          "maxClientElu": 0.9981521877129135,
+          "meanHostCpuBusyRatio": 0.954895675612769,
+          "distinctShops": [
+            1000,
+            1000,
+            1000
+          ],
+          "perRound": [
+            {
+              "round": 1,
+              "qps": 10812.635489629174,
+              "p95Ms": 5.197200000000521,
+              "meanMs": 2.947945098921677,
+              "errors": 0
+            },
+            {
+              "round": 2,
+              "qps": 10236.147066553704,
+              "p95Ms": 5.601200000000063,
+              "meanMs": 3.1142223110812846,
+              "errors": 0
+            },
+            {
+              "round": 3,
+              "qps": 10519.553029391047,
+              "p95Ms": 5.387299999998504,
+              "meanMs": 3.030214346460824,
+              "errors": 0
+            }
+          ]
+        },
+        "optimized": {
+          "rounds": 3,
+          "requests": 1003084,
+          "successes": 1003084,
+          "errors": 0,
+          "medianQps": 11340.044681505628,
+          "minQps": 10690.717008531436,
+          "maxQps": 11403.303450678452,
+          "medianP95Ms": 4.850299999999834,
+          "medianP99Ms": 7.048699999999371,
+          "medianMeanMs": 2.8101936425682528,
+          "merchantDatabaseReadAttempts": 17976,
+          "localHits": 867118,
+          "maxClientElu": 0.9996454648708637,
+          "meanHostCpuBusyRatio": 0.9474397111700773,
+          "distinctShops": [
+            1000,
+            1000,
+            1000
+          ],
+          "perRound": [
+            {
+              "round": 1,
+              "qps": 10690.717008531436,
+              "p95Ms": 5.563499999999294,
+              "meanMs": 2.9822984616440027,
+              "errors": 0
+            },
+            {
+              "round": 2,
+              "qps": 11403.303450678452,
+              "p95Ms": 4.850299999999834,
+              "meanMs": 2.7949919502770944,
+              "errors": 0
+            },
+            {
+              "round": 3,
+              "qps": 11340.044681505628,
+              "p95Ms": 4.81939999999986,
+              "meanMs": 2.8101936425682528,
+              "errors": 0
+            }
+          ]
+        }
+      },
+      "qpsChangePercent": 7.7996816958113335,
+      "p95ReductionPercent": 9.967887438954936,
+      "paired": [
+        {
+          "round": 1,
+          "qpsChangePercent": -1.1275556381667995,
+          "p95ReductionPercent": -7.048025860054197
+        },
+        {
+          "round": 2,
+          "qpsChangePercent": 11.402301828374428,
+          "p95ReductionPercent": 13.406055845179965
+        },
+        {
+          "round": 3,
+          "qpsChangePercent": 7.7996816958113335,
+          "p95ReductionPercent": 10.541458615610832
+        }
+      ]
+    },
+    {
+      "config": {
+        "id": "uniform10000-c32",
+        "shops": 10000,
+        "distribution": "uniform",
+        "concurrency": 32,
+        "rounds": 3,
+        "seconds": 30,
+        "warmup": 10
+      },
+      "modes": {
+        "ttl": {
+          "rounds": 3,
+          "requests": 911469,
+          "successes": 911405,
+          "errors": 64,
+          "medianQps": 10141.441372868589,
+          "minQps": 10002.430647739133,
+          "maxQps": 10232.092501295607,
+          "medianP95Ms": 5.710699999999633,
+          "medianP99Ms": 9.897100000000137,
+          "medianMeanMs": 3.1413405254700533,
+          "merchantDatabaseReadAttempts": 60005,
+          "localHits": 0,
+          "maxClientElu": 0.9948635727977259,
+          "meanHostCpuBusyRatio": 0.9342187237596281,
+          "distinctShops": [
+            10000,
+            10000,
+            10000
+          ],
+          "perRound": [
+            {
+              "round": 1,
+              "qps": 10002.430647739133,
+              "p95Ms": 5.980100000000675,
+              "meanMs": 3.185346511868114,
+              "errors": 14
+            },
+            {
+              "round": 2,
+              "qps": 10141.441372868589,
+              "p95Ms": 5.710699999999633,
+              "meanMs": 3.1413405254700533,
+              "errors": 39
+            },
+            {
+              "round": 3,
+              "qps": 10232.092501295607,
+              "p95Ms": 5.608299999999872,
+              "meanMs": 3.113012507695963,
+              "errors": 11
+            }
+          ]
+        },
+        "optimized": {
+          "rounds": 3,
+          "requests": 837319,
+          "successes": 837319,
+          "errors": 0,
+          "medianQps": 9251.016355149122,
+          "minQps": 9204.433187288996,
+          "maxQps": 9453.614079481395,
+          "medianP95Ms": 6.450199999999313,
+          "medianP99Ms": 11.534700000000157,
+          "medianMeanMs": 3.445613821293454,
+          "merchantDatabaseReadAttempts": 155075,
+          "localHits": 204972,
+          "maxClientElu": 0.9783832397032117,
+          "meanHostCpuBusyRatio": 0.9465055525682856,
+          "distinctShops": [
+            10000,
+            10000,
+            10000
+          ],
+          "perRound": [
+            {
+              "round": 1,
+              "qps": 9453.614079481395,
+              "p95Ms": 6.362300000000687,
+              "meanMs": 3.3724742890990296,
+              "errors": 0
+            },
+            {
+              "round": 2,
+              "qps": 9251.016355149122,
+              "p95Ms": 6.9495999999999185,
+              "meanMs": 3.445613821293454,
+              "errors": 0
+            },
+            {
+              "round": 3,
+              "qps": 9204.433187288996,
+              "p95Ms": 6.450199999999313,
+              "meanMs": 3.4643751359768222,
+              "errors": 0
+            }
+          ]
+        }
+      },
+      "qpsChangePercent": -8.78006375012551,
+      "p95ReductionPercent": -12.949375733267864,
+      "paired": [
+        {
+          "round": 1,
+          "qpsChangePercent": -5.486832026991239,
+          "p95ReductionPercent": -6.391197471613652
+        },
+        {
+          "round": 2,
+          "qpsChangePercent": -8.78006375012551,
+          "p95ReductionPercent": -21.694363212922486
+        },
+        {
+          "round": 3,
+          "qpsChangePercent": -10.043491239709635,
+          "p95ReductionPercent": -15.011679118439814
+        }
+      ]
+    },
+    {
+      "config": {
+        "id": "hot1000-c8",
+        "shops": 1000,
+        "distribution": "hot80",
+        "concurrency": 8,
+        "rounds": 2,
+        "seconds": 30,
+        "warmup": 10
+      },
+      "modes": {
+        "ttl": {
+          "rounds": 2,
+          "requests": 463649,
+          "successes": 463649,
+          "errors": 0,
+          "medianQps": 7727.093771279634,
+          "minQps": 7302.959448910376,
+          "maxQps": 8151.228093648892,
+          "medianP95Ms": 1.5087999999991553,
+          "medianP99Ms": 2.219899999999143,
+          "medianMeanMs": 1.0326858991028154,
+          "merchantDatabaseReadAttempts": 4008,
+          "localHits": 0,
+          "maxClientElu": 0.4194509380205743,
+          "meanHostCpuBusyRatio": 0.7664340220715589,
+          "distinctShops": [
+            1000,
+            1000
+          ],
+          "perRound": [
+            {
+              "round": 1,
+              "qps": 8151.228093648892,
+              "p95Ms": 1.3308999999999287,
+              "meanMs": 0.9757175768455376,
+              "errors": 0
+            },
+            {
+              "round": 2,
+              "qps": 7302.959448910376,
+              "p95Ms": 1.6866999999983818,
+              "meanMs": 1.0896542213600933,
+              "errors": 0
+            }
+          ]
+        },
+        "optimized": {
+          "rounds": 2,
+          "requests": 555798,
+          "successes": 555798,
+          "errors": 0,
+          "medianQps": 9259.675817611453,
+          "minQps": 8903.289867204521,
+          "maxQps": 9616.061768018384,
+          "medianP95Ms": 1.2949499999995169,
+          "medianP99Ms": 1.9017000000003463,
+          "medianMeanMs": 0.8588940307400906,
+          "merchantDatabaseReadAttempts": 11917,
+          "localHits": 470633,
+          "maxClientElu": 0.5080845044019446,
+          "meanHostCpuBusyRatio": 0.8583049238795526,
+          "distinctShops": [
+            1000,
+            1000
+          ],
+          "perRound": [
+            {
+              "round": 1,
+              "qps": 8903.289867204521,
+              "p95Ms": 1.3955999999998312,
+              "meanMs": 0.8919064881426709,
+              "errors": 0
+            },
+            {
+              "round": 2,
+              "qps": 9616.061768018384,
+              "p95Ms": 1.1942999999992026,
+              "meanMs": 0.8258815733375103,
+              "errors": 0
+            }
+          ]
+        }
+      },
+      "qpsChangePercent": 19.833874050140032,
+      "p95ReductionPercent": 14.173515376442081,
+      "paired": [
+        {
+          "round": 1,
+          "qpsChangePercent": 9.226361536142091,
+          "p95ReductionPercent": -4.861372003900066
+        },
+        {
+          "round": 2,
+          "qpsChangePercent": 31.67349257913694,
+          "p95ReductionPercent": 29.193098950592976
+        }
+      ]
+    },
+    {
+      "config": {
+        "id": "hot1000-c64",
+        "shops": 1000,
+        "distribution": "hot80",
+        "concurrency": 64,
+        "rounds": 2,
+        "seconds": 30,
+        "warmup": 10
+      },
+      "modes": {
+        "ttl": {
+          "rounds": 2,
+          "requests": 582037,
+          "successes": 582037,
+          "errors": 0,
+          "medianQps": 9696.920520098725,
+          "minQps": 9465.279508051664,
+          "maxQps": 9928.561532145786,
+          "medianP95Ms": 10.657499999999345,
+          "medianP99Ms": 16.43975000000046,
+          "medianMeanMs": 6.5889219699504435,
+          "merchantDatabaseReadAttempts": 4015,
+          "localHits": 0,
+          "maxClientElu": 1,
+          "meanHostCpuBusyRatio": 0.9312821252111816,
+          "distinctShops": [
+            1000,
+            1000
+          ],
+          "perRound": [
+            {
+              "round": 1,
+              "qps": 9928.561532145786,
+              "p95Ms": 10.018700000000536,
+              "meanMs": 6.432832801963112,
+              "errors": 0
+            },
+            {
+              "round": 2,
+              "qps": 9465.279508051664,
+              "p95Ms": 11.296299999998155,
+              "meanMs": 6.745011137937775,
+              "errors": 0
+            }
+          ]
+        },
+        "optimized": {
+          "rounds": 2,
+          "requests": 678739,
+          "successes": 678739,
+          "errors": 0,
+          "medianQps": 11311.413710884166,
+          "minQps": 11081.885597944169,
+          "maxQps": 11540.941823824163,
+          "medianP95Ms": 8.680849999999737,
+          "medianP99Ms": 11.776949999999488,
+          "medianMeanMs": 5.648692646374512,
+          "merchantDatabaseReadAttempts": 11994,
+          "localHits": 587696,
+          "maxClientElu": 1,
+          "meanHostCpuBusyRatio": 0.9609455650205078,
+          "distinctShops": [
+            1000,
+            1000
+          ],
+          "perRound": [
+            {
+              "round": 1,
+              "qps": 11081.885597944169,
+              "p95Ms": 8.952100000000428,
+              "meanMs": 5.763342948189767,
+              "errors": 0
+            },
+            {
+              "round": 2,
+              "qps": 11540.941823824163,
+              "p95Ms": 8.409599999999045,
+              "meanMs": 5.534042344559257,
+              "errors": 0
+            }
+          ]
+        }
+      },
+      "qpsChangePercent": 16.64954546589399,
+      "p95ReductionPercent": 18.547032606143375,
+      "paired": [
+        {
+          "round": 1,
+          "qpsChangePercent": 11.616225190973095,
+          "p95ReductionPercent": 10.646091808318946
+        },
+        {
+          "round": 2,
+          "qpsChangePercent": 21.929223685437194,
+          "p95ReductionPercent": 25.554385064132333
+        }
+      ]
+    },
+    {
+      "config": {
+        "id": "diagnostic-hot20-c32",
+        "shops": 20,
+        "distribution": "hot80",
+        "concurrency": 32,
+        "rounds": 2,
+        "seconds": 30,
+        "warmup": 10,
+        "diagnostic": "Added after an interrupted initial round showed a regression at 1000 active shops; secondary only, never replaces the primary case"
+      },
+      "modes": {
+        "ttl": {
+          "rounds": 2,
+          "requests": 630134,
+          "successes": 630134,
+          "errors": 0,
+          "medianQps": 10501.765602895266,
+          "minQps": 10321.6654648711,
+          "maxQps": 10681.865740919431,
+          "medianP95Ms": 5.394200000000183,
+          "medianP99Ms": 8.523550000000796,
+          "medianMeanMs": 3.0367983501261593,
+          "merchantDatabaseReadAttempts": 102,
+          "localHits": 0,
+          "maxClientElu": 0.9732343403304463,
+          "meanHostCpuBusyRatio": 0.9445281932530971,
+          "distinctShops": [
+            20,
+            20
+          ],
+          "perRound": [
+            {
+              "round": 1,
+              "qps": 10321.6654648711,
+              "p95Ms": 5.689800000000105,
+              "meanMs": 3.0889054626950543,
+              "errors": 0
+            },
+            {
+              "round": 2,
+              "qps": 10681.865740919431,
+              "p95Ms": 5.0986000000002605,
+              "meanMs": 2.9846912375572647,
+              "errors": 0
+            }
+          ]
+        },
+        "optimized": {
+          "rounds": 2,
+          "requests": 740159,
+          "successes": 740159,
+          "errors": 0,
+          "medianQps": 12332.510125377805,
+          "minQps": 11584.6636538484,
+          "maxQps": 13080.35659690721,
+          "medianP95Ms": 4.452899999999772,
+          "medianP99Ms": 7.182299999999941,
+          "medianMeanMs": 2.5946003267430537,
+          "merchantDatabaseReadAttempts": 240,
+          "localHits": 737187,
+          "maxClientElu": 0.9472789772706471,
+          "meanHostCpuBusyRatio": 0.9134682144756288,
+          "distinctShops": [
+            20,
+            20
+          ],
+          "perRound": [
+            {
+              "round": 1,
+              "qps": 11584.6636538484,
+              "p95Ms": 5.065699999999197,
+              "meanMs": 2.751648874561084,
+              "errors": 0
+            },
+            {
+              "round": 2,
+              "qps": 13080.35659690721,
+              "p95Ms": 3.840100000000348,
+              "meanMs": 2.437551778925024,
+              "errors": 0
+            }
+          ]
+        }
+      },
+      "qpsChangePercent": 17.432730758890823,
+      "p95ReductionPercent": 17.45022431501202,
+      "paired": [
+        {
+          "round": 1,
+          "qpsChangePercent": 12.236379809787534,
+          "p95ReductionPercent": 10.96875109847264
+        },
+        {
+          "round": 2,
+          "qpsChangePercent": 22.45385697743596,
+          "p95ReductionPercent": 24.683246381356618
+        }
+      ]
+    }
+  ]
+}

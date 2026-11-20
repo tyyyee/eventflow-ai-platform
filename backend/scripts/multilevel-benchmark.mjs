@@ -51,7 +51,7 @@ async function launch(index) {
   const fd=openSync(path.join(dir,`server-${index}.log`),'a',0o600);
   const java=process.env.JAVA_HOME?path.join(process.env.JAVA_HOME,'bin/java'):'java';
   const child=spawn(java,['-Xmx384m','-jar','target/life-choice-backend-1.0.0.jar',`--server.port=${18093+index}`,
-    '--upgrade.benchmark=true','--upgrade.jobs=false','--spring.kafka.admin.auto-create=false',
+    '--upgrade.benchmark=true','--upgrade.jobs=false','--upgrade.rocketmq.create-topics=false',
     `--spring.data.redis.database=${process.env.UPGRADE_TEST_REDIS_DB??13}`],
     {cwd:root,env:{...process.env,UPGRADE_DB_URL:process.env.UPGRADE_TEST_DB_URL},stdio:['ignore',fd,fd]});
   children.push(child);closeSync(fd);

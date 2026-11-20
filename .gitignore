@@ -9,3 +9,5 @@ evidence/
 .idea/
 .vscode/
 .m2/
+.local/
+data/media/

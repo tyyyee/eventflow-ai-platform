@@ -20,6 +20,7 @@ public class OrderProjection implements MeterBinder {
                               java.time.Instant createdAt,java.time.Instant confirmUntil,Long shopId,
                               String shopName,String offerTitle,String imagePath) {}
     private final JdbcTemplate db;
+    @org.springframework.beans.factory.annotation.Value("${upgrade.core32.enabled:false}") private boolean core32;
     private final LongAdder failures=new LongAdder(),applied=new LongAdder(),checked=new LongAdder(),repaired=new LongAdder();
     private final AtomicReference<String> reconcileCursor=new AtomicReference<>("");
     public OrderProjection(JdbcTemplate db) {this.db=db;}
@@ -32,7 +33,7 @@ public class OrderProjection implements MeterBinder {
             db.update("INSERT INTO ux_order_projection(order_id,revision,applied_revision,changed_at) VALUES(?,1,0,CURRENT_TIMESTAMP(3))",id);
     }
     @Scheduled(fixedDelayString="${upgrade.projection-delay-ms:1000}")
-    public void scheduled() {try {drain();} catch(RuntimeException unavailable) {failures.increment();}}
+    public void scheduled() {if(!core32)try {drain();} catch(RuntimeException unavailable) {failures.increment();}}
     public int drain() {
         // One statement reads the source state together with its revision.
         var rows=db.queryForList("""
@@ -80,7 +81,7 @@ public class OrderProjection implements MeterBinder {
         return Map.of("count",ids.size(),"next",ids.isEmpty()?after:ids.get(ids.size()-1));
     }
     @Scheduled(fixedDelayString="${upgrade.projection-reconcile-delay-ms:5000}")
-    public void reconcileScheduled() {try {reconcile();} catch(RuntimeException unavailable) {failures.increment();}}
+    public void reconcileScheduled() {if(!core32)try {reconcile();} catch(RuntimeException unavailable) {failures.increment();}}
     public int reconcile() {
         String after=reconcileCursor.get();
         var source=db.queryForList("SELECT id,user_id,state,price_cents,confirm_until FROM ux_order WHERE id>? ORDER BY id LIMIT 100",after);

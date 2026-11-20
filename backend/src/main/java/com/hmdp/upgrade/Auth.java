@@ -23,6 +23,8 @@ public class Auth extends OncePerRequestFilter {
     private final ConcurrentHashMap<Long,Window> windows=new ConcurrentHashMap<>();
     @org.springframework.beans.factory.annotation.Autowired
     private Accounts accounts;
+    @org.springframework.beans.factory.annotation.Autowired(required=false)
+    private LocalAccounts localAccounts;
     @Value("${upgrade.benchmark:false}")
     private boolean laboratory;
     @Value("${upgrade.metrics-token:}")
@@ -52,18 +54,32 @@ public class Auth extends OncePerRequestFilter {
             boolean safe=req.getMethod().equals("GET") || req.getMethod().equals("HEAD");
             if(!safe) {
                 sameOrigin(req);
-                if(req.getContentLengthLong()>16384) throw new Problem(413,"BODY_TOO_LARGE");
-                req=new BoundedJsonRequest(req);
+                boolean media=req.getRequestURI().equals("/v2/media")&&req.getMethod().equals("POST");
+                if(!media) {
+                    if(req.getContentLengthLong()>16384) throw new Problem(413,"BODY_TOO_LARGE");
+                    req=new BoundedJsonRequest(req);
+                } else if(req.getContentLengthLong()>6*1024*1024) throw new Problem(413,"BODY_TOO_LARGE");
             }
             String path=req.getRequestURI();
             boolean health=safe && (path.equals("/actuator/health") || path.startsWith("/actuator/health/"));
             String authorization=req.getHeader("Authorization");
             boolean metrics=metrics(path,safe,authorization);
             boolean catalog=safe && (path.equals("/v2/catalog/shops") || path.matches("/v2/catalog/shops/[0-9]+"));
-            boolean signIn=req.getMethod().equals("POST") && (path.equals("/v2/auth/login") || path.equals("/v2/auth/register"));
+            boolean signIn=req.getMethod().equals("POST") && (path.equals("/v2/auth/login") || path.equals("/v2/auth/register") || path.equals("/v2/auth/recover"));
+            boolean localPublic=safe&&(path.equals("/v2/capabilities")||path.equals("/v2/local/landmarks")||path.equals("/v2/local/shops")
+                ||path.matches("/v2/local/shops/[0-9]+(?:/(reviews|coupons))?")||path.equals("/v2/reviews")
+                ||path.matches("/v2/reviews/[a-f0-9-]{36}")||path.matches("/v2/media/[a-f0-9-]{36}")||path.equals("/v2/local/policies"));
             if(signIn && (req.getContentType()==null || !req.getContentType().toLowerCase(java.util.Locale.ROOT).startsWith("application/json")))
                 throw new Problem(415,"JSON_REQUIRED");
             if(health || metrics || catalog || signIn) { chain.doFilter(req,res);return; }
+            if(localPublic) {
+                String token=cookie(req);
+                if(token!=null)try {
+                    var session=accounts.authenticate(token);String expected=req.getHeader("X-Account-ID");if(expected!=null&&!expected.equals(session.user().id()))throw new Problem(409,"SESSION_CHANGED");req.setAttribute("session",session);
+                    req.setAttribute("identity",new Identity(Long.parseLong(session.user().id()),false));
+                }catch(Problem p){if(p.status!=401)throw p;}
+                chain.doFilter(req,res);return;
+            }
 
             String sessionToken=cookie(req);
             Identity identity;
@@ -81,6 +97,7 @@ public class Auth extends OncePerRequestFilter {
             } else if(laboratory) identity=verify(authorization);
             else throw new Problem(401,"UNAUTHORIZED");
             if(req.getRequestURI().startsWith("/v2/admin/") && !identity.admin()) throw new Problem(403,"ADMIN_REQUIRED");
+            if(path.startsWith("/v2/ops/")&&(localAccounts==null||!localAccounts.operator(identity.user())))throw new Problem(403,"OPERATOR_REQUIRED");
             long second=System.currentTimeMillis()/1000;
             if(windows.size()>20000) windows.entrySet().removeIf(e->e.getValue().second()<second-2);
             if(windows.size()>20000 && !windows.containsKey(identity.user())) throw new Problem(503,"QUERY_LIMITER_FULL");

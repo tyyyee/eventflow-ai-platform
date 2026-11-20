@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 @Component
 @ConditionalOnProperty(name="upgrade.demo-data",havingValue="true")
 public class DemoStorefront implements ApplicationRunner {
+    @org.springframework.beans.factory.annotation.Value("${upgrade.core32.enabled:false}") private boolean core32;
     @org.springframework.beans.factory.annotation.Autowired
     private ShopBloom bloom;
     private final JdbcTemplate db;
@@ -69,7 +70,7 @@ public class DemoStorefront implements ApplicationRunner {
                         id,capacity,capacity,price,Timestamp.from(start),Timestamp.from(end),Timestamp.from(end.plusSeconds(300)));
                     db.update("INSERT INTO ux_offer(activity_id,shop_id,title,face_value_cents,terms) VALUES(?,?,?,?,?) ON DUPLICATE KEY UPDATE shop_id=VALUES(shop_id),title=VALUES(title),face_value_cents=VALUES(face_value_cents),terms=VALUES(terms)",
                         id,shop,offer==0?"学生单人票":"双人同行票",face,
-                        "每人每票档限购一单；建单后 5 分钟内完成模拟支付，取消或过期后不可重复购买同一票档。仅用于本地演示，不涉及真实支付或现场核销。");
+                        "同一用户对同一活动限购一单；建单后 5 分钟内完成模拟支付，取消或过期后不可重复购买同一活动。仅用于本地演示，不涉及真实支付或现场核销。");
                 }
                 for(int slot=0;slot<2;slot++) {
                     int hour=10+((i+slot*3)%6)*2;
@@ -78,9 +79,9 @@ public class DemoStorefront implements ApplicationRunner {
                     long sessionId=sessionId(sessionDay,i,slot);
                     String title=slot==0?s[0]+"午间场":s[0]+"晚间场";
                     String tags=s[2]+","+s[3]+","+s[6];
-                    db.update("INSERT INTO ux_experience_session(id,shop_id,title,tags,starts_at,ends_at,price_cents,capacity,available,published) "
-                        +"VALUES(?,?,?,?,?,?,?,?,?,TRUE) ON DUPLICATE KEY UPDATE title=VALUES(title),tags=VALUES(tags),starts_at=VALUES(starts_at),ends_at=VALUES(ends_at),price_cents=VALUES(price_cents),capacity=VALUES(capacity),available=LEAST(available,VALUES(capacity)),published=TRUE",
-                        sessionId,shop,title,tags,Timestamp.from(sessionStart),Timestamp.from(sessionEnd),prices[i],20,20);
+                    db.update("INSERT INTO ux_experience_session(id,shop_id,title,tags,starts_at,ends_at,price_cents,capacity,available,published,activity_id) "
+                        +"VALUES(?,?,?,?,?,?,?,?,?,TRUE,?) ON DUPLICATE KEY UPDATE title=VALUES(title),tags=VALUES(tags),starts_at=VALUES(starts_at),ends_at=VALUES(ends_at),price_cents=VALUES(price_cents),capacity=VALUES(capacity),available=LEAST(available,VALUES(capacity)),published=TRUE,activity_id=VALUES(activity_id)",
+                        sessionId,shop,title,tags,Timestamp.from(sessionStart),Timestamp.from(sessionEnd),prices[i],20,20,activityId(day,i,slot));
                 }
             }
             return null;
@@ -88,7 +89,7 @@ public class DemoStorefront implements ApplicationRunner {
         for(int i=0;i<stores.length;i++) for(int offer=0;offer<2;offer++) {
             long id=activityId(day,i,offer);
             Integer available=db.queryForObject("SELECT available FROM ux_activity WHERE id=?",Integer.class,id);
-            if(db.queryForObject("SELECT COUNT(*) FROM ux_request WHERE activity_id=?",Long.class,id)==0)
+            if(!core32&&db.queryForObject("SELECT COUNT(*) FROM ux_request WHERE activity_id=?",Long.class,id)==0)
                 reservations.prepare(id,available==null?0:available);
         }
     }

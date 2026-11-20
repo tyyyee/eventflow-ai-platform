@@ -1,0 +1,6 @@
+{
+  "rowsDeletedInRecovery" : 2000000,
+  "method" : "Owned synthetic batches only; maximum 2000 rows per delete.",
+  "passed" : true,
+  "remainingBenchmarkRows" : 0
+}

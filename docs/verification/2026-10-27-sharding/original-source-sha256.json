@@ -1,0 +1,22 @@
+[
+  {
+    "path": "backend/src/main/java/com/hmdp/upgrade/OrderProjection.java",
+    "sha256": "d10309c08e32b61a46a3fc54c97c6f8b50f8f4a6607d6f65956715b21472745a"
+  },
+  {
+    "path": "backend/src/main/java/com/hmdp/upgrade/Trading.java",
+    "sha256": "ba6b26dbcbc8bef6b85af3cff5d46a27989fc1aa9321037c3021b5c381115cb0"
+  },
+  {
+    "path": "backend/src/main/java/com/hmdp/upgrade/Payments.java",
+    "sha256": "61f7c6d3755db46dc59b1a52b9137b19e50ad844f41599860aaa055b59704724"
+  },
+  {
+    "path": "backend/src/main/java/com/hmdp/upgrade/DelayedClose.java",
+    "sha256": "533bf9366fa3698624ee7b28ca1e97cebab29bd5d1a69d5a6e897164e4d7ccb3"
+  },
+  {
+    "path": "backend/src/main/java/com/hmdp/upgrade/ShopCache.java",
+    "sha256": "3eb57f21f9a110e53c3f9d49ad5f484fc718050d59079a2da0fbab4bd0efd21e"
+  }
+]

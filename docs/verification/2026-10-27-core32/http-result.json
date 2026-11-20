@@ -1,0 +1,313 @@
+{
+  "startedAt": "2026-10-27T08:22:24.806Z",
+  "base": "http://127.0.0.1:38193",
+  "checks": [
+    {
+      "name": "real registration/login, Snowflake string IDs, four database routes, auth and CSRF",
+      "passed": true,
+      "users": 24,
+      "nodes": [
+        3,
+        2,
+        1,
+        0
+      ]
+    },
+    {
+      "name": "Kafka primary-shard orders, binding joins, source has no primary orders, payment replay, owner isolation and route directory",
+      "passed": true,
+      "orders": 24,
+      "activity": 1793089370957
+    },
+    {
+      "name": "central waitlist promotes into user-sharded primary order without legacy foreign-key conflict",
+      "passed": true
+    },
+    {
+      "name": "actual JVM crash after source stock commit before shard commit recovers one grant and one order",
+      "passed": true
+    },
+    {
+      "name": "actual JVM crash after channel claim recovers payment without repeated callback",
+      "passed": true
+    },
+    {
+      "name": "Kafka outage preserves accepted request and Outbox retries after restart",
+      "passed": true
+    },
+    {
+      "name": "Redis outage rejects new reservation and preserves primary SQL history, then resumes",
+      "passed": true
+    },
+    {
+      "name": "one primary database outage affects its users, another prepared shard accepts orders, restoration resumes reads",
+      "passed": true
+    },
+    {
+      "name": "natural five-minute close and late payment refunded exactly once",
+      "passed": true
+    },
+    {
+      "name": "eight concurrent HTTP readers return consistent per-user primary history",
+      "passed": true,
+      "httpSample": {
+        "workers": 8,
+        "requests": 240,
+        "pacingMs": 30,
+        "elapsedMs": 2685.2530999999726,
+        "p95Ms": 95.67580000002636,
+        "errors": 0,
+        "mismatches": 0,
+        "scope": "small functional dataset, no capacity or before/after improvement claim"
+      }
+    },
+    {
+      "name": "final queues drained, inventory and request/order invariants zero, no misplaced rows, all four primary databases written",
+      "passed": true
+    }
+  ],
+  "capacityClaim": false,
+  "final": {
+    "invariants": {
+      "stockViolations": 0,
+      "stateViolations": 0
+    },
+    "mode": "CORE",
+    "queues": {
+      "refunds": 0,
+      "overdue": 0,
+      "actions": 0,
+      "outbox": 0,
+      "accepted": 0
+    },
+    "topology": {
+      "tablesPerDatabase": 8,
+      "logicalShards": 32,
+      "misplaced": 0,
+      "instances": [
+        {
+          "version": "8.0.31",
+          "uuid": "7923599d-d1d5-11f1-9e5e-0826ae3c73bc",
+          "port": 33400
+        },
+        {
+          "version": "8.0.31",
+          "uuid": "7b488b40-d1d5-11f1-8b0f-0826ae3c73bc",
+          "port": 33401
+        },
+        {
+          "version": "8.0.31",
+          "uuid": "7d72c237-d1d5-11f1-842e-0826ae3c73bc",
+          "port": 33402
+        },
+        {
+          "version": "8.0.31",
+          "uuid": "7f8bfa24-d1d5-11f1-8ddf-0826ae3c73bc",
+          "port": 33403
+        }
+      ],
+      "orders": 57,
+      "independentInstances": 4
+    }
+  },
+  "distribution": [
+    {
+      "db": 0,
+      "table": 0,
+      "orders": 1
+    },
+    {
+      "db": 0,
+      "table": 1,
+      "orders": 0
+    },
+    {
+      "db": 0,
+      "table": 2,
+      "orders": 2
+    },
+    {
+      "db": 0,
+      "table": 3,
+      "orders": 0
+    },
+    {
+      "db": 0,
+      "table": 4,
+      "orders": 1
+    },
+    {
+      "db": 0,
+      "table": 5,
+      "orders": 2
+    },
+    {
+      "db": 0,
+      "table": 6,
+      "orders": 0
+    },
+    {
+      "db": 0,
+      "table": 7,
+      "orders": 0
+    },
+    {
+      "db": 1,
+      "table": 0,
+      "orders": 1
+    },
+    {
+      "db": 1,
+      "table": 1,
+      "orders": 1
+    },
+    {
+      "db": 1,
+      "table": 2,
+      "orders": 2
+    },
+    {
+      "db": 1,
+      "table": 3,
+      "orders": 2
+    },
+    {
+      "db": 1,
+      "table": 4,
+      "orders": 1
+    },
+    {
+      "db": 1,
+      "table": 5,
+      "orders": 7
+    },
+    {
+      "db": 1,
+      "table": 6,
+      "orders": 0
+    },
+    {
+      "db": 1,
+      "table": 7,
+      "orders": 0
+    },
+    {
+      "db": 2,
+      "table": 0,
+      "orders": 4
+    },
+    {
+      "db": 2,
+      "table": 1,
+      "orders": 2
+    },
+    {
+      "db": 2,
+      "table": 2,
+      "orders": 0
+    },
+    {
+      "db": 2,
+      "table": 3,
+      "orders": 2
+    },
+    {
+      "db": 2,
+      "table": 4,
+      "orders": 0
+    },
+    {
+      "db": 2,
+      "table": 5,
+      "orders": 2
+    },
+    {
+      "db": 2,
+      "table": 6,
+      "orders": 4
+    },
+    {
+      "db": 2,
+      "table": 7,
+      "orders": 0
+    },
+    {
+      "db": 3,
+      "table": 0,
+      "orders": 1
+    },
+    {
+      "db": 3,
+      "table": 1,
+      "orders": 4
+    },
+    {
+      "db": 3,
+      "table": 2,
+      "orders": 0
+    },
+    {
+      "db": 3,
+      "table": 3,
+      "orders": 1
+    },
+    {
+      "db": 3,
+      "table": 4,
+      "orders": 3
+    },
+    {
+      "db": 3,
+      "table": 5,
+      "orders": 4
+    },
+    {
+      "db": 3,
+      "table": 6,
+      "orders": 8
+    },
+    {
+      "db": 3,
+      "table": 7,
+      "orders": 2
+    }
+  ],
+  "httpSample": {
+    "workers": 8,
+    "requests": 240,
+    "pacingMs": 30,
+    "elapsedMs": 2685.2530999999726,
+    "p95Ms": 95.67580000002636,
+    "errors": 0,
+    "mismatches": 0,
+    "scope": "small functional dataset, no capacity or before/after improvement claim"
+  },
+  "connections": [
+    {
+      "node": "source",
+      "snapshot": "Max_used_connections\t29\r\nThreads_connected\t25",
+      "serverMaxConnections": 40
+    },
+    {
+      "node": "db0",
+      "snapshot": "Max_used_connections\t3\r\nThreads_connected\t3",
+      "serverMaxConnections": 40
+    },
+    {
+      "node": "db1",
+      "snapshot": "Max_used_connections\t4\r\nThreads_connected\t3",
+      "serverMaxConnections": 40
+    },
+    {
+      "node": "db2",
+      "snapshot": "Max_used_connections\t6\r\nThreads_connected\t3",
+      "serverMaxConnections": 40
+    },
+    {
+      "node": "db3",
+      "snapshot": "Max_used_connections\t4\r\nThreads_connected\t4",
+      "serverMaxConnections": 40
+    }
+  ],
+  "completedAt": "2026-10-27T08:28:27.062Z"
+}

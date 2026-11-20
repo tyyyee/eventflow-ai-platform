@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "mode": "stub",
+  "checks": [
+    "anonymous assistant requires login",
+    "first message creates a persistent conversation and real activity cards",
+    "campus refinement retains budget category and event date",
+    "ordinal refresh opens exact purchasable activity in existing detail",
+    "assistant reads actual RocketMQ-created order without creating another order",
+    "published rules are shown and retained after reload",
+    "lost response retries the same turn key once",
+    "desktop and mobile assistant layouts",
+    "new conversation clears preference context"
+  ],
+  "errors": []
+}

@@ -1,0 +1,68 @@
+{
+  "verified": true,
+  "operations": 8942,
+  "errors": 0,
+  "mismatches": 0,
+  "modes": [
+    {
+      "mode": "LOCAL",
+      "medianQps": 160.9616547352759,
+      "medianP95Ms": 31.532600000005914
+    },
+    {
+      "mode": "SHARDED",
+      "medianQps": 134.0403600503324,
+      "medianP95Ms": 71.79770000001008
+    }
+  ],
+  "rounds": [
+    {
+      "mode": "LOCAL",
+      "round": 1,
+      "operations": 1343,
+      "p95Ms": 58.622099999993225,
+      "qps": 133.69997856220886,
+      "rawSha256": "9e60e02b8e2c8a4436ab16b90d22c2a11dc6a27c3767bb5e6feb07e31e1c36d1"
+    },
+    {
+      "mode": "SHARDED",
+      "round": 1,
+      "operations": 1214,
+      "p95Ms": 71.79770000001008,
+      "qps": 121.30538543851965,
+      "rawSha256": "c67415aa416521e6e16be98cd64d3f07ce7caa7fe5fa5e842db51acfd36725fd"
+    },
+    {
+      "mode": "SHARDED",
+      "round": 2,
+      "operations": 1619,
+      "p95Ms": 34.87770000001183,
+      "qps": 161.60860997969004,
+      "rawSha256": "a8dd1e2fb8e73ccf9f43dd0bef41bc292a66f6d0d4e404cb32eca105b0254340"
+    },
+    {
+      "mode": "LOCAL",
+      "round": 2,
+      "operations": 1614,
+      "p95Ms": 31.532600000005914,
+      "qps": 160.9616547352759,
+      "rawSha256": "76bd325718c3a94f5a0028edfe363c9e34637e42f28b99b24bafb95f9c15b1f6"
+    },
+    {
+      "mode": "LOCAL",
+      "round": 3,
+      "operations": 1806,
+      "p95Ms": 27.58479999998235,
+      "qps": 180.17739392255487,
+      "rawSha256": "d9eff4c157820e01e7741c421539c397b4201fddf0a4b16cf2fa7a03aa2d9aca"
+    },
+    {
+      "mode": "SHARDED",
+      "round": 3,
+      "operations": 1346,
+      "p95Ms": 74.59470000001602,
+      "qps": 134.0403600503324,
+      "rawSha256": "f6aae5638a94f13db01fec9b24b10a8a4890938e9b0450ddf89571aad35ec782"
+    }
+  ]
+}

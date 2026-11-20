@@ -25,6 +25,10 @@ public class Accounts {
     private record Stored(long id,String username,String displayName,String hash) {}
     private final JdbcTemplate db;
     private final Transactions tx;
+    @org.springframework.beans.factory.annotation.Autowired(required=false)
+    private GlobalIds globalIds;
+    @org.springframework.beans.factory.annotation.Autowired(required=false)
+    private CoreModeGate coreModeGate;
     private final BCryptPasswordEncoder passwords=new BCryptPasswordEncoder(12);
     private final String dummyHash=passwords.encode("not-a-valid-user-password-"+random());
     private final Semaphore hashing=new Semaphore(4);
@@ -57,6 +61,7 @@ public class Accounts {
         if(bucket.count()>maximum) throw new Problem(429,"AUTH_RATE_LIMITED");
     }
     public Login register(String name,String displayName,String password,String remote) {
+        if(coreModeGate!=null)coreModeGate.registration();
         limit("ip:"+remote,30);
         String user=username(name);password(password);
         String display=displayName==null?"":displayName.trim();
@@ -67,6 +72,11 @@ public class Accounts {
         try { hash=passwords.encode(password); } finally { hashing.release(); }
         try {
             return tx.run(()->{
+                if(globalIds!=null){
+                    long id=globalIds.nextId();
+                    db.update("INSERT INTO ux_account(id,username,display_name,password_hash,created_at) VALUES(?,?,?,?,CURRENT_TIMESTAMP(3))",id,user,display,hash);
+                    return createSession(new User(Long.toString(id),user,display));
+                }
                 var keys=new GeneratedKeyHolder();
                 db.update(connection->{
                     var statement=connection.prepareStatement("INSERT INTO ux_account(username,display_name,password_hash,created_at) VALUES(?,?,?,CURRENT_TIMESTAMP(3))",new String[]{"id"});
@@ -92,6 +102,10 @@ public class Accounts {
         return tx.run(()->{
             // Serialize session cap decisions per account, without involving Redis.
             db.queryForObject("SELECT id FROM ux_account WHERE id=? FOR UPDATE",Long.class,user.id());
+                // A reset may have committed after the BCrypt check but before this lock.
+                String currentHash=db.queryForObject("SELECT password_hash FROM ux_account WHERE id=?",String.class,user.id());
+                if(!MessageDigest.isEqual(user.hash().getBytes(StandardCharsets.UTF_8),currentHash.getBytes(StandardCharsets.UTF_8)))
+                    throw new Problem(401,"BAD_CREDENTIALS");
             var old=db.queryForList("SELECT token_hash FROM ux_session WHERE user_id=? ORDER BY created_at DESC,token_hash DESC",String.class,user.id());
             for(int i=7;i<old.size();i++) db.update("DELETE FROM ux_session WHERE token_hash=?",old.get(i));
             return createSession(identity);

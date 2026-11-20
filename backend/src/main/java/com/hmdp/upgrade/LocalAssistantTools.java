@@ -1,0 +1,59 @@
+package com.hmdp.upgrade;
+
+import com.fasterxml.jackson.databind.*;
+import com.hmdp.upgrade.assistant.AssistantData.*;
+import java.util.*;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+
+/** Read-only adapters. Identity comes from the authenticated run, never model arguments. */
+@Service
+public class LocalAssistantTools {
+    public static final Set<String> NAMES=Set.of("search_shops","get_shop","compare_shops","get_shop_coupons","get_my_coupons","get_my_payment_status","search_policies","prepare_support_draft","get_my_preferences","prepare_preferences","respond_help");
+    private static final Set<String> FILTERS=Set.of("q","category","campus","area","landmark","maxPriceCents","minRating","maxDistanceMeters","openOnly","hasCoupon","sort","totalBudgetCents","people","excludedCategories","avoidedTags");
+    @org.springframework.beans.factory.annotation.Autowired(required=false) private LocalPreferences preferences;
+    final LocalLifeConfiguration config;final LocalShops shops;final LocalCoupons coupons;final LocalOperations operations;final LocalData d;
+    public LocalAssistantTools(LocalLifeConfiguration config,LocalShops shops,LocalCoupons coupons,LocalOperations operations,JdbcTemplate db,Transactions tx,ObjectMapper json){this.config=config;this.shops=shops;this.coupons=coupons;this.operations=operations;d=new LocalData(db,tx,json);}
+    public boolean enabled(){return config.enabled;}
+    public Object context(long user){return preferences==null?Map.of():preferences.read(user);}
+    private void fields(JsonNode args,Set<String> allowed){if(args==null||!args.isObject()||args.size()>15)throw new Problem(400,"ASSISTANT_INVALID_ARGUMENTS");args.fieldNames().forEachRemaining(k->{if(!allowed.contains(k))throw new Problem(400,"ASSISTANT_INVALID_ARGUMENTS");});}
+    private String target(JsonNode args,Checkpoint cp){String id=args.path("shopId").asText(null);
+        if(args.has("position")){if(id!=null||!args.get("position").isIntegralNumber())throw new Problem(400,"ASSISTANT_INVALID_ARGUMENTS");int n=args.path("position").asInt();if(n<1||n>cp.state.shopCandidates.size())throw new Problem(400,"LOCAL_SHOP_REQUIRED");id=cp.state.shopCandidates.get(n-1);}
+        if(id==null&&cp.state.shopCandidates.size()==1)id=cp.state.shopCandidates.get(0);if(id==null||!cp.state.shopCandidates.contains(id))throw new Problem(400,"LOCAL_SHOP_REQUIRED");return id;
+    }
+    @SuppressWarnings("unchecked") public JsonNode execute(String name,JsonNode args,long user,Checkpoint cp){config.require();Object result;String kind;List<String> sources=new ArrayList<>();
+        switch(name){
+            case "search_shops" -> {
+                var allowed=new HashSet<>(FILTERS);allowed.add("cheaper");allowed.add("reset");allowed.add("excludeShown");fields(args,allowed);var filter=new LinkedHashMap<>(cp.state.shopFilters);
+                if(args.path("reset").asBoolean()){if(cp.shopGuard!=null)throw new Problem(400,"ASSISTANT_CONSTRAINT_CHANGE");filter.clear();cp.state.excludedShopIds.clear();cp.state.shopDefaultsApplied=true;}
+                if(!cp.state.shopDefaultsApplied){if(preferences!=null)preferences.defaults(user).forEach(filter::putIfAbsent);cp.state.shopDefaultsApplied=true;}
+                for(String key:FILTERS)if(args.has(key)){JsonNode v=args.get(key);if(v.isNull())filter.remove(key);else{if(!v.isValueNode()||v.asText().length()>150)throw new Problem(400,"ASSISTANT_INVALID_ARGUMENTS");filter.put(key,v.asText());}}
+                if(args.has("maxPriceCents")&&!args.has("totalBudgetCents"))filter.remove("totalBudgetCents");
+                if(filter.containsKey("totalBudgetCents")){if(!filter.containsKey("people")){cp.state.shopFilters=new LinkedHashMap<>(filter);throw new Problem(400,"LOCAL_PARTY_SIZE_REQUIRED");}int total=LocalData.integer(filter.get("totalBudgetCents"),0,10000000),people=LocalData.integer(filter.get("people"),1,100);filter.put("maxPriceCents",Integer.toString(total/people));}
+                if(args.path("cheaper").asBoolean()){if(cp.state.shopCandidates.isEmpty())throw new Problem(400,"LOCAL_SHOP_REQUIRED");int previous=cp.state.shopCandidates.stream().map(x->shops.detail(Long.parseLong(x),user).get("avgPriceCents")).filter(Number.class::isInstance).map(Number.class::cast).mapToInt(Number::intValue).min().orElseThrow(()->new Problem(400,"LOCAL_PRICE_UNKNOWN"));filter.put("maxPriceCents",Integer.toString(Math.min(Integer.parseInt(filter.getOrDefault("maxPriceCents","1000000")),Math.max(0,previous-1))));filter.put("sort","price");}
+                if(cp.shopGuard!=null&&!cp.shopGuard.equals(filter))throw new Problem(400,"ASSISTANT_CONSTRAINT_CHANGE");
+                var listing=shops.list(filter,user);var items=(List<Map<String,Object>>)listing.get("items");if(args.path("excludeShown").asBoolean()){for(String id:cp.state.shopCandidates)if(!cp.state.excludedShopIds.contains(id)&&cp.state.excludedShopIds.size()<60)cp.state.excludedShopIds.add(id);}
+                var shown=items.stream().filter(x->!cp.state.excludedShopIds.contains(x.get("id").toString())).limit(3).map(this::shopFacts).toList();shown.forEach(shop->shop.put("recommendationReasons",reasons(shop,filter)));
+                cp.shopGuard=new LinkedHashMap<>(filter);cp.state.shopFilters=new LinkedHashMap<>(filter);cp.state.shopCandidates=shown.stream().map(x->x.get("id").toString()).toList();
+                sources.add("/v2/local/shops?"+filter.entrySet().stream().map(e->e.getKey()+"="+java.net.URLEncoder.encode(e.getValue(),java.nio.charset.StandardCharsets.UTF_8)).collect(java.util.stream.Collectors.joining("&")));
+                result=Map.of("shops",shown,"filters",filter,"total",listing.get("total"),"note","人均价格为商铺展示信息，距离为地标直线距离；不代表实时排队或有座。商铺与评价为演示数据。");kind="SHOPS";
+            }
+            case "get_shop","get_shop_coupons" -> {fields(args,Set.of("shopId","position"));String id=target(args,cp);var shop=shops.detail(Long.parseLong(id),user);if(Boolean.TRUE.equals(shop.get("unavailable")))throw new Problem(404,"LOCAL_NOT_FOUND");sources.add("/v2/local/shops/"+id);if(name.equals("get_shop")){result=Map.of("shops",List.of(shopFacts(shop)));cp.state.shopCandidates=List.of(id);kind="SHOPS";}else{result=coupons.templates(Long.parseLong(id),user);sources.add("/v2/local/shops/"+id+"/coupons");kind="SHOP_COUPONS";}}
+            case "compare_shops" -> {fields(args,Set.of("positions"));List<String> ids=new ArrayList<>();if(args.has("positions")){JsonNode values=args.get("positions");if(!values.isArray()||values.size()<2||values.size()>3)throw new Problem(400,"ASSISTANT_INVALID_ARGUMENTS");for(JsonNode value:values)ids.add(target(d.json.createObjectNode().set("position",value),cp));}else ids.addAll(cp.state.shopCandidates.stream().limit(3).toList());if(ids.size()<2||new HashSet<>(ids).size()!=ids.size())throw new Problem(400,"LOCAL_SHOP_REQUIRED");var found=ids.stream().map(id->{var shop=shops.detail(Long.parseLong(id),user);if(Boolean.TRUE.equals(shop.get("unavailable")))throw new Problem(404,"LOCAL_NOT_FOUND");return shopFacts(shop);}).toList();found.forEach(x->sources.add(x.get("sourcePath").toString()));result=Map.of("shops",found,"note","只比较查询到的公开信息；未查询到的字段不作推断。");kind="COMPARE";}
+            case "get_my_coupons" -> {fields(args,Set.of("state","position"));Map<String,Object> wallet=(Map<String,Object>)coupons.wallet(user);if(args.has("state")){String state=args.path("state").asText();if(!Set.of("AVAILABLE","USED","EXPIRED","VOID").contains(state))throw new Problem(400,"ASSISTANT_INVALID_ARGUMENTS");var list=(List<Map<String,Object>>)wallet.get("items");wallet=Map.of("items",list.stream().filter(c->state.equals(c.get("state"))).toList());}if(args.has("position")){var list=(List<Map<String,Object>>)wallet.get("items");int index=LocalData.integer(args.path("position").asText(),1,100);if(index>list.size())throw new Problem(404,"LOCAL_NOT_FOUND");wallet=Map.of("items",List.of(list.get(index-1)));}var visible=(List<Map<String,Object>>)wallet.get("items");result=Map.of("items",visible.stream().limit(20).toList(),"total",visible.size());sources.add("/v2/account/coupons");kind="MY_COUPONS";}
+            case "get_my_payment_status" -> {fields(args,Set.of("requestId"));String id=LocalData.text(args.path("requestId").asText(),36,36);d.one("SELECT id FROM ux_request WHERE id=? AND user_id=?",id,user);var payments=d.rows("SELECT id,request_id,amount_cents,state,created_at FROM ux_payment WHERE request_id=? AND user_id=?",id,user);
+                for(var payment:payments){payment.put("receipts",d.rows("SELECT amount_cents,outcome,created_at FROM ux_payment_receipt WHERE payment_id=? ORDER BY created_at",payment.get("id")));payment.put("refunds",d.rows("SELECT amount_cents,done_at FROM ux_refund WHERE payment_id=? ORDER BY next_at",payment.get("id")));}
+                result=Map.of("items",payments,"requestId",id,"sandbox",true);sources.add("/v2/account/requests/"+id);kind="PAYMENT";
+            }
+            case "search_policies" -> {fields(args,Set.of("q"));var policies=operations.policies(LocalData.text(args.path("q").asText(),0,200));policies.forEach(p->sources.add(p.get("sourcePath").toString()));result=Map.of("items",policies);kind="POLICIES";}
+            case "get_my_preferences" -> {fields(args,Set.of());if(preferences==null)throw new Problem(503,"LOCAL_LIFE_DISABLED");result=preferences.read(user);kind="PREFERENCES";sources.add("/v2/account/preferences");}
+            case "prepare_preferences" -> {fields(args,Set.of("values"));if(preferences==null||!args.path("values").isObject())throw new Problem(400,"ASSISTANT_INVALID_ARGUMENTS");var proposed=preferences.validate(d.json.convertValue(args.get("values"),Map.class));result=Map.of("values",proposed,"draftId",LocalData.id(),"saved",false);kind="PREFERENCE_DRAFT";}
+            case "respond_help" -> {fields(args,Set.of("intent"));String intent=args.path("intent").asText();if(!Set.of("greeting","thanks","capabilities","out_of_scope").contains(intent))throw new Problem(400,"ASSISTANT_INVALID_ARGUMENTS");result=Map.of("intent",intent);kind="HELP";}
+            case "prepare_support_draft" -> {fields(args,Set.of("title","body"));String title=LocalData.text(args.path("title").asText(),2,120),body=LocalData.text(args.path("body").asText(),10,1500);if((title+body).matches("(?is).*(?:[a-f0-9]{64}|sk-[a-z0-9]{12,}).*"))throw new Problem(400,"ASSISTANT_INVALID_ARGUMENTS");result=Map.of("title",title,"body",body,"submitted",false,"draftId",LocalData.id());kind="SUPPORT_DRAFT";}
+            default -> throw new Problem(403,"ASSISTANT_TOOL_FORBIDDEN");
+        }
+        cp.view="LOCAL_"+kind;cp.evidenceAt=d.now();cp.localResult=d.json.valueToTree(Map.of("kind",kind,"data",result,"sources",sources,"checkedAt",cp.evidenceAt));if(cp.localEvidence.size()<6)cp.localEvidence.add(cp.localResult.deepCopy());return cp.localResult;
+    }
+    private List<String> reasons(Map<String,Object> shop,Map<String,String> filter){var result=new ArrayList<String>();if(filter.containsKey("campus"))result.add("位于"+filter.get("campus"));if(filter.containsKey("maxPriceCents")&&shop.get("avgPriceCents") instanceof Number n)result.add("人均 ¥"+String.format(java.util.Locale.ROOT,"%.0f",n.doubleValue()/100)+"，符合预算");if(filter.containsKey("q"))result.add("资料包含「"+filter.get("q")+"」");if(Boolean.TRUE.equals(shop.get("open")))result.add("查询时营业中");if(shop.get("rating") instanceof Number n&&n.doubleValue()>=4.5)result.add("公开评价 "+n+" 分");return result.stream().limit(3).toList();}
+    private Map<String,Object> shopFacts(Map<String,Object> row){var out=new LinkedHashMap<String,Object>();for(String k:List.of("id","name","description","category","campus","area","address","avgPriceCents","rating","reviewCount","distanceMeters","open","hours","tags","coverPath","sourcePath","checkedAt","unavailable"))if(row.containsKey(k))out.put(k,row.get(k));return out;}
+}

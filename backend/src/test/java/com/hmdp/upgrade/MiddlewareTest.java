@@ -10,10 +10,6 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.flywaydb.core.Flyway;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.kafka.core.*;
-import org.apache.kafka.clients.consumer.*;
-import org.apache.kafka.common.serialization.StringSerializer;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import java.time.*;
 import java.sql.Timestamp;
 import java.util.*;
@@ -24,8 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MiddlewareTest {
     JdbcTemplate db;Trading trading;Transactions tx;StringRedisTemplate redis;
-    LettuceConnectionFactory lettuce;ShopCache cache;KafkaTemplate<String,String> kafka;Delivery delivery;Admission gate;BenchmarkReservation reservations;Reservations productionReservations;
-    DefaultKafkaProducerFactory<String,String> producer;
+    LettuceConnectionFactory lettuce;ShopCache cache;RocketMessageBus messages;Delivery delivery;Admission gate;BenchmarkReservation reservations;Reservations productionReservations;
     long sequence=System.currentTimeMillis();
     long next() { return ++sequence; }
     @BeforeAll void setup() {
@@ -39,12 +34,10 @@ class MiddlewareTest {
         gate=new Admission(redis,db,2,10,5000,60);
         reservations=new BenchmarkReservation(redis);
         productionReservations=new Reservations(redis,db,trading,tx);
-        producer=new DefaultKafkaProducerFactory<>(Map.of("bootstrap.servers",System.getenv().getOrDefault("KAFKA_BOOTSTRAP_SERVERS","127.0.0.1:29093"),"acks","all",
-            "enable.idempotence",true,"key.serializer",StringSerializer.class,"value.serializer",StringSerializer.class));
-        kafka=new KafkaTemplate<>(producer);
-        delivery=new Delivery(db,tx,trading,kafka,new ObjectMapper(),gate,productionReservations,System.getenv().getOrDefault("UPGRADE_TOPIC","life-choice-orders-v1"),false);
+        messages=new RocketMessageBus(System.getenv().getOrDefault("ROCKETMQ_NAMESERVER","127.0.0.1:39876"),"middleware-producer-"+next(),false);messages.start();
+        delivery=new Delivery(db,tx,trading,messages,new ObjectMapper(),gate,productionReservations,System.getenv().getOrDefault("UPGRADE_TOPIC","life-choice-orders-v1"),false);
     }
-    @AfterAll void close() { cache.close();producer.destroy();lettuce.destroy(); }
+    @AfterAll void close() { cache.close();messages.stop();lettuce.destroy(); }
     long activity(int stock) {
         long id=next();Instant now=Instant.now();
         db.update("INSERT INTO ux_activity VALUES(?,?,?,?,?,?,?)",id,stock,stock,990,Timestamp.from(now.minusSeconds(60)),Timestamp.from(now.plusSeconds(3600)),Timestamp.from(now.plusSeconds(3700)));return id;
@@ -53,30 +46,21 @@ class MiddlewareTest {
         return db.queryForObject("SELECT * FROM ux_outbox WHERE request_id=?",(s,n)->new Trading.Event(1,s.getString("id"),r.id(),r.activityId()),r.id());
     }
     void valid() { assertEquals(0L,trading.invariants().get("stockViolations"));assertEquals(0L,trading.invariants().get("stateViolations")); }
-    @Test void mysqlRedisDelayedCloseAndSandboxRefundRecoverFromLostQueue() {
+    @Test void durableCloseAndSandboxRefundRecoverWithoutMessageDelivery() {
         var local=new Trading(db,tx);
         org.springframework.test.util.ReflectionTestUtils.setField(local,"closeTasks",new CloseTasks(db));
-        var closer=new DelayedClose(db,local,redis);String queue="ux:test:close:"+next();
-        org.springframework.test.util.ReflectionTestUtils.setField(closer,"key",queue);
-        var payments=new Payments(db,tx,local);long user=next(),activity=activity(2);
-        try {
-            String r=local.accept(user,"payment_"+user,activity,true).id();
-            String p=(String)payments.create(user,r).get("id");
-            closer.enqueue();assertNotNull(redis.opsForZSet().score(queue,r));
-            var past=Timestamp.from(Instant.now().minusSeconds(1));
-            db.update("UPDATE ux_order SET confirm_until=? WHERE request_id=?",past,r);
-            db.update("UPDATE ux_close_task SET due_at=? WHERE request_id=?",past,r);
-            redis.opsForZSet().add(queue,r,past.getTime());closer.drain();closer.drain();
-            assertEquals("EXPIRED",local.order(user,r).get("state"));assertNull(redis.opsForZSet().score(queue,r));
-            payments.received(user,p,"mysql_receipt_"+user,990);payments.refunds();payments.refunds();
-            assertEquals("REFUNDED",payments.get(user,p).get("state"));
-            assertEquals(1,db.queryForObject("SELECT COUNT(*) FROM ux_sandbox_refund WHERE channel_id=?",Integer.class,"mysql_receipt_"+user));
-            String r2=local.accept(user+1,"payment_"+(user+1),activity,true).id();closer.enqueue();redis.delete(queue);
-            db.update("UPDATE ux_order SET confirm_until=? WHERE request_id=?",past,r2);
-            db.update("UPDATE ux_close_task SET due_at=? WHERE request_id=?",past,r2);
-            new DelayedClose(db,local,redis).reconcile();
-            assertEquals("EXPIRED",local.order(user+1,r2).get("state"));valid();
-        } finally {redis.delete(queue);}
+        var closer=new DelayedClose(db,local,messages);org.springframework.test.util.ReflectionTestUtils.setField(closer,"topic","middleware-close-"+next());var payments=new Payments(db,tx,local);
+        long user=next(),activity=activity(2);String r=local.accept(user,"payment_"+user,activity,true).id();
+        String p=(String)payments.create(user,r).get("id");closer.enqueue();
+        assertNotNull(db.queryForMap("SELECT message_sent_at FROM ux_close_task WHERE request_id=?",r).get("message_sent_at"));
+        var past=Timestamp.from(Instant.now().minusSeconds(1));
+        db.update("UPDATE ux_order SET confirm_until=? WHERE request_id=?",past,r);
+        db.update("UPDATE ux_close_task SET due_at=? WHERE request_id=?",past,r);
+        new DelayedClose(db,local,messages).reconcile();closer.reconcile();
+        assertEquals("EXPIRED",local.order(user,r).get("state"));
+        payments.received(user,p,"mysql_receipt_"+user,990);payments.refunds();payments.refunds();
+        assertEquals("REFUNDED",payments.get(user,p).get("state"));
+        assertEquals(1,db.queryForObject("SELECT COUNT(*) FROM ux_sandbox_refund WHERE channel_id=?",Integer.class,"mysql_receipt_"+user));valid();
     }
     @Test void bloomCrossInstanceRegistrationAndJournalLossFailOpen() {
         var first=new ShopBloom(db,redis,tx);var second=new ShopBloom(db,redis,tx);
@@ -364,23 +348,19 @@ class MiddlewareTest {
         assertEquals(1,db.queryForObject("SELECT COUNT(*) FROM ux_audit WHERE actor=88 AND target=?",Integer.class,e.eventId()));
         trading.process(e);assertEquals(1,db.queryForObject("SELECT COUNT(*) FROM ux_order WHERE activity_id=?",Integer.class,a));valid();
     }
-    @Test void realKafkaDuplicateMessagesCommitAfterDatabase() throws Exception {
-        String topic="upgrade-it-"+next();long a=activity(1);var r=trading.accept(7,"kafka_"+a,a,false);var e=event(r);
-        try(var consumer=new KafkaConsumer<String,String>(Map.of("bootstrap.servers",System.getenv().getOrDefault("KAFKA_BOOTSTRAP_SERVERS","127.0.0.1:29093"),"group.id",topic,
-            "auto.offset.reset","earliest","enable.auto.commit",false,"key.deserializer",StringDeserializer.class,"value.deserializer",StringDeserializer.class))) {
-            consumer.subscribe(List.of(topic));
-            String body=new ObjectMapper().writeValueAsString(e);
-            kafka.send(topic,""+a,body).get(15,TimeUnit.SECONDS);kafka.send(topic,""+a,body).get(15,TimeUnit.SECONDS);
-            int received=0;long deadline=System.nanoTime()+20_000_000_000L;
-            while(received<2 && System.nanoTime()<deadline) for(var record:consumer.poll(Duration.ofMillis(300))) {
-                delivery.consume(record,()->consumer.commitSync());received++;
-            }
-            assertEquals(2,received);assertEquals("SUCCEEDED",trading.result(7,r.id()).state());valid();
-        }
+    @Test void realRocketDuplicateMessagesCommitAfterDatabase() throws Exception {
+        String topic="upgrade-it-"+next();long a=activity(1);var r=trading.accept(7,"rocket_"+a,a,false);var e=event(r);
+        var received=new CountDownLatch(2);
+        var consumer=new RocketMessageBus(System.getenv().getOrDefault("ROCKETMQ_NAMESERVER","127.0.0.1:39876"),topic+"-producer",true);
+        consumer.subscribe(topic,topic+"-consumer",record->{delivery.consume(record);received.countDown();});
+        try {
+            consumer.start();String body=new ObjectMapper().writeValueAsString(e);
+            messages.send(topic,""+a,body).get(10,TimeUnit.SECONDS);messages.send(topic,""+a,body).get(10,TimeUnit.SECONDS);
+            assertTrue(received.await(30,TimeUnit.SECONDS));assertEquals("SUCCEEDED",trading.result(7,r.id()).state());valid();
+        } finally {consumer.stop();}
     }
-    @Test void poisonPersistsBeforeAcknowledgement() throws Exception {
-        long offset=next();boolean[] acknowledged={false};
-        delivery.consume(new ConsumerRecord<>("malformed-tests",0,offset,"1","not-json"),()->acknowledged[0]=true);
-        assertTrue(acknowledged[0]);assertEquals(1,db.queryForObject("SELECT COUNT(*) FROM ux_poison WHERE topic='malformed-tests' AND offset_id=?",Integer.class,offset));
+    @Test void poisonPersistsBeforeSuccessfulReturn() throws Exception {
+        long offset=next();delivery.consume(new OrderMessages.Received("malformed-tests","broker-a",0,offset,"1","not-json",System.currentTimeMillis()));
+        assertEquals(1,db.queryForObject("SELECT COUNT(*) FROM ux_mq_poison WHERE topic='malformed-tests' AND offset_id=?",Integer.class,offset));
     }
 }

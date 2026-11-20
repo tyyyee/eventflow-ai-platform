@@ -5,7 +5,7 @@ import {spawn} from 'node:child_process';
 import {createInterface} from 'node:readline';
 import {performance} from 'node:perf_hooks';
 import os from 'node:os';
-import {root,projectRoot,start,stop,request,fixture,invariant,sql,compose,sleep,save,kafkaDrained,sourceManifest} from './harness.mjs';
+import {root,projectRoot,start,stop,request,fixture,invariant,sql,compose,sleep,save,ordersDrained,sourceManifest} from './harness.mjs';
 assert.equal(process.env.UPGRADE_DB_SCHEMA,'life_choice_verification');assert.ok(process.env.UPGRADE_DB_URL?.includes('/life_choice_verification?'));assert.equal(process.env.SPRING_DATA_REDIS_DATABASE,'13');
 const long=process.argv.includes('--long'),duration=long?900:0;
 const dir=`${root}/evidence/hotspot-${long?'long':'controlled'}-${Date.now()}`;mkdirSync(dir,{recursive:true});
@@ -27,7 +27,7 @@ function sampler(){
 async function settle(id){await until(()=>Number(sql(`SELECT (SELECT COUNT(*) FROM ux_request WHERE activity_id=${id} AND state='ACCEPTED')+(SELECT COUNT(*) FROM ux_outbox WHERE activity_id=${id} AND sent_at IS NULL)+(SELECT COUNT(*) FROM ux_reservation_action a JOIN ux_request r ON r.id=a.request_id WHERE r.activity_id=${id} AND a.applied_at IS NULL)`))===0);}
 function cleanup(id){
  assert.ok(owned.includes(id)&&Number.isSafeInteger(id));
- // Only fixtures created and recorded by this process. JVM is stopped and Kafka
+ // Only fixtures created and recorded by this process. JVM is stopped and RocketMQ
  // has drained before removal; no shared tables or Redis databases are reset.
  sql(`START TRANSACTION;
  DELETE a FROM ux_reservation_action a JOIN ux_request r ON r.id=a.request_id WHERE r.activity_id=${id};
@@ -41,7 +41,7 @@ function cleanup(id){
 async function run(compact,round){
  const name=`${round}-${compact?'compact':'legacy'}`;
  child=await start(`${dir}/${name}.log`,['--upgrade.rate-user=100','--upgrade.rate-activity=1000000','--upgrade.backlog-limit=1000000','--upgrade.relay-batch=100',`--upgrade.compact-transactions=${compact}`]);
- await kafkaDrained();await until(async()=>{const m=await metrics();return Object.values(m.queues).every(q=>Number(q.size)===0);});
+ await ordersDrained();await until(async()=>{const m=await metrics();return Object.values(m.queues).every(q=>Number(q.size)===0);});
  // In controlled runs require every historical order's normal confirmation window
  // to have expired first, so it cannot add RESTORE actions mid-comparison.
  if(!long)await until(()=>Number(sql("SELECT COUNT(*) FROM ux_order WHERE state='PENDING_CONFIRM'"))===0,360000);
@@ -74,7 +74,7 @@ async function run(compact,round){
   save(`${dir}/${name}-raw.json`,{samples,trace,locks:locks.samples,before,after});results.push(result);save(`${dir}/results.json`,results);console.log(JSON.stringify({...result,stages:undefined,windows:undefined}));
   assert.ok(samples.every(s=>[202,429,503].includes(s.status)));assert.equal(success.length,samples.filter(s=>s.status===202).length);
   if(!long){assert.equal(skipped,0);assert.equal(success.length,total);}
-  await kafkaDrained();valid=true;
+  await ordersDrained();valid=true;
  }finally{collecting=false;try{await traceTask;await locks.close();save(`${dir}/${name}-samples-preserved.json`,{samples,trace,locks:locks.samples,before,epoch,skipped,maxInflight});}finally{await stop(child);child=null;}}
  if(valid){cleanup(id);const afterCleanup=history();results.at(-1).historyAfterCleanup=afterCleanup;save(`${dir}/results.json`,results);if(!long)assert.deepEqual(afterCleanup,historyBefore,'Historical table cardinalities changed');}
 }

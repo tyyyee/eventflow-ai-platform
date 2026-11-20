@@ -31,6 +31,9 @@ public class Trading {
     private OrderProjection projection;
     @org.springframework.beans.factory.annotation.Autowired(required=false)
     private CloseTasks closeTasks;
+    @org.springframework.beans.factory.annotation.Autowired(required=false)
+    private CoreModeGate coreModeGate;
+    private void legacy(){if(coreModeGate!=null)coreModeGate.legacy();}
     public Trading(JdbcTemplate db, Transactions tx) { this.db=db; this.tx=tx; }
     static String uuid() { return UUID.randomUUID().toString(); }
     private <T> T read(PipelineMetrics.Stage stage,String sql,Class<T> type,Object... args) {
@@ -84,6 +87,7 @@ public class Trading {
         return telemetry.measure(ACCEPT_TX,()->acceptTransaction(user,key,activity,synchronous,epoch));
     }
     private Request acceptTransaction(long user,String key,long activity,boolean synchronous,String epoch) {
+        legacy();
         validate(key,activity);
         String payloadHash=hash(activity);
         try {
@@ -120,6 +124,7 @@ public class Trading {
         return adjudicateReservation(user,key,activity,null);
     }
     Request adjudicateReservation(long user,String key,long activity,String epoch) {
+        legacy();
         validate(key,activity);
         try {
             return tx.run(()->{
@@ -140,10 +145,12 @@ public class Trading {
         }
     }
     void expireForRecovery(long activity) {
+        legacy();
         for(var request:requests("WHERE activity_id=? AND state='ACCEPTED' FOR UPDATE",activity))
             finish(request,"EXPIRED","RESERVATION_RECOVERY",now());
     }
     public Request process(Event event) {
+        legacy();
         return telemetry.measure(ORDER_TX,()->tx.run(()->{
             var a=activity(event.activityId(),ORDER_LOCK_QUERY);
             telemetry.untilTransactionCompletion(ORDER_LOCK_HELD);
@@ -198,6 +205,7 @@ public class Trading {
     }
     Map<String,Object> paymentConfirm(long user,String request) {return transition(user,request,"confirm",true);}
     private Map<String,Object> transition(long user,String request,String action,boolean payment) {
+        legacy();
         if(!List.of("confirm","cancel","expire").contains(action)) throw new Problem(400,"INVALID_ACTION");
         Request r=result(user,request);
         return tx.run(()->{

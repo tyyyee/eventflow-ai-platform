@@ -16,7 +16,7 @@ public class BusinessMetrics implements MeterBinder {
         try {
             var outbox=db.queryForMap("SELECT COUNT(*) AS pending,COALESCE(TIMESTAMPDIFF(SECOND,MIN(created_at),CURRENT_TIMESTAMP(3)),0) AS age FROM ux_outbox WHERE sent_at IS NULL");
             outboxPending=((Number)outbox.get("pending")).longValue();outboxOldestSeconds=((Number)outbox.get("age")).longValue();
-            poisonTotal=db.queryForObject("SELECT COUNT(*) FROM ux_poison",Long.class);
+            poisonTotal=db.queryForObject("SELECT (SELECT COUNT(*) FROM ux_poison)+(SELECT COUNT(*) FROM ux_mq_poison)",Long.class);
             invalidationPending=db.queryForObject("SELECT COUNT(*) FROM ux_invalidation",Long.class);
             closeOverdue=db.queryForObject("SELECT COUNT(*) FROM ux_close_task WHERE done_at IS NULL AND due_at<=CURRENT_TIMESTAMP(3)",Long.class);
             refundPending=db.queryForObject("SELECT COUNT(*) FROM ux_refund WHERE done_at IS NULL",Long.class);

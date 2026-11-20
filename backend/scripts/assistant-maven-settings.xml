@@ -1,0 +1,13 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.2.0">
+ <profiles><profile><id>cached-repositories</id>
+  <repositories>
+   <repository><id>central</id><url>https://repo.maven.apache.org/maven2</url></repository>
+   <repository><id>aliyunmaven</id><url>https://maven.aliyun.com/repository/public</url></repository>
+   <repository><id>alimaven</id><url>https://maven.aliyun.com/repository/public</url></repository>
+  </repositories>
+  <pluginRepositories>
+   <pluginRepository><id>central</id><url>https://repo.maven.apache.org/maven2</url></pluginRepository>
+   <pluginRepository><id>aliyunmaven</id><url>https://maven.aliyun.com/repository/public</url></pluginRepository>
+  </pluginRepositories>
+ </profile></profiles><activeProfiles><activeProfile>cached-repositories</activeProfile></activeProfiles>
+</settings>

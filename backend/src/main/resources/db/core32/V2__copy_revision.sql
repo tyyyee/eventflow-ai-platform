@@ -1,0 +1,1 @@
+ALTER TABLE cx_user__N__ ADD COLUMN copy_revision BIGINT NOT NULL DEFAULT 0;

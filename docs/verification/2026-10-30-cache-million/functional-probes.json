@@ -1,0 +1,121 @@
+{
+  "invalidUniqueIds": 2000,
+  "statuses": {
+    "404": 2000
+  },
+  "bloomBlocked": 1982,
+  "merchantDatabaseReadAttempts": 18,
+  "before": [
+    {
+      "cache": {
+        "staleHits": 119763,
+        "fallbackRejected": 0,
+        "rebuildRejected": 1987,
+        "hits": 612785,
+        "localHits": 1938292,
+        "localSize": 20,
+        "fallbacks": 0,
+        "databaseReads": 192312,
+        "ttlHits": 2325656
+      },
+      "bloom": {
+        "ready": 1,
+        "bypassed": 0,
+        "blocked": 0,
+        "checks": 631814,
+        "entries": 1000000
+      },
+      "circuit": {
+        "manual": false,
+        "sampleCount": 1000,
+        "state": "CLOSED",
+        "healthyProbes": 0,
+        "consecutiveFailures": 0
+      }
+    },
+    {
+      "circuit": {
+        "sampleCount": 1000,
+        "manual": false,
+        "consecutiveFailures": 0,
+        "healthyProbes": 0,
+        "state": "CLOSED"
+      },
+      "bloom": {
+        "ready": 1,
+        "entries": 1000000,
+        "checks": 631080,
+        "blocked": 0,
+        "bypassed": 0
+      },
+      "cache": {
+        "ttlHits": 2325320,
+        "databaseReads": 191147,
+        "fallbacks": 0,
+        "localSize": 20,
+        "localHits": 1939019,
+        "hits": 611998,
+        "rebuildRejected": 3414,
+        "fallbackRejected": 0,
+        "staleHits": 119599
+      }
+    }
+  ],
+  "after": [
+    {
+      "cache": {
+        "staleHits": 119763,
+        "fallbackRejected": 0,
+        "rebuildRejected": 1987,
+        "hits": 612785,
+        "localHits": 1938292,
+        "localSize": 6,
+        "fallbacks": 0,
+        "databaseReads": 192318,
+        "ttlHits": 2325656
+      },
+      "bloom": {
+        "ready": 1,
+        "bypassed": 0,
+        "blocked": 994,
+        "checks": 632814,
+        "entries": 1000000
+      },
+      "circuit": {
+        "manual": false,
+        "sampleCount": 442,
+        "state": "CLOSED",
+        "healthyProbes": 0,
+        "consecutiveFailures": 0
+      }
+    },
+    {
+      "circuit": {
+        "sampleCount": 438,
+        "manual": false,
+        "consecutiveFailures": 0,
+        "healthyProbes": 0,
+        "state": "CLOSED"
+      },
+      "bloom": {
+        "ready": 1,
+        "entries": 1000000,
+        "checks": 632080,
+        "blocked": 988,
+        "bypassed": 0
+      },
+      "cache": {
+        "ttlHits": 2325320,
+        "databaseReads": 191159,
+        "fallbacks": 0,
+        "localSize": 12,
+        "localHits": 1939019,
+        "hits": 611998,
+        "rebuildRejected": 3414,
+        "fallbackRejected": 0,
+        "staleHits": 119599
+      }
+    }
+  ],
+  "excludedFromMeasurements": true
+}

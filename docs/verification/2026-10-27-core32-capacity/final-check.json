@@ -1,0 +1,25 @@
+{
+  "verifiedAt": "2026-10-27T09:44:46.294Z",
+  "benchmarkRounds": 54,
+  "connectionAdmissionPassed": true,
+  "restoreFieldsPassed": true,
+  "documentationLinks": 68,
+  "evidenceSecrets": "none found",
+  "application": {
+    "ready": true,
+    "mode": "CORE",
+    "orders": 57,
+    "queues": {
+      "refunds": 0,
+      "accepted": 0,
+      "outbox": 0,
+      "actions": 0,
+      "overdue": 0
+    },
+    "invariants": {
+      "stateViolations": 0,
+      "stockViolations": 0
+    }
+  },
+  "productionCodeChanged": false
+}

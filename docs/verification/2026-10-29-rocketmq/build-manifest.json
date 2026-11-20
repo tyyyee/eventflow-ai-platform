@@ -1,0 +1,18 @@
+{
+  "recordedAt": "2026-10-29T14:04:28.138Z",
+  "profile": "sharding",
+  "mqClient": "org.apache.rocketmq:rocketmq-client:5.3.2",
+  "jarSha256": "d3cf0ad71e1b9e3bac26ef60db7b025b04e1b629c17ba7b39c816569b8dc5098",
+  "sourceSha256": {
+    "backend/pom.xml": "10e459c804306b1287e51da0a5ad8d932e6004dbb7f29d18d4debeec81febda9",
+    "backend/src/main/java/com/hmdp/upgrade/OrderMessages.java": "68e3acc0fcf8d725833e6b7878579f984704e43c76153a8ebacc5e0236e03e2c",
+    "backend/src/main/java/com/hmdp/upgrade/RocketMessageBus.java": "614e31f3db86417cb2bc22c7d3f37eba12129dd7f6839cfaccc251e756346c51",
+    "backend/src/main/java/com/hmdp/upgrade/Delivery.java": "0da404316055d9b9ce212a9cf0f7f511167f3202a49d3496f8e53b98c51957dc",
+    "backend/src/main/java/com/hmdp/upgrade/DelayedClose.java": "c6ebeed3d70f1c89f122be82058c9fa5840711d3524eb29e896c3226f2ae7344",
+    "backend/src/main/java/com/hmdp/upgrade/MqPoison.java": "f945732f20e33cb93268b186e46d6bb9e3461110a22acbda9e30226ca5ecf31d",
+    "backend/src/main/resources/db/migration/V16__rocketmq_delivery.sql": "555c4739634eafd083f997894afd65e28afdf8d448b0b6eb4a57332acdffe895",
+    "backend/src/sharding/java/com/hmdp/upgrade/core32/CoreJobs.java": "75800f8d8f2a273f3b2317e0a31f14fadfe8238c07d5f9a128adf8eb888a393d",
+    "backend/src/sharding/java/com/hmdp/upgrade/core32/CoreStore.java": "51e49b96226840afce7fe5adee75520b9c6a7241d566056d3cb510ff48c779e9",
+    "backend/src/sharding/java/com/hmdp/upgrade/core32/CoreMigration.java": "37f42c977d13b97519eb84b2836cdc6038b0abe61c4c110c6e36330446d00e1e"
+  }
+}

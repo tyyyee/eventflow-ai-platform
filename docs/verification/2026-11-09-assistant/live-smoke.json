@@ -1,0 +1,324 @@
+{
+  "startedAt": "2026-11-09T07:10:18.986Z",
+  "mode": "deepseek",
+  "checks": [
+    {
+      "name": "activity search",
+      "message": "明天预算100元，推荐音乐活动",
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "modelCalls": 2,
+      "totalTokens": 4166,
+      "elapsedMs": 3865,
+      "steps": [
+        {
+          "number": 1,
+          "tool": "search_activities",
+          "outcome": "OK",
+          "elapsedMs": 14
+        }
+      ],
+      "reply": {
+        "kind": "SEARCH",
+        "text": "按当前条件找到以下活动，已按活动时间排序。余票以查询时为准，进入详情后仍需重新校验；当前没有为你占票。",
+        "activities": [
+          {
+            "activityId": "22076600",
+            "sessionId": "32076700",
+            "shopId": "9101",
+            "title": "星河音乐节",
+            "sessionTitle": "星河音乐节午间场",
+            "category": "音乐演出",
+            "campus": "东校区 · 体育场",
+            "address": "东校区体育场",
+            "startsAt": "2026-11-10T02:00:00Z",
+            "endsAt": "2026-11-10T03:30:00Z",
+            "priceCents": 2990,
+            "available": 100,
+            "saleStartsAt": "2026-11-08T16:00:00Z",
+            "saleEndsAt": "2026-11-09T16:00:00Z",
+            "saleStatus": "AVAILABLE",
+            "checkedAt": "2026-11-09T07:10:21.957Z",
+            "sourcePath": "/v2/catalog/shops/9101"
+          },
+          {
+            "activityId": "22076631",
+            "sessionId": "32076731",
+            "shopId": "9104",
+            "title": "毕业季草坪音乐会",
+            "sessionTitle": "毕业季草坪音乐会晚间场",
+            "category": "音乐演出",
+            "campus": "主校区 · 中心草坪",
+            "address": "主校区中心草坪",
+            "startsAt": "2026-11-10T02:00:00Z",
+            "endsAt": "2026-11-10T03:30:00Z",
+            "priceCents": 7770,
+            "available": 30,
+            "saleStartsAt": "2026-11-08T16:00:00Z",
+            "saleEndsAt": "2026-11-09T16:00:00Z",
+            "saleStatus": "AVAILABLE",
+            "checkedAt": "2026-11-09T07:10:21.957Z",
+            "sourcePath": "/v2/catalog/shops/9104"
+          },
+          {
+            "activityId": "22076630",
+            "sessionId": "32076730",
+            "shopId": "9104",
+            "title": "毕业季草坪音乐会",
+            "sessionTitle": "毕业季草坪音乐会午间场",
+            "category": "音乐演出",
+            "campus": "主校区 · 中心草坪",
+            "address": "主校区中心草坪",
+            "startsAt": "2026-11-10T08:00:00Z",
+            "endsAt": "2026-11-10T09:30:00Z",
+            "priceCents": 2590,
+            "available": 100,
+            "saleStartsAt": "2026-11-08T16:00:00Z",
+            "saleEndsAt": "2026-11-09T16:00:00Z",
+            "saleStatus": "AVAILABLE",
+            "checkedAt": "2026-11-09T07:10:21.957Z",
+            "sourcePath": "/v2/catalog/shops/9104"
+          },
+          {
+            "activityId": "22076601",
+            "sessionId": "32076701",
+            "shopId": "9101",
+            "title": "星河音乐节",
+            "sessionTitle": "星河音乐节晚间场",
+            "category": "音乐演出",
+            "campus": "东校区 · 体育场",
+            "address": "东校区体育场",
+            "startsAt": "2026-11-10T08:00:00Z",
+            "endsAt": "2026-11-10T09:30:00Z",
+            "priceCents": 8970,
+            "available": 30,
+            "saleStartsAt": "2026-11-08T16:00:00Z",
+            "saleEndsAt": "2026-11-09T16:00:00Z",
+            "saleStatus": "AVAILABLE",
+            "checkedAt": "2026-11-09T07:10:21.957Z",
+            "sourcePath": "/v2/catalog/shops/9101"
+          }
+        ],
+        "rules": [],
+        "orders": [],
+        "sources": [
+          "/v2/catalog/shops/9101",
+          "/v2/catalog/shops/9104"
+        ],
+        "checkedAt": "2026-11-09T07:10:21.957Z",
+        "errorCode": null
+      }
+    },
+    {
+      "name": "multi-turn campus refinement",
+      "message": "换成主校区的，其他条件不变",
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "modelCalls": 2,
+      "totalTokens": 5187,
+      "elapsedMs": 3149,
+      "steps": [
+        {
+          "number": 1,
+          "tool": "search_activities",
+          "outcome": "OK",
+          "elapsedMs": 10
+        }
+      ],
+      "reply": {
+        "kind": "SEARCH",
+        "text": "按当前条件找到以下活动，已按活动时间排序。余票以查询时为准，进入详情后仍需重新校验；当前没有为你占票。",
+        "activities": [
+          {
+            "activityId": "22076631",
+            "sessionId": "32076731",
+            "shopId": "9104",
+            "title": "毕业季草坪音乐会",
+            "sessionTitle": "毕业季草坪音乐会晚间场",
+            "category": "音乐演出",
+            "campus": "主校区 · 中心草坪",
+            "address": "主校区中心草坪",
+            "startsAt": "2026-11-10T02:00:00Z",
+            "endsAt": "2026-11-10T03:30:00Z",
+            "priceCents": 7770,
+            "available": 30,
+            "saleStartsAt": "2026-11-08T16:00:00Z",
+            "saleEndsAt": "2026-11-09T16:00:00Z",
+            "saleStatus": "AVAILABLE",
+            "checkedAt": "2026-11-09T07:10:25.069Z",
+            "sourcePath": "/v2/catalog/shops/9104"
+          },
+          {
+            "activityId": "22076630",
+            "sessionId": "32076730",
+            "shopId": "9104",
+            "title": "毕业季草坪音乐会",
+            "sessionTitle": "毕业季草坪音乐会午间场",
+            "category": "音乐演出",
+            "campus": "主校区 · 中心草坪",
+            "address": "主校区中心草坪",
+            "startsAt": "2026-11-10T08:00:00Z",
+            "endsAt": "2026-11-10T09:30:00Z",
+            "priceCents": 2590,
+            "available": 100,
+            "saleStartsAt": "2026-11-08T16:00:00Z",
+            "saleEndsAt": "2026-11-09T16:00:00Z",
+            "saleStatus": "AVAILABLE",
+            "checkedAt": "2026-11-09T07:10:25.069Z",
+            "sourcePath": "/v2/catalog/shops/9104"
+          }
+        ],
+        "rules": [],
+        "orders": [],
+        "sources": [
+          "/v2/catalog/shops/9104"
+        ],
+        "checkedAt": "2026-11-09T07:10:25.069Z",
+        "errorCode": null
+      }
+    },
+    {
+      "name": "ordinal and current availability",
+      "message": "第一个还有票吗？",
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "modelCalls": 2,
+      "totalTokens": 4156,
+      "elapsedMs": 2118,
+      "steps": [
+        {
+          "number": 1,
+          "tool": "get_activity",
+          "outcome": "OK",
+          "elapsedMs": 5
+        }
+      ],
+      "reply": {
+        "kind": "DETAIL",
+        "text": "已重新查询这场活动的余票和价格。当前余票不代表已为你锁票，请进入活动详情确认购买。",
+        "activities": [
+          {
+            "activityId": "22076631",
+            "sessionId": "32076731",
+            "shopId": "9104",
+            "title": "毕业季草坪音乐会",
+            "sessionTitle": "毕业季草坪音乐会晚间场",
+            "category": "音乐演出",
+            "campus": "主校区 · 中心草坪",
+            "address": "主校区中心草坪",
+            "startsAt": "2026-11-10T02:00:00Z",
+            "endsAt": "2026-11-10T03:30:00Z",
+            "priceCents": 7770,
+            "available": 30,
+            "saleStartsAt": "2026-11-08T16:00:00Z",
+            "saleEndsAt": "2026-11-09T16:00:00Z",
+            "saleStatus": "AVAILABLE",
+            "checkedAt": "2026-11-09T07:10:28.137Z",
+            "sourcePath": "/v2/catalog/shops/9104"
+          }
+        ],
+        "rules": [],
+        "orders": [],
+        "sources": [
+          "/v2/catalog/shops/9104"
+        ],
+        "checkedAt": "2026-11-09T07:10:28.137Z",
+        "errorCode": null
+      }
+    },
+    {
+      "name": "published purchase rules",
+      "message": "购票有什么规则？",
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "modelCalls": 2,
+      "totalTokens": 4275,
+      "elapsedMs": 3132,
+      "steps": [
+        {
+          "number": 1,
+          "tool": "get_rules",
+          "outcome": "OK",
+          "elapsedMs": 6
+        },
+        {
+          "number": 2,
+          "tool": "get_rules",
+          "outcome": "OK",
+          "elapsedMs": 6
+        }
+      ],
+      "reply": {
+        "kind": "RULES",
+        "text": "以下是平台及所选活动已发布的规则。未列出的退改、入场细节暂无法确认，请咨询活动主办方。",
+        "activities": [],
+        "rules": [
+          {
+            "activityId": null,
+            "title": "平台购票规则 v1",
+            "terms": "同一用户对同一活动限购一次，取消或过期后也不能再次购买该活动。订单创建后须在5分钟内完成支付，具体截止时间以订单为准。请求已受理不代表已生成订单。",
+            "notice": "当前平台用于本地演示，不涉及真实资金。未发布的退改、入场细节请向活动主办方确认。",
+            "sourcePath": "/v2/assistant/policy",
+            "checkedAt": "2026-11-09T07:10:30.968Z"
+          },
+          {
+            "activityId": "22076631",
+            "title": "毕业季草坪音乐会",
+            "terms": "每人每票档限购一单；建单后 5 分钟内完成模拟支付，取消或过期后不可重复购买同一票档。仅用于本地演示，不涉及真实支付或现场核销。",
+            "notice": "请按票面时间到场并携带校园身份证明；下单后 5 分钟内完成模拟支付，取消或超时将释放名额。",
+            "sourcePath": "/v2/catalog/shops/9104",
+            "checkedAt": "2026-11-09T07:10:30.968Z"
+          }
+        ],
+        "orders": [],
+        "sources": [
+          "/v2/assistant/policy",
+          "/v2/catalog/shops/9104"
+        ],
+        "checkedAt": "2026-11-09T07:10:30.968Z",
+        "errorCode": null
+      }
+    },
+    {
+      "name": "own order query",
+      "message": "看看我的抢票结果",
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "modelCalls": 2,
+      "totalTokens": 3723,
+      "elapsedMs": 3697,
+      "steps": [
+        {
+          "number": 1,
+          "tool": "get_my_orders",
+          "outcome": "OK",
+          "elapsedMs": 8
+        }
+      ],
+      "reply": {
+        "kind": "ORDERS",
+        "text": "暂未查到符合条件的本人抢票记录。可以打开票夹核实，或提供具体请求编号。",
+        "activities": [],
+        "rules": [],
+        "orders": [],
+        "sources": [],
+        "checkedAt": "2026-11-09T07:10:33.834Z",
+        "errorCode": null
+      }
+    }
+  ],
+  "totalTokens": 21507,
+  "modelCalls": 10,
+  "passed": true,
+  "completedAt": "2026-11-09T07:10:36.31Z",
+  "conservativeFlashCostYuan": 0.172056,
+  "validationNote": "The local checker initially expected lowercase orders; corrected to the actual ORDERS API contract and revalidated all saved real responses offline. No paid requests repeated.",
+  "balanceObservation": {
+    "currency": "CNY",
+    "before": "9.94",
+    "after": "9.94",
+    "observedDifferenceYuan": 0.00,
+    "checkedAt": "2026-11-09T07:11:53.8164834+00:00",
+    "note": "Account balance difference across this trial, not a per-request invoice."
+  }
+}

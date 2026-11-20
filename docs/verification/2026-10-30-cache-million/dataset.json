@@ -1,0 +1,21 @@
+{
+  "rows": 1000000,
+  "maxId": 1999999,
+  "minId": 1000000,
+  "descriptionBytes": 512000000,
+  "source": "deterministic synthetic campus merchant/venue basic information",
+  "descriptionBytesPerRow": 512,
+  "users": 256,
+  "auth": "SQL-seeded mock Cookie sessions; actual Accounts.authenticate and user limiter enabled; no Bearer load traffic",
+  "mysql": {
+    "port": 33507,
+    "version": "8.0.31",
+    "maxConnections": 64,
+    "bufferPoolBytes": 268435456
+  },
+  "storage": {
+    "dataBytes": 1643118592,
+    "indexBytes": 0,
+    "estimatedRows": 783108
+  }
+}
