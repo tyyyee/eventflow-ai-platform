@@ -12,7 +12,8 @@
     "test:discovery": "node tests/discovery-flow.mjs",
     "test:assistant": "node tests/assistant-flow.mjs",
     "test:local-life": "node tests/local-life-flow.mjs",
-    "test:local-life-load": "node tests/local-life-load.mjs"
+    "test:local-life-load": "node tests/local-life-load.mjs",
+    "test:personalisation": "node tests/assistant-personalisation.mjs"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",

@@ -16,6 +16,7 @@ public class AssistantTools {
     private final ObjectMapper json;
     @org.springframework.beans.factory.annotation.Autowired(required=false) private com.hmdp.upgrade.LocalAssistantTools local;
     public boolean localEnabled(){return local!=null&&local.enabled();}
+    public Object localContext(long user){return localEnabled()?local.context(user):Map.of();}
     public boolean allowed(String name){return ALLOWED.contains(name)||(localEnabled()&&com.hmdp.upgrade.LocalAssistantTools.NAMES.contains(name));}
     public AssistantTools(AssistantCatalog catalog,AssistantOrders orders,ObjectMapper json) {this.catalog=catalog;this.orders=orders;this.json=json;}
     public static final Set<String> ALLOWED=Set.of("search_activities","get_activity","get_rules","get_my_orders","get_my_order","ask_clarification");

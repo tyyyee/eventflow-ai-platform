@@ -32,7 +32,7 @@ public final class DeepSeekAssistantModel implements AssistantModel {
                 @Override protected void prepareConnection(java.net.HttpURLConnection c,String method)throws java.io.IOException {super.prepareConnection(c,method);c.setInstanceFollowRedirects(false);}
             };
             factory.setConnectTimeout((int)Math.min(2000,Math.max(1,remaining)));
-            factory.setReadTimeout((int)Math.min(8000,Math.max(1,remaining-1000)));
+            factory.setReadTimeout((int)Math.min(15000,Math.max(1,remaining-1000)));
             byte[] bytes=RestClient.builder().requestFactory(factory).build().post().uri(endpoint)
                 .header("Authorization","Bearer "+key).contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                 .body(Map.of("model",model,"messages",cp.messages,"tools",schemas(json,cp.localEnabled),"tool_choice","auto",
@@ -87,18 +87,22 @@ public final class DeepSeekAssistantModel implements AssistantModel {
     public static List<Map<String,Object>> schemas(ObjectMapper json,boolean local){
         var result=new ArrayList<>(schemas(json));if(!local)return result;
         Map<String,Object> text=Map.of("type","string"),number=Map.of("type","integer","minimum",0);
-        var filters=new LinkedHashMap<String,Object>();for(String k:List.of("q","category","campus","area","landmark","sort"))filters.put(k,Map.of("type",List.of("string","null")));
+        var filters=new LinkedHashMap<String,Object>();for(String k:List.of("q","category","campus","area","landmark","sort","excludedCategories","avoidedTags"))filters.put(k,Map.of("type",List.of("string","null")));
         for(String k:List.of("maxPriceCents","maxDistanceMeters","minRating","totalBudgetCents","people"))filters.put(k,Map.of("type",List.of("number","null"),"minimum",0));
-        for(String k:List.of("openOnly","hasCoupon","cheaper"))filters.put(k,Map.of("type","boolean"));
-        result.add(schema("search_shops","Search campus local shops. PATCH retained shopFilters; null clears. category: 美食/咖啡茶饮/火锅/甜品烘焙/休闲娱乐/运动体验. campus 主校区/东校区/南校区. landmark main-east/main-library/east-gate/east-hall/south-gate/south-art. sort recommended/rating/distance/price. maxPriceCents is per-person cents. For TOTAL budget use totalBudgetCents and people; server divides. Never divide explicit per-person budget. Ask for party size when missing. No silent relaxation.",filters,List.of()));
+        for(String k:List.of("openOnly","hasCoupon","cheaper","reset","excludeShown"))filters.put(k,Map.of("type","boolean"));
+        result.add(schema("search_shops","Search campus local shops. PATCH retained shopFilters; null clears. category: 美食/咖啡茶饮/火锅/甜品烘焙/休闲娱乐/运动体验. campus 主校区/东校区/南校区. landmark main-east/main-library/east-gate/east-hall/south-gate/south-art. sort recommended/rating/distance/price. maxPriceCents is per-person cents. For TOTAL budget use totalBudgetCents and people; server divides. Never divide explicit per-person budget. Ask for party size when missing. Use excludeShown=true for another batch under the same conditions. No silent relaxation.",filters,List.of()));
         var target=Map.<String,Object>of("shopId",text,"position",Map.of("type","integer","minimum",1,"maximum",3));
         result.add(schema("get_shop","Read fresh details of a shop from last shopCandidates; no invented IDs.",target,List.of()));
         result.add(schema("get_shop_coupons","Read current published coupon templates of a previously shown shop. Does not claim coupons.",target,List.of()));
         result.add(schema("compare_shops","Compare 2 or 3 shops from last candidates; omit positions to compare the displayed list.",Map.of("positions",Map.of("type","array","items",Map.of("type","integer","minimum",1,"maximum",3),"minItems",2,"maxItems",3)),List.of()));
-        result.add(schema("get_my_coupons","Read current user's wallet, no redemption codes. No userId accepted.",Map.of(),List.of()));
+        result.add(schema("get_my_coupons","Read current user's wallet, no redemption codes. No userId accepted. Optional state filter or 1-based position.",Map.of("state",Map.of("type","string","enum",List.of("AVAILABLE","USED","EXPIRED","VOID")),"position",Map.of("type","integer","minimum",1)),List.of()));
         result.add(schema("get_my_payment_status","Read current user's payment receipts and refund completion by requestId. Does not create payment or trigger refunds.",Map.of("requestId",text),List.of("requestId")));
         result.add(schema("search_policies","Find published versioned help rules by question/keywords. No results means no evidence.",Map.of("q",text),List.of("q")));
         result.add(schema("prepare_support_draft","Prepare a feedback draft from user's description. Does NOT submit. Never include secrets or claim resolution.",Map.of("title",text,"body",text),List.of("title","body")));
+        result.add(schema("get_my_preferences","Read the authenticated user's explicitly saved preferences. No userId accepted.",Map.of(),List.of()));
+        var pref=new LinkedHashMap<String,Object>();for(String k:List.of("campus","landmark"))pref.put(k,text);for(String k:List.of("maxPriceCents","maxDistanceMeters"))pref.put(k,number);for(String k:List.of("preferredCategories","excludedCategories","preferredTags","avoidedTags"))pref.put(k,Map.of("type","array","items",text,"maxItems",8));
+        result.add(schema("prepare_preferences","Propose ONLY preferences explicitly stated by this user. Does not save. User must confirm in UI. Values patch existing account preferences. Use preferredCategories/excludedCategories from shop categories; preferredTags/avoidedTags from known tags. No inferred sensitive traits.",Map.of("values",Map.of("type","object","properties",pref,"additionalProperties",false)),List.of("values")));
+        result.add(schema("respond_help","Respond to greeting/thanks/capabilities/out-of-scope requests without inventing business facts.",Map.of("intent",Map.of("type","string","enum",List.of("greeting","thanks","capabilities","out_of_scope"))),List.of("intent")));
         return result;
     }
     private static Map<String,Object> schema(String name,String description,Map<String,Object> properties,List<String> required) {

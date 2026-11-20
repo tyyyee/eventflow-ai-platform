@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-20T05:00:38.210Z",
+  "mode": "stub; real domain/API/data",
+  "tests": [
+    {
+      "name": "all 30 shops use actual bundled JPEG photographs with attribution manifests",
+      "passed": true
+    },
+    {
+      "name": "preference editor saves account-scoped choices through the UI",
+      "passed": true
+    },
+    {
+      "name": "new shop conversation automatically applies saved budget and campus",
+      "passed": true
+    },
+    {
+      "name": "multi-turn campus clearing preserves budget and compare renders actual table facts",
+      "passed": true
+    },
+    {
+      "name": "another batch excludes shops previously shown without relaxing the budget",
+      "passed": true
+    },
+    {
+      "name": "customer service returns the relevant published coupon expiration rule",
+      "passed": true
+    },
+    {
+      "name": "remember request prepares a draft and only confirmation changes stored preferences",
+      "passed": true
+    },
+    {
+      "name": "new conversation reads persistent preferences and total budget clarification resumes correctly",
+      "passed": true
+    },
+    {
+      "name": "a different account cannot inherit the first account preferences or conversations",
+      "passed": true
+    }
+  ],
+  "errors": []
+}

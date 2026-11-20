@@ -21,7 +21,8 @@ public class LocalLifeConfiguration {
 
 @RestController
 class LocalLifeCapabilitiesApi {
+    @org.springframework.beans.factory.annotation.Autowired(required=false) private LocalSeed seed;
     private final LocalLifeConfiguration config;
     LocalLifeCapabilitiesApi(LocalLifeConfiguration config){this.config=config;}
-    @GetMapping("/v2/capabilities") public Object capabilities(){return config.capabilities();}
+    @GetMapping("/v2/capabilities") public Object capabilities(){var values=new java.util.LinkedHashMap<>(config.capabilities());values.put("demoReady",seed==null||seed.ready());return values;}
 }

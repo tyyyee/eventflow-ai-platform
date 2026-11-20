@@ -13,6 +13,7 @@ public class AssistantApi {
     private final AssistantService service;private final AssistantCatalog catalog;
     public AssistantApi(AssistantService service,AssistantCatalog catalog){this.service=service;this.catalog=catalog;}
     private long user(HttpServletRequest request){return ((Auth.Identity)request.getAttribute("identity")).user();}
+    @GetMapping("/status") public Object status(){return service.status();}
     @GetMapping("/sessions") public Object list(HttpServletRequest r){return service.list(user(r));}
     @PostMapping("/sessions") public Object create(HttpServletRequest r){return service.create(user(r));}
     @GetMapping("/sessions/{id}") public Object session(HttpServletRequest r,@PathVariable String id){return service.session(user(r),id);}

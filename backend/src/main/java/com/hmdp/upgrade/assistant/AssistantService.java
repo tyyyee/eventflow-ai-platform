@@ -19,6 +19,7 @@ public class AssistantService {
     private String encode(Object value){try{return json.writeValueAsString(value);}catch(Exception e){throw new IllegalStateException("Assistant serialization failed");}}
     private <T>T decode(String value,Class<T> type){try{return json.readValue(value,type);}catch(Exception e){throw new IllegalStateException("Assistant state unreadable");}}
     private void enabled(){if(runtime.mode().equals("disabled"))throw new Problem(503,"ASSISTANT_DISABLED");}
+    public Object status(){return Map.of("mode",runtime.mode(),"personalisation",runtime.personalisation(),"transactionsRequireConfirmation",true);}
     public List<SessionItem> list(long user){return db.query("SELECT id,updated_at FROM ux_assistant_session WHERE user_id=? ORDER BY updated_at DESC,id DESC LIMIT 50",(r,n)->new SessionItem(r.getString(1),r.getTimestamp(2).toInstant()),user);}
     public Session create(long user){
         enabled();String id=UUID.randomUUID().toString();
@@ -117,7 +118,7 @@ public class AssistantService {
             if(changed==1){
                 // Keep bounded context. Dynamic availability is re-read in every subsequent turn.
                 cp.state.recent.add(Map.of("role","user","content",claim.message()));cp.state.recent.add(Map.of("role","assistant","content",reply.text()));
-                if(cp.state.recent.size()>6)cp.state.recent=new ArrayList<>(cp.state.recent.subList(cp.state.recent.size()-6,cp.state.recent.size()));
+                if(cp.state.recent.size()>12)cp.state.recent=new ArrayList<>(cp.state.recent.subList(cp.state.recent.size()-12,cp.state.recent.size()));
                 db.update("UPDATE ux_assistant_session SET state_json=?,active_run=NULL,updated_at=? WHERE id=? AND user_id=? AND active_run=?",encode(cp.state),Timestamp.from(now),claim.sessionId(),claim.user(),claim.id());
             }
             return null;

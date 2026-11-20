@@ -14,11 +14,13 @@ import org.springframework.stereotype.Component;
 @Component
 @ConditionalOnProperty(name="upgrade.local-life.demo-data",havingValue="true")
 public class LocalSeed implements ApplicationRunner {
+    private volatile boolean ready;
+    public boolean ready(){return ready;}
     final LocalData d;private final LocalLifeConfiguration config;private final ShopBloom bloom;private final LocalCoupons coupons;
     private final String password,operatorPassword;
     public LocalSeed(JdbcTemplate db,Transactions tx,ObjectMapper json,LocalLifeConfiguration config,ShopBloom bloom,LocalCoupons coupons,
         @Value("${LOCAL_LIFE_DEMO_PASSWORD:}") String password,@Value("${LOCAL_LIFE_OPERATOR_PASSWORD:}") String operatorPassword){d=new LocalData(db,tx,json);this.config=config;this.bloom=bloom;this.coupons=coupons;this.password=password;this.operatorPassword=operatorPassword;}
-    @Override public void run(ApplicationArguments args){config.require();seed();}
+    @Override public void run(ApplicationArguments args){config.require();seed();ready=true;}
     void seed(){
         if(!password.isEmpty())Accounts.password(password);if(!operatorPassword.isEmpty())Accounts.password(operatorPassword);
         var encoder=new BCryptPasswordEncoder(12);String userHash=password.isEmpty()?null:encoder.encode(password),opHash=operatorPassword.isEmpty()?null:encoder.encode(operatorPassword);
@@ -64,7 +66,7 @@ public class LocalSeed implements ApplicationRunner {
             if(d.db.queryForObject("SELECT COUNT(*) FROM ux_local_shop WHERE seed_key=?",Integer.class,seed)==0){
                 var hours=new ArrayList<Map<String,Object>>();for(int day=1;day<=7;day++)hours.add(Map.of("day",day,"start",s[1].equals("咖啡茶饮")?"08:00":"10:00","end",i%7==0?"02:00":"22:00"));
                 final int index=i; d.tx.run(()->{bloom.beforeInsert(id);d.db.update("INSERT INTO ux_shop VALUES(?,?,?,1)",id,s[0],s[2]);
-                d.db.update("INSERT INTO ux_local_shop(shop_id,category,campus,area,address,latitude,longitude,avg_price_cents,hours_json,closed_dates_json,tags_json,photos_json,cover_path,status,priority,seed_key,updated_at) VALUES(?,?,?,?,?,?,?,?,?,'[]',?,?,?,'PUBLISHED',?,?,?)",id,s[1],campus,List.of("大学路","书院街","青年广场","湖畔街区").get(index%4),campus+"周边·大学路 "+(18+index*3)+" 号（虚构地址）",((Number)landmark.get("latitude")).doubleValue()+(index%5-2)*0.002,((Number)landmark.get("longitude")).doubleValue()+(index%4-1)*0.003,Integer.parseInt(s[5]),d.encode(hours),d.encode(Arrays.asList(s[4].split(","))),d.encode(List.of("/local-assets/shop-"+(index+1)+".svg","/local-assets/interior-"+(index+1)+".svg","/local-assets/menu-"+(index%15+1)+".svg")),"/local-assets/shop-"+(index+1)+".svg",30-index,seed,LocalData.at(now));return null;});
+                d.db.update("INSERT INTO ux_local_shop(shop_id,category,campus,area,address,latitude,longitude,avg_price_cents,hours_json,closed_dates_json,tags_json,photos_json,cover_path,status,priority,seed_key,updated_at) VALUES(?,?,?,?,?,?,?,?,?,'[]',?,?,?,'PUBLISHED',?,?,?)",id,s[1],campus,List.of("大学路","书院街","青年广场","湖畔街区").get(index%4),campus+"周边·大学路 "+(18+index*3)+" 号（虚构地址）",((Number)landmark.get("latitude")).doubleValue()+(index%5-2)*0.002,((Number)landmark.get("longitude")).doubleValue()+(index%4-1)*0.003,Integer.parseInt(s[5]),d.encode(hours),d.encode(Arrays.asList(s[4].split(","))),d.encode(LocalPhotoCatalog.photos(id)),LocalPhotoCatalog.cover(id),30-index,seed,LocalData.at(now));return null;});
             }
             for(int r=0;r<6;r++){String rseed="local-review-v1-"+i+"-"+r;if(d.db.queryForObject("SELECT COUNT(*) FROM ux_review WHERE seed_key=?",Integer.class,rseed)>0)continue;
                 String[] texts={"和同学课后来了一次，整体体验不错。环境比较舒服，价格在学生预算内，下次想再试试别的选择。","位置离学校不远，介绍里的营业信息很清楚。今天人不多，适合和朋友一起放松一下。","整体符合预期，不过热门时间可能需要耐心一点。图片和文字是演示内容，可以试试发布自己的评价。","喜欢这里的氛围，细节还有提升空间。建议先查看店铺的适用规则再领取优惠券。","第一次来这种类型的店，体验比较新鲜。和朋友一起会更有意思，预算可以提前规划。","周末顺路发现的小店，整体比较方便。具体口味和服务每个人感受不同，大家可以自己体验。"};

@@ -5,7 +5,7 @@ import { randomUUID } from 'node:crypto'
 
 // Native CDP in an isolated browser context. Never changes the user's existing tabs/cookies.
 const origin=process.env.LOCAL_LIFE_URL||'http://127.0.0.1:4386'
-const root=path.resolve(import.meta.dirname,'../..'),output=path.join(root,'docs/verification/2026-11-19-local-life')
+const root=path.resolve(import.meta.dirname,'../..'),output=path.resolve(root,process.env.LOCAL_LIFE_EVIDENCE||'docs/verification/2026-11-19-local-life')
 await fs.mkdir(output,{recursive:true})
 const report=[],errors=[]
 let wsUrl=process.env.CHROME_CDP_URL
@@ -36,7 +36,7 @@ try{
   await test('homepage has 30 seeded shops and working illustration assets',async()=>{await until('document.querySelectorAll(".ll-shop-card").length===12','shop list');const r=await browserApi('/local/shops');assert.ok(r.body.total>=30);assert.equal(await evaluate('[...document.images].filter(i=>i.complete&&!i.naturalWidth).length'),0);await screenshot('home-1440',1440,1000)})
   await test('mobile home has no horizontal overflow at 360, 390 and 768',async()=>{for(const width of [360,390,768]){await screenshot('home-'+width,width,width===768?1000:900);assert.ok(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'),'overflow '+width)}await cdp('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false},sessionId)})
   await test('failed images and interrupted shop requests can recover without a blank page',async()=>{
-    await cdp('Network.enable',{},sessionId);await cdp('Network.setBlockedURLs',{urls:['*local-assets/shop-1.svg']},sessionId);await navigate('/shops/32001');await until('[...document.images].some(i=>i.src.startsWith("data:image/svg+xml"))','image fallback');await cdp('Network.setBlockedURLs',{urls:['*/v2/local/shops?*']},sessionId);await navigate('/');await until('document.querySelector(".ll-explore [role=alert]")','request error');await cdp('Network.setBlockedURLs',{urls:[]},sessionId);await click('重新加载');await until('document.querySelectorAll(".ll-shop-card").length===12','request recovered')
+    await cdp('Network.enable',{},sessionId);await cdp('Network.setBlockedURLs',{urls:['*local-photos/*']},sessionId);await navigate('/shops/32001');await until('[...document.images].some(i=>i.src.startsWith("data:image/svg+xml"))','image fallback');await cdp('Network.setBlockedURLs',{urls:['*/v2/local/shops?*']},sessionId);await navigate('/');await until('document.querySelector(".ll-explore [role=alert]")','request error');await cdp('Network.setBlockedURLs',{urls:[]},sessionId);await click('重新加载');await until('document.querySelectorAll(".ll-shop-card").length===12','request recovered')
   })
   await test('register form creates a real account and personal center',async()=>{await click('登录 / 注册','.ll-header button');await click('注册新账号');await fill('dialog [name=username]',username);await fill('dialog [name=displayName]','校园验收同学');await fill('dialog [name=password]',password);await click('注册并登录');await until('!document.querySelector("dialog") && document.body.innerText.includes("校园验收同学")','registration');auth=(await browserApi('/auth/me')).body;assert.ok(auth.user.id);await navigate('/account');await until('document.body.innerText.includes("签到，开启好心情")','account')})
   await test('daily sign survives page refresh and duplicate PUT counts once',async()=>{await click('签到，开启好心情');await until('document.body.innerText.includes("今天已签到")','signed');await browserApi('/account/signs/today','PUT');await navigate('/account');await until('document.body.innerText.includes("今天已签到")','signed after refresh');assert.equal((await browserApi('/account/signs')).body.total,1);await screenshot('account-390',390,950)})
@@ -61,7 +61,7 @@ try{
   })
   await test('operator can preview and redeem a coupon through the UI',async()=>{
     const wallet=(await browserApi('/account/coupons')).body;const coupon=(await browserApi('/account/coupons/'+wallet.items[0].id)).body;
-    const credentials=JSON.parse(await fs.readFile(path.join(root,'.local/local-life/credentials.json'),'utf8'));
+    const credentials=JSON.parse(await fs.readFile(process.env.LOCAL_LIFE_CREDENTIALS||path.join(root,'.local/local-life/credentials.json'),'utf8'));
     auth=null;const login=await browserApi('/auth/login','POST',{username:'campus_operator',password:credentials.operatorPassword});assert.equal(login.status,200);auth=login.body;
     await navigate('/ops');await until('document.body.innerText.includes("运营工作台")','operator');await click('到店核销');await fill('[name=shopId]',coupon.shopId);await fill('[name=code]',coupon.redeemCode);await fill('[name=amount]','120');await click('查看券面信息');await until('document.body.innerText.includes("确认模拟核销")','preview');await click('确认模拟核销');await until('document.body.innerText.includes("核销成功")','redeemed');await screenshot('operator-1440',1440,1000)
   })

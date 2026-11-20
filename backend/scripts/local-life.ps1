@@ -1,7 +1,7 @@
 #requires -Version 7.2
 param(
     [ValidateSet('start','stop','status','start-backend','stop-backend','verify')][string]$Action='status',
-    [ValidateSet('stub','deepseek')][string]$Mode='stub',
+    [ValidateSet('auto','stub','deepseek')][string]$Mode='auto',
     [string]$JavaHome='F:\Java17\JDK 17',
     [string]$MysqlHome='F:\software\Mysql\mysql-8.0.31-winx64',
     [string]$RedisHome='F:\software\Redis-x64-3.2.100',
@@ -54,6 +54,17 @@ if($Action -in 'start','start-backend','verify'){
         Save 'credentials.json' (@{mysqlPassword=(Secret);redisPassword=(Secret);authSecret=(Secret);demoPassword=(Secret);operatorPassword=(Secret)}|ConvertTo-Json)
     }
     $secret=Get-Content -LiteralPath $credential -Raw|ConvertFrom-Json
+    $modelSettings=Join-Path $state 'deepseek.env'
+    if(Test-Path -LiteralPath $modelSettings){
+        foreach($line in Get-Content -LiteralPath $modelSettings){
+            if($line -match '^(DEEPSEEK_API_KEY|ASSISTANT_MODEL|DEEPSEEK_BASE_URL)=(.*)$'){
+                [Environment]::SetEnvironmentVariable($Matches[1],$Matches[2].Trim(),'Process')
+            }
+        }
+    }
+    $selectedMode=if($Mode -eq 'auto'){if([string]::IsNullOrWhiteSpace($env:DEEPSEEK_API_KEY)){'stub'}else{'deepseek'}}else{$Mode}
+    if($Action -eq 'verify'){$selectedMode='stub'}
+    if($selectedMode -eq 'deepseek' -and [string]::IsNullOrWhiteSpace($env:DEEPSEEK_API_KEY)){throw 'Configure DeepSeek with backend/scripts/configure-deepseek.ps1 first.'}
     $env:JAVA_HOME=$JavaHome;$env:MAVEN_OPTS='-Dfile.encoding=UTF-8'
     $env:DATABASE_USERNAME='assistant';$env:DATABASE_PASSWORD=$secret.mysqlPassword;$env:APP_AUTH_SECRET=$secret.authSecret
     $env:DATABASE_URL='jdbc:mysql://127.0.0.1:44307/qulife_local?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true&socketTimeout=5000'
@@ -61,7 +72,7 @@ if($Action -in 'start','start-backend','verify'){
     $env:ROCKETMQ_NAMESERVER='127.0.0.1:50876';$env:UPGRADE_TOPIC='assistant-orders-v1';$env:UPGRADE_GROUP='assistant-orders-v1'
     $env:CLOSE_TOPIC='assistant-close-v1';$env:CLOSE_GROUP='assistant-close-v1';$env:SERVER_PORT='8293'
     $env:LOCAL_LIFE_ENABLED='true';$env:LOCAL_LIFE_DEMO='true';$env:LOCAL_LIFE_DEMO_PASSWORD=$secret.demoPassword;$env:LOCAL_LIFE_OPERATOR_PASSWORD=$secret.operatorPassword;
-    $env:CORE32_ENABLED='false';$env:HISTORY_REPLICA_ENABLED='false';$env:SANDBOX_PAYMENTS='true';$env:ASSISTANT_MODE=$Mode
+    $env:CORE32_ENABLED='false';$env:HISTORY_REPLICA_ENABLED='false';$env:SANDBOX_PAYMENTS='true';$env:ASSISTANT_MODE=$selectedMode
     if($Verification){$env:DATABASE_URL=$env:DATABASE_URL.Replace('/qulife_local?','/qulife_local_verify?');$env:SPRING_DATA_REDIS_DATABASE='13';$env:UPGRADE_TOPIC='local-life-verify-orders';$env:UPGRADE_GROUP='local-life-verify-orders';$env:CLOSE_TOPIC='local-life-verify-close';$env:CLOSE_GROUP='local-life-verify-close'}
     if($Action -eq 'start'){
         New-Item -ItemType Directory -Force -Path $runtime | Out-Null
@@ -110,7 +121,7 @@ if($Action -in 'start','start-backend','verify'){
     Launch 'backend' (Join-Path $JavaHome 'bin/java.exe') @('-Xmx384m','-Dfile.encoding=UTF-8','-jar',(Quote $backend),'--upgrade.demo-data=true') 8293 $project
     $ready=$false
     for($attempt=0;$attempt -lt 60;$attempt++){
-        try {$health=Invoke-RestMethod 'http://127.0.0.1:8293/actuator/health/readiness' -TimeoutSec 2;if($health.status -eq 'UP'){$ready=$true;break}}catch{}
+        try {$health=Invoke-RestMethod 'http://127.0.0.1:8293/actuator/health/readiness' -TimeoutSec 2;$capabilities=Invoke-RestMethod 'http://127.0.0.1:8293/v2/capabilities' -TimeoutSec 2;if($health.status -eq 'UP' -and $capabilities.demoReady){$ready=$true;break}}catch{}
         Start-Sleep -Milliseconds 500
     }
     if(!$ready){throw 'Backend did not become ready; inspect .local/local-life/backend logs.'}

@@ -5,11 +5,13 @@
 - [产品 PRD](docs/product/校园周边生活平台-PRD.md) · [独立评审：94/100，通过](docs/product/校园周边生活平台-PRD评审.md)
 - [启动、账号、实现与接口](docs/engineering/校园周边生活平台-运行与实现.md) · [本轮验证和截图](docs/verification/2026-11-19-local-life/README.md)
 - Windows 已安装依赖时：项目根目录执行 `./backend/scripts/local-life.ps1 start`，打开 http://127.0.0.1:4386 。初次运行先按运行文档构建。
-- 页面使用虚构商铺、样例评价及原创插画；免费券核销和支付均为模拟操作。
+- 页面使用虚构商铺、样例评价及授权场景摄影；免费券核销和支付均为模拟操作。
 - 默认关闭新模块；`LOCAL_LIFE_ENABLED=true` 开启趣生活，local-life 脚本自动设置。新模块按单库验收，不能与 CORE32 同时启用。
 - 默认助手使用本地演示逻辑和真实业务查询；真实模型需另配密钥，本轮未声称已通过真实模型效果验收。
 
-![趣生活桌面首页](docs/verification/2026-11-19-local-life/home-1440.png)
+2026-11-20 升级：真实摄影、手机列表排版、持久化用户偏好、多轮选店、商家比较及客服规则/券包联合查询，见[使用说明](docs/engineering/真实照片与个性化生活助手.md)和[验证记录](docs/verification/2026-11-20-photos-assistant/README.md)。DeepSeek 本机配置入口：`./backend/scripts/configure-deepseek.ps1`，填写后重启自动启用。
+
+![趣生活桌面首页](docs/verification/2026-11-20-photos-assistant/home-1440.png)
 
 ## 保留的校园票务能力
 

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { ArrowRight, Clock3, MessageCircle, Plus, Send, Sparkles, Ticket, Trash2 } from 'lucide-react'
 import { api, explain } from './api'
 import './assistant.css'
-import AssistantCards from './life/AssistantCards'
+import AssistantCards from './life/AssistantResults'
 
 const active = status => ['QUEUED', 'RUNNING'].includes(status)
 const money = value => (value / 100).toFixed(2).replace(/\.00$/, '')
@@ -22,10 +22,12 @@ export default function TicketAssistant({ localLife=false, session, openAuth, op
   const samples=localLife?['主校区预算50元，推荐咖啡店','换成东校区的，其他条件不变','对比这几家店','第一个有什么优惠券？','看看我的券包','优惠券过期后还能用吗？']:examples
   const [sessions, setSessions] = useState([]), [id, setId] = useState(null), [data, setData] = useState(null)
   const [message, setMessage] = useState(''), [error, setError] = useState(''), [busy, setBusy] = useState(false), [loading, setLoading] = useState(true)
-  const [retry, setRetry] = useState(null), [reload, setReload] = useState(0)
+  const [retry, setRetry] = useState(null), [reload, setReload] = useState(0),[serviceMode,setServiceMode]=useState(null)
   const lock = useRef(false), bottom = useRef(null), version = useRef(0), alive = useRef(true)
   useEffect(() => { alive.current = true; return () => { alive.current = false } }, [])
+  useEffect(()=>{const ask=e=>{setMessage(e.detail);document.querySelector('#ticket-assistant-message')?.focus()};window.addEventListener('life-assistant-question',ask);return()=>window.removeEventListener('life-assistant-question',ask)},[])
   const running = Boolean(data?.activeRun)
+  useEffect(()=>{if(!user||!localLife)return;const c=new AbortController();api('/assistant/status',{signal:c.signal}).then(x=>setServiceMode(x.mode)).catch(()=>{});return()=>c.abort()},[user,localLife])
   useEffect(() => {
     if (!user) { setLoading(false); return }
     const controller = new AbortController()
@@ -125,16 +127,17 @@ export default function TicketAssistant({ localLife=false, session, openAuth, op
     } finally { lock.current = false; setBusy(false) }
   }
   const criteria = data?.state?.criteria
-  const chips = criteria ? [criteria.dateFrom && `${criteria.dateFrom}${criteria.dateTo && criteria.dateTo !== criteria.dateFrom ? ` 至 ${criteria.dateTo}` : ''}`, criteria.hourFrom != null && `${criteria.hourFrom}:00–${criteria.hourTo ?? 24}:00`, criteria.maxPriceCents != null && `预算 ≤ ¥${money(criteria.maxPriceCents)}`, criteria.campus, criteria.category, criteria.query].filter(Boolean) : []
-  return <section className="assistant-page" aria-label="智能票务助手">
-    <div className="heading"><div><p className="eyebrow">TICKET ASSISTANT</p><h1><MessageCircle size={28}/>{localLife?"生活选店与客服助手":"智能票务助手"}</h1><p className="muted">{localLife?"说说预算和喜好，或告诉我遇到的问题。":"说说你的时间和预算，一起找到合适的活动。"}</p></div>{user && <div className="assistant-actions"><button className="outline" disabled={busy || running} onClick={newSession}><Plus size={16}/>新对话</button>{id && <button className="icon" aria-label="删除当前对话" disabled={busy || running} onClick={removeSession}><Trash2 size={18}/></button>}</div>}</div>
-    {!user ? <div className="empty assistant-signin"><Sparkles size={34}/><h2>{localLife?"登录后，开始发现好去处":"登录后，开始选活动"}</h2><p className="muted">支持多轮调整条件、查询余票、了解规则和查看本人订单。</p><button className="primary" onClick={openAuth}>登录 / 注册</button></div> : <>
-      <div className="assistant-toolbar"><label>对话<select aria-label="选择票务对话" value={id || ''} disabled={busy || running} onChange={e => setId(e.target.value || null)}><option value="">开始新对话</option>{sessions.map((item, index) => <option key={item.id} value={item.id}>对话 {sessions.length - index} · {when(item.updatedAt)}</option>)}</select></label>{data?.mode === 'stub' && <span className="assistant-demo">本地演示</span>}<span className="muted small">查询提供建议，购票请在活动详情确认。</span></div>
-      {data?.mode === 'stub' && <p className="assistant-mode-note">当前使用本地示例表达解析，无需模型密钥。可从下方示例开始。</p>}
+  const shopFilters=data?.state?.shopFilters||{}
+  const chips = localLife?Object.entries(shopFilters).map(([key,value])=>({campus:value,category:value,q:value,maxPriceCents:`人均 ≤ ¥${money(value)}`,maxDistanceMeters:`${Number(value)/1000} 公里内`,people:`${value} 人`,totalBudgetCents:`总预算 ¥${money(value)}`,openOnly:value==='true'?'营业中':null,hasCoupon:value==='true'?'有优惠':null}[key])).filter(Boolean):criteria ? [criteria.dateFrom && `${criteria.dateFrom}${criteria.dateTo && criteria.dateTo !== criteria.dateFrom ? ` 至 ${criteria.dateTo}` : ''}`, criteria.hourFrom != null && `${criteria.hourFrom}:00–${criteria.hourTo ?? 24}:00`, criteria.maxPriceCents != null && `预算 ≤ ¥${money(criteria.maxPriceCents)}`, criteria.campus, criteria.category, criteria.query].filter(Boolean) : []
+  return <section className={`assistant-page ${localLife?'ll-chat':''}`} aria-label={localLife?"生活选店与客服助手":"智能票务助手"}>
+    <div className="heading"><div><p className="eyebrow">{localLife?"QULIFE · AI ASSISTANT":"TICKET ASSISTANT"}</p><h1><MessageCircle size={28}/>{localLife?"生活选店与客服助手":"智能票务助手"}</h1><p className="muted">{localLife?"说说预算和喜好，或告诉我遇到的问题。":"说说你的时间和预算，一起找到合适的活动。"}</p></div>{user && <div className="assistant-actions"><button className="outline" disabled={busy || running} onClick={newSession}><Plus size={16}/>新对话</button>{id && <button className="icon" aria-label="删除当前对话" disabled={busy || running} onClick={removeSession}><Trash2 size={18}/></button>}</div>}</div>
+    {!user ? <div className="empty assistant-signin"><Sparkles size={34}/><h2>{localLife?"登录后，开始发现好去处":"登录后，开始选活动"}</h2><p className="muted">支持连续调整预算和校区，比较小店，查看本人的优惠券与订单。</p><button className="primary" onClick={openAuth}>登录 / 注册</button></div> : <>
+      <div className="assistant-toolbar"><label>对话<select aria-label="选择票务对话" value={id || ''} disabled={busy || running} onChange={e => setId(e.target.value || null)}><option value="">开始新对话</option>{sessions.map((item, index) => <option key={item.id} value={item.id}>对话 {sessions.length - index} · {when(item.updatedAt)}</option>)}</select></label>{(serviceMode||data?.mode)==='stub'&&<span className="assistant-demo">本地演示</span>}{(serviceMode||data?.mode)==='deepseek'&&<span className="assistant-demo ll-deepseek-mode">DeepSeek</span>}<span className="muted small">{localLife?"偏好可记住，交易由你确认。":"查询提供建议，购票请在活动详情确认。"}</span></div>
+      {(serviceMode||data?.mode)==='stub' && <p className="assistant-mode-note">当前为本地体验模式。接通 DeepSeek 后支持更自由的表达；推荐和订单信息始终查询平台数据。</p>}
       <div className="assistant-examples" aria-label="示例问题">{samples.map(text => <button key={text} disabled={busy || running} onClick={() => setMessage(text)}>{text}</button>)}</div>
-      {chips.length > 0 && <div className="assistant-criteria" aria-label="当前活动筛选条件"><strong>当前条件</strong>{chips.map(chip => <span key={chip}>{chip}</span>)}</div>}
-      <div className="assistant-conversation" aria-label="票务对话记录" aria-busy={running}>
-        {loading ? <p className="empty">正在读取对话…</p> : !data?.turns.length && <div className="assistant-welcome"><Sparkles size={28}/><h2>从一个具体需求开始</h2><p>{localLife?"例如：主校区预算50元，推荐咖啡店。":"例如：明天预算100元，想看音乐活动。"}</p><p className="muted small">之后可以说“换成主校区的”或“第一个还有票吗”。</p></div>}
+      {chips.length > 0 && <div className="assistant-criteria" aria-label={localLife?"当前找店条件":"当前活动筛选条件"}><strong>当前条件</strong>{chips.map(chip => <span key={chip}>{chip}</span>)}</div>}
+      <div className="assistant-conversation" aria-label={localLife?"生活助手对话记录":"票务对话记录"} aria-busy={running}>
+        {loading ? <p className="empty">正在读取对话…</p> : !data?.turns.length && <div className="assistant-welcome"><Sparkles size={28}/><h2>今天，想去哪儿？</h2><p>{localLife?"例如：找一家适合自习的咖啡店，人均50元以内。":"例如：明天预算100元，想看音乐活动。"}</p><p className="muted small">可以继续说“换到东校区”“再便宜一点”或“比较这几家”。</p></div>}
         {data?.turns.map(turn => <div className="assistant-turn" key={turn.id}>
           <div className="assistant-user"><span>我</span><p>{turn.message}</p></div>
           <div className="assistant-answer"><div className="assistant-answer-title"><Sparkles size={16}/><strong>{localLife?"趣生活助手":"趣票助手"}</strong></div>
@@ -159,7 +162,7 @@ export default function TicketAssistant({ localLife=false, session, openAuth, op
       </div>
       {error && <p className="error" role="alert">{error}</p>}
       {retry && !running && <div className="assistant-retry"><span>待确认问题：{retry.message}</span><button className="outline" disabled={busy} onClick={e => send(e, retry)}>原问题重试</button><button className="text-button" disabled={busy} onClick={() => { setReload(n => n + 1); if (id) api(`/assistant/sessions/${id}`).then(setData).catch(e => setError(explain(e))) }}>刷新对话</button></div>}
-      <form className="assistant-composer" onSubmit={send}><label htmlFor="ticket-assistant-message">你的问题</label><div><textarea id="ticket-assistant-message" aria-label="向票务助手提问" value={message} maxLength={1000} rows={2} disabled={busy || running || Boolean(id && !data)} onChange={e => setMessage(e.target.value)} placeholder="例如：明天预算100元，推荐音乐活动"/><button className="primary" disabled={busy || running || Boolean(id && !data) || !message.trim()}><Send size={17}/>{running ? '查询中' : busy ? '发送中' : '发送'}</button></div><small className="muted">余票和价格可能变化，以提交抢票时的校验结果为准。</small></form>
+      <form className="assistant-composer" onSubmit={send}><label htmlFor="ticket-assistant-message">你的问题</label><div><textarea id="ticket-assistant-message" aria-label={localLife?"向生活助手提问":"向票务助手提问"} value={message} maxLength={1000} rows={2} disabled={busy || running || Boolean(id && !data)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();send(e)}}} onChange={e => setMessage(e.target.value)} placeholder={localLife?"说说想吃什么、预算多少，或你遇到的问题…":"例如：明天预算100元，推荐音乐活动"}/><button className="primary" disabled={busy || running || Boolean(id && !data) || !message.trim()}><Send size={17}/>{running ? '查询中' : busy ? '发送中' : '发送'}</button></div><small className="muted">{localLife?"Enter 发送 · Shift + Enter 换行 · 不要发送密码或核销码":"余票和价格可能变化，以提交抢票时的校验结果为准。"}</small></form>
     </>}
   </section>
 }

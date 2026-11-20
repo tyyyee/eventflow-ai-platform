@@ -15,6 +15,7 @@ public class LocalShops {
     @Autowired(required=false) private ShopCache cache;
     @Autowired private LocalMedia media;
     @Autowired(required=false) private Storefront storefront;
+    @Autowired(required=false) private LocalPreferences preferences;
     public LocalShops(JdbcTemplate db,Transactions tx,ObjectMapper json,LocalLifeConfiguration config,LocalAccounts accounts){data=new LocalData(db,tx,json);this.config=config;this.accounts=accounts;}
     public static final List<String> CATEGORIES=List.of("美食","咖啡茶饮","火锅","甜品烘焙","休闲娱乐","运动体验");
     public static final List<Map<String,Object>> LANDMARKS=List.of(
@@ -69,13 +70,16 @@ public class LocalShops {
             if("true".equals(f.get("openOnly"))&&!Boolean.TRUE.equals(shop.get("open")))continue;
             if(radius!=null&&(!(shop.get("distanceMeters") instanceof Number n)||n.intValue()>radius))continue;
             if("true".equals(f.get("hasCoupon"))&&data.db.queryForObject("SELECT COUNT(*) FROM ux_coupon_template WHERE shop_id=? AND state='PUBLISHED' AND remaining>0 AND claim_from<=? AND claim_until>?",Integer.class,LocalData.number(shop.get("id")),LocalData.at(now),LocalData.at(now))==0)continue;
+            if(Arrays.asList(f.getOrDefault("excludedCategories","").split(",")).contains(shop.get("category")))continue;
+            var avoided=Arrays.asList(f.getOrDefault("avoidedTags","").split(","));if(shop.get("tags") instanceof List<?> tags&&tags.stream().anyMatch(avoided::contains))continue;
             found.add(shop);
         }
+        var prefs=preferences!=null&&user!=null?preferences.values(user):Map.<String,Object>of();
         Comparator<Map<String,Object>> order=switch(sort){
             case "price" -> Comparator.comparingDouble(x->num(x,"avgPriceCents",Double.MAX_VALUE));
             case "distance" -> Comparator.comparingDouble(x->num(x,"distanceMeters",Double.MAX_VALUE));
             case "rating" -> Comparator.<Map<String,Object>>comparingDouble(x->num(x,"rating",-1)).reversed().thenComparing(Comparator.<Map<String,Object>>comparingDouble(x->num(x,"reviewCount",0)).reversed());
-            default -> Comparator.<Map<String,Object>>comparingDouble(x->num(x,"priority",0)).reversed().thenComparing(Comparator.<Map<String,Object>>comparingDouble(x->num(x,"reviewCount",0)).reversed()).thenComparing(Comparator.<Map<String,Object>>comparingDouble(x->num(x,"rating",-1)).reversed());
+            default -> Comparator.<Map<String,Object>>comparingDouble(x->num(x,"priority",0)+(preferences!=null?preferences.affinity(x,prefs):0)).reversed().thenComparing(Comparator.<Map<String,Object>>comparingDouble(x->num(x,"reviewCount",0)).reversed()).thenComparing(Comparator.<Map<String,Object>>comparingDouble(x->num(x,"rating",-1)).reversed());
         };
         found.sort(order.thenComparing(x->LocalData.number(x.get("id"))));int start=Math.min((page-1)*12,found.size());
         return Map.of("items",found.subList(start,Math.min(start+12,found.size())),"total",found.size(),"page",page,"pageSize",12,"categories",CATEGORIES,"landmarks",LANDMARKS,"serverTime",now,"distanceType","straight-line");
@@ -123,5 +127,5 @@ public class LocalShops {
             data.audit(user,"SHOP_SAVE",Long.toString(shop),status+" "+name);return null;});return detail(shop,user);
     }
     private List<String> list(Object value,int min,int max){if(!(value instanceof List<?> values)||values.size()<min||values.size()>max)throw new Problem(400,"LOCAL_INVALID_INPUT");return values.stream().map(x->LocalData.text(x,1,250)).toList();}
-    private String asset(Object value){String s=LocalData.text(value,1,250);if(!s.matches("/v2/media/[a-f0-9-]{36}")&&!s.matches("/(?:life-assets|local-assets|event-assets)/[A-Za-z0-9_-]+\\.(?:jpg|jpeg|png|webp|svg)"))throw new Problem(400,"LOCAL_INVALID_IMAGE");return s;}
+    private String asset(Object value){String s=LocalData.text(value,1,250);if(!s.matches("/v2/media/[a-f0-9-]{36}")&&!s.matches("/(?:life-assets|local-assets|local-photos|event-assets)/[A-Za-z0-9_-]+\\.(?:jpg|jpeg|png|webp|svg)"))throw new Problem(400,"LOCAL_INVALID_IMAGE");return s;}
 }

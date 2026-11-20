@@ -25,8 +25,10 @@ public final class AssistantData {
         public Reply(String kind,String text,List<Activity> activities,List<Rule> rules,List<Order> orders,List<String> sources,Instant checkedAt,String errorCode){this(kind,text,activities,rules,orders,sources,checkedAt,errorCode,null);}
     }
     public static class State {
+        public boolean shopDefaultsApplied;
         public Criteria criteria=new Criteria();
         public Map<String,String> shopFilters=new LinkedHashMap<>();
+        public List<String> excludedShopIds=new ArrayList<>();
         public List<String> shopCandidates=new ArrayList<>();
         public List<Activity> candidates=new ArrayList<>();
         public String selectedActivityId;
@@ -39,6 +41,7 @@ public final class AssistantData {
         public boolean localEnabled;
         public Map<String,String> shopGuard;
         public JsonNode localResult;
+        public List<JsonNode> localEvidence=new ArrayList<>();
         public List<ObjectNode> messages=new ArrayList<>();
         public int modelCalls,toolCalls,tokens,decisions;
         public boolean modelInFlight;
